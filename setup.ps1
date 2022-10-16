@@ -1,0 +1,2 @@
+winget install JanDeDobbeleer.OhMyPosh
+
