@@ -122,15 +122,15 @@ Remove-Variable principal
 #
 alias vim="$EDITOR"
 
-if (( $+commands[nvim] )); then
+if (( $+commands[nvim] )) {
     export EDITOR='nvim'
-elif (( $+commands[pvim] )); then
+} elseif (( $+commands[pvim] )) {
     export EDITOR='pvim'
-elif (( $+commands[vim] )); then
+} elseif (( $+commands[vim] )) {
     export EDITOR='vim'
-elif (( $+commands[vi] )); then
+} elseif (( $+commands[vi] )) {
     export EDITOR='vi'
-el
+}
 function ll { Get-ChildItem -Path $pwd -File }
 function g { cd $HOME\Documents\Github }
 function gcom
