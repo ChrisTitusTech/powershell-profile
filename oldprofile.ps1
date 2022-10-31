@@ -21,8 +21,8 @@ $isAdmin = $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administ
 # If so and the current host is a command line, then change to red color 
 # as warning to user that they are operating in an elevated context
 # Useful shortcuts for traversing directories
-function cd...  { Set-Location ..\.. }
-function cd.... { Set-Location ..\..\.. }
+function cd...  { cd ..\.. }
+function cd.... { cd ..\..\.. }
 
 # Compute file hashes - useful for checking successful downloads 
 function md5    { Get-FileHash -Algorithm MD5 $args }
@@ -117,33 +117,12 @@ function Edit-Profile
 # Delete them to prevent cluttering up the user profile. 
 Remove-Variable identity
 Remove-Variable principal
-
-Function Test-CommandExists
-{
- Param ($command)
- $oldPreference = $ErrorActionPreference
- $ErrorActionPreference = 'SilentlyContinue'
- try {if(Get-Command $command){RETURN $true}}
- Catch {Write-Host "$command does not exist"; RETURN $false}
- Finally {$ErrorActionPreference=$oldPreference}
-} 
 #
 # Aliases
 #
-if (Test-CommandExists nvim) {
-    $EDITOR='nvim'
-} elseif (Test-CommandExists pvim) {
-    $EDITOR='pvim'
-} elseif (Test-CommandExists vim) {
-    $EDITOR='vim'
-} elseif (Test-CommandExists vi) {
-    $EDITOR='vi'
-}
-Set-Alias -Name vim -Value $EDITOR
-
-
+New-Alias vim nvim
 function ll { Get-ChildItem -Path $pwd -File }
-function g { Set-Location $HOME\Documents\Github }
+function g { cd $HOME\Documents\Github }
 function gcom
 {
 	git add .
@@ -159,26 +138,26 @@ Function Get-PubIP {
  (Invoke-WebRequest http://ifconfig.me/ip ).Content
 }
 function uptime {
-        Get-WmiObject win32_operatingsystem | Select-Object csname, @{LABEL='LastBootUpTime';
+        Get-WmiObject win32_operatingsystem | select csname, @{LABEL='LastBootUpTime';
         EXPRESSION={$_.ConverttoDateTime($_.lastbootuptime)}}
 }
 function reload-profile {
         & $profile
 }
 function find-file($name) {
-        Get-ChildItem -recurse -filter "*${name}*" -ErrorAction SilentlyContinue | ForEach-Object {
+        ls -recurse -filter "*${name}*" -ErrorAction SilentlyContinue | foreach {
                 $place_path = $_.directory
-                Write-Output "${place_path}\${_}"
+                echo "${place_path}\${_}"
         }
 }
 function unzip ($file) {
-        Write-Output("Extracting", $file, "to", $pwd)
+        echo("Extracting", $file, "to", $pwd)
 	$fullFile = Get-ChildItem -Path $pwd -Filter .\cove.zip | ForEach-Object{$_.FullName}
         Expand-Archive -Path $fullFile -DestinationPath $pwd
 }
 function grep($regex, $dir) {
         if ( $dir ) {
-                Get-ChildItem $dir | select-string $regex
+                ls $dir | select-string $regex
                 return
         }
         $input | select-string $regex
@@ -199,22 +178,12 @@ function export($name, $value) {
         set-item -force -path "env:$name" -value $value;
 }
 function pkill($name) {
-        Get-Process $name -ErrorAction SilentlyContinue | Stop-Process
+        ps $name -ErrorAction SilentlyContinue | kill
 }
 function pgrep($name) {
-        Get-Process $name
+        ps $name
 }
 
 
 ## Final Line to set prompt
 oh-my-posh --init --shell pwsh --config ~/jandedobbeleer.omp.json | Invoke-Expression
-
-# Import the Chocolatey Profile that contains the necessary code to enable
-# tab-completions to function for `choco`.
-# Be aware that if you are missing these lines from your profile, tab completion
-# for `choco` will not function.
-# See https://ch0.co/tab-completion for details.
-$ChocolateyProfile = "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"
-if (Test-Path($ChocolateyProfile)) {
-  Import-Module "$ChocolateyProfile"
-}
