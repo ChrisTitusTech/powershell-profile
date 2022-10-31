@@ -120,7 +120,17 @@ Remove-Variable principal
 #
 # Aliases
 #
-New-Alias vim nvim
+alias vim="$EDITOR"
+
+if (( $+commands[nvim] )); then
+    export EDITOR='nvim'
+elif (( $+commands[pvim] )); then
+    export EDITOR='pvim'
+elif (( $+commands[vim] )); then
+    export EDITOR='vim'
+elif (( $+commands[vi] )); then
+    export EDITOR='vi'
+el
 function ll { Get-ChildItem -Path $pwd -File }
 function g { cd $HOME\Documents\Github }
 function gcom
