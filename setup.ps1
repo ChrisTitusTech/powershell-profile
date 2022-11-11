@@ -1,8 +1,8 @@
-#If the file does not exist, create it.
+﻿#If the file does not exist, create it.
 if (-not(Test-Path -Path $PROFILE -PathType Leaf)) {
      try {
         # Detect Version of Powershell & Create Profile directories if they do not exist.
-        if ($PSVersionTable.PSEdition -eq "Core" ) { 
+        if ($PSVersionTable.PSEdition -eq "Core" ) {
             If ((Test-Path -Path ($env:userprofile + "\Documents\Powershell")) -ne "True") {
                 New-Item -Path ($env:userprofile + "\Documents\Powershell") -ItemType "directory"
             }
@@ -13,7 +13,7 @@ if (-not(Test-Path -Path $PROFILE -PathType Leaf)) {
         }
 
          Invoke-RestMethod https://github.com/ChrisTitusTech/powershell-profile/raw/main/Microsoft.PowerShell_profile.ps1 -o $PROFILE
-         Write-Host "The profile @ [$PROFILE] has been created."
+         Write-Output "The profile @ [$PROFILE] has been created."
      }
      catch {
          throw $_.Exception.Message
@@ -23,7 +23,7 @@ if (-not(Test-Path -Path $PROFILE -PathType Leaf)) {
  else {
 		 Get-Item -Path $PROFILE | Move-Item -Destination oldprofile.ps1
 		 Invoke-RestMethod https://github.com/ChrisTitusTech/powershell-profile/raw/main/Microsoft.PowerShell_profile.ps1 -o $PROFILE
-		 Write-Host "The profile @ [$PROFILE] has been created and old profile removed."
+		 Write-Output "The profile @ [$PROFILE] has been created and old profile removed."
  }
 & $profile
 
@@ -39,7 +39,7 @@ Invoke-RestMethod https://github.com/ryanoasis/nerd-fonts/releases/download/v2.1
 
 # Choco install
 #
-Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
+Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
 
 # Terminal Icons Install
 #
