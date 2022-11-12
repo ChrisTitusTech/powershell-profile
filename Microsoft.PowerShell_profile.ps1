@@ -52,8 +52,7 @@ if (Test-Path "$env:USERPROFILE\Work Folders") {
 function prompt { 
     if ($isAdmin) {
         "[" + (Get-Location) + "] # " 
-    }
-    else {
+    } else {
         "[" + (Get-Location) + "] $ "
     }
 }
@@ -67,8 +66,7 @@ if ($isAdmin) {
 function dirs {
     if ($args.Count -gt 0) {
         Get-ChildItem -Recurse -Include "$args" | Foreach-Object FullName
-    }
-    else {
+    } else {
         Get-ChildItem -Recurse | Foreach-Object FullName
     }
 }
@@ -80,8 +78,7 @@ function admin {
     if ($args.Count -gt 0) {   
         $argList = "& '" + $args + "'"
         Start-Process "$psHome\powershell.exe" -Verb runAs -ArgumentList $argList
-    }
-    else {
+    } else {
         Start-Process "$psHome\powershell.exe" -Verb runAs
     }
 }
@@ -96,8 +93,7 @@ Set-Alias -Name sudo -Value admin
 function Edit-Profile {
     if ($host.Name -match "ise") {
         $psISE.CurrentPowerShellTab.Files.Add($profile.CurrentUserAllHosts)
-    }
-    else {
+    } else {
         notepad $profile.CurrentUserAllHosts
     }
 }
@@ -122,21 +118,16 @@ Function Test-CommandExists {
 #
 if (Test-CommandExists nvim) {
     $EDITOR = 'nvim'
-}
-elseif (Test-CommandExists pvim) {
+} elseif (Test-CommandExists pvim) {
     $EDITOR = 'pvim'
-}
-elseif (Test-CommandExists vim) {
+} elseif (Test-CommandExists vim) {
     $EDITOR = 'vim'
-}
-elseif (Test-CommandExists vi) {
+} elseif (Test-CommandExists vi) {
     $EDITOR = 'vi'
-}
-elseif (Test-CommandExists code) {
+} elseif (Test-CommandExists code) {
     #VS Code
     $EDITOR = 'code'
-}
-elseif (Test-CommandExists notepad) {
+} elseif (Test-CommandExists notepad) {
     #fallback to notepad since it exists on every windows machine
     $EDITOR = 'notepad'
 }
