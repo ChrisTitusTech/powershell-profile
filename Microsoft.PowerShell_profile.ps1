@@ -154,13 +154,14 @@ function lazyg {
     git commit -m "$args"
     git push
 }
-Function Get-PubIP {
- (Invoke-WebRequest http://ifconfig.me/ip ).Content
+function Get-PubIP {
+    (Invoke-WebRequest http://ifconfig.me/ip ).Content
 }
 function uptime {
     #Windows Powershell    
-    Get-WmiObject win32_operatingsystem | Select-Object csname, @{LABEL = 'LastBootUpTime';
-        EXPRESSION                                                      = { $_.ConverttoDateTime($_.lastbootuptime) }
+    Get-WmiObject win32_operatingsystem | Select-Object csname, @{
+        LABEL      = 'LastBootUpTime';
+        EXPRESSION = { $_.ConverttoDateTime($_.lastbootuptime) }
     }
 
     #Powershell Core / Powershell 7+ (Uncomment the below section and comment out the above portion)
@@ -211,7 +212,7 @@ function df {
     get-volume
 }
 function sed($file, $find, $replace) {
-        (Get-Content $file).replace("$find", $replace) | Set-Content $file
+    (Get-Content $file).replace("$find", $replace) | Set-Content $file
 }
 function which($name) {
     Get-Command $name | Select-Object -ExpandProperty Definition
