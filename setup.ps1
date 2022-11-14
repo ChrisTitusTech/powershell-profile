@@ -1,24 +1,25 @@
 #If the file does not exist, create it.
-if (-not(Test-Path -Path $PROFILE -PathType Leaf)) {
-     try {
+if (!(Test-Path -Path $PROFILE -PathType Leaf)) {
+    try {
         # Detect Version of Powershell & Create Profile directories if they do not exist.
         if ($PSVersionTable.PSEdition -eq "Core" ) { 
-            If ((Test-Path -Path ($env:userprofile + "\Documents\Powershell")) -ne "True") {
+            if (!(Test-Path -Path ($env:userprofile + "\Documents\Powershell"))) {
                 New-Item -Path ($env:userprofile + "\Documents\Powershell") -ItemType "directory"
             }
-        } elseif ($PSVersionTable.PSEdition -eq "Desktop") {
-            If ((Test-Path -Path ($env:userprofile + "\Documents\WindowsPowerShell") -ne "True")) {
+        }
+        elseif ($PSVersionTable.PSEdition -eq "Desktop") {
+            if (!(Test-Path -Path ($env:userprofile + "\Documents\WindowsPowerShell"))) {
                 New-Item -Path ($env:userprofile + "\Documents\WindowsPowerShell") -ItemType "directory"
             }
         }
 
-         Invoke-RestMethod https://github.com/ChrisTitusTech/powershell-profile/raw/main/Microsoft.PowerShell_profile.ps1 -o $PROFILE
-         Write-Host "The profile @ [$PROFILE] has been created."
-     }
-     catch {
-         throw $_.Exception.Message
-     }
- }
+        Invoke-RestMethod https://github.com/ChrisTitusTech/powershell-profile/raw/main/Microsoft.PowerShell_profile.ps1 -o $PROFILE
+        Write-Host "The profile @ [$PROFILE] has been created."
+    }
+    catch {
+        throw $_.Exception.Message
+    }
+}
 # If the file already exists, show the message and do nothing.
  else {
 		 Get-Item -Path $PROFILE | Move-Item -Destination oldprofile.ps1
