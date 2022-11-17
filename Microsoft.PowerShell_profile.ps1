@@ -236,6 +236,13 @@ function pkill($name) {
 function pgrep($name) {
         Get-Process $name
 }
+#Add apt to winget 
+function aptfunc {
+    winget
+}
+
+Set-Alias apt aptfunc
+
 
 
 ## Final Line to set prompt
