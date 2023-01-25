@@ -117,19 +117,21 @@ Function Test-CommandExists {
 # If your favorite editor is not here, add an elseif and ensure that the directory it is installed in exists in your $env:Path
 #
 if (Test-CommandExists nvim) {
-    $EDITOR = 'nvim'
+    $EDITOR='nvim'
 } elseif (Test-CommandExists pvim) {
-    $EDITOR = 'pvim'
+    $EDITOR='pvim'
 } elseif (Test-CommandExists vim) {
-    $EDITOR = 'vim'
+    $EDITOR='vim'
 } elseif (Test-CommandExists vi) {
-    $EDITOR = 'vi'
+    $EDITOR='vi'
 } elseif (Test-CommandExists code) {
-    #VS Code
-    $EDITOR = 'code'
+    $EDITOR='code'
 } elseif (Test-CommandExists notepad) {
-    #fallback to notepad since it exists on every windows machine
-    $EDITOR = 'notepad'
+    $EDITOR='notepad'
+} elseif (Test-CommandExists notepad++) {
+    $EDITOR='notepad++'
+} elseif (Test-CommandExists sublime_text) {
+    $EDITOR='sublime_text'
 }
 Set-Alias -Name vim -Value $EDITOR
 
