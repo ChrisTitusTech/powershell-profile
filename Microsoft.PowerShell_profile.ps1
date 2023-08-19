@@ -151,11 +151,12 @@ function Get-PubIP {
     (Invoke-WebRequest http://ifconfig.me/ip ).Content
 }
 function uptime {
-    #Windows Powershell    
-    Get-WmiObject win32_operatingsystem | Select-Object csname, @{
-        LABEL      = 'LastBootUpTime';
-        EXPRESSION = { $_.ConverttoDateTime($_.lastbootuptime) }
-    }
+    #Windows Powershell only
+	If ($PSVersionTable.PSVersion.Major -eq 5 ) {
+		Get-WmiObject win32_operatingsystem |
+        Select-Object csname, @{LABEL='LastBootUpTime';EXPRESSION={ $_.ConverttoDateTime($_.lastbootuptime)}}
+	}
+}
 
     #Powershell Core / Powershell 7+ (Uncomment the below section and comment out the above portion)
 
