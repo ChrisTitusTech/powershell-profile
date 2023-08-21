@@ -151,32 +151,15 @@ function Get-PubIP {
     (Invoke-WebRequest http://ifconfig.me/ip ).Content
 }
 function uptime {
-    #Windows Powershell    
-    Get-WmiObject win32_operatingsystem | Select-Object csname, @{
-        LABEL      = 'LastBootUpTime';
-        EXPRESSION = { $_.ConverttoDateTime($_.lastbootuptime) }
+    #Windows Powershell only
+	If ($PSVersionTable.PSVersion.Major -eq 5 ) {
+		Get-WmiObject win32_operatingsystem |
+        Select-Object @{EXPRESSION={ $_.ConverttoDateTime($_.lastbootuptime)}} | Format-Table -HideTableHeaders
+	} Else {
+        net statistics workstation | Select-String "since" | foreach-object {$_.ToString().Replace('Statistics since ', '')}
     }
-
-    #Powershell Core / Powershell 7+ (Uncomment the below section and comment out the above portion)
-
-    <#
-        $bootUpTime = Get-WmiObject win32_operatingsystem | Select-Object lastbootuptime
-        $plusMinus = $bootUpTime.lastbootuptime.SubString(21,1)
-        $plusMinusMinutes = $bootUpTime.lastbootuptime.SubString(22, 3)
-        $hourOffset = [int]$plusMinusMinutes/60
-        $minuteOffset = 00
-        if ($hourOffset -contains '.') { $minuteOffset = [int](60*[decimal]('.' + $hourOffset.ToString().Split('.')[1]))}       
-          if ([int]$hourOffset -lt 10 ) { $hourOffset = "0" + $hourOffset + $minuteOffset.ToString().PadLeft(2,'0') } else { $hourOffset = $hourOffset + $minuteOffset.ToString().PadLeft(2,'0') }
-        $leftSplit = $bootUpTime.lastbootuptime.Split($plusMinus)[0]
-        $upSince = [datetime]::ParseExact(($leftSplit + $plusMinus + $hourOffset), 'yyyyMMddHHmmss.ffffffzzz', $null)
-        Get-WmiObject win32_operatingsystem | Select-Object @{LABEL='Machine Name'; EXPRESSION={$_.csname}}, @{LABEL='Last Boot Up Time'; EXPRESSION={$upsince}}
-        #>
-
-
-    #Works for Both (Just outputs the DateTime instead of that and the machine name)
-    # net statistics workstation | Select-String "since" | foreach-object {$_.ToString().Replace('Statistics since ', '')}
-        
 }
+
 function reload-profile {
     & $profile
 }
