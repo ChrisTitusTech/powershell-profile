@@ -22,7 +22,7 @@ if (!(Test-Path -Path $PROFILE -PathType Leaf)) {
 }
 # If the file already exists, show the message and do nothing.
  else {
-		 Get-Item -Path $PROFILE | Move-Item -Destination oldprofile.ps1
+		 Get-Item -Path $PROFILE | Move-Item -Destination oldprofile.ps1 -Force
 		 Invoke-RestMethod https://github.com/ChrisTitusTech/powershell-profile/raw/main/Microsoft.PowerShell_profile.ps1 -OutFile $PROFILE
 		 Write-Host "The profile @ [$PROFILE] has been created and old profile removed."
  }
@@ -65,4 +65,4 @@ Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManage
 
 # Terminal Icons Install
 #
-Install-Module -Name Terminal-Icons -Repository PSGallery
+Install-Module -Name Terminal-Icons -Repository PSGallery -Force
