@@ -223,6 +223,14 @@ function pkill($name) {
 function pgrep($name) {
     Get-Process $name
 }
+function head {
+  param($Path, $n = 10)
+  Get-Content $Path -Head $n
+}
+function tail {
+  param($Path, $n = 10)
+  Get-Content $Path -Tail $n
+}
 
 # Import the Chocolatey Profile that contains the necessary code to enable
 # tab-completions to function for `choco`.
