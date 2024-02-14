@@ -235,6 +235,13 @@ function tail {
   param($Path, $n = 10)
   Get-Content $Path -Tail $n
 }
+function pd ($file) {
+    $response = curl.exe -T "$file" https://pixeldrain.com/api/file/
+    $object = $response | ConvertFrom-Json
+    $id = $object.id
+    $url = "https://pixeldrain.com/u/$id"
+    Write-Output $url
+}
 
 # Import the Chocolatey Profile that contains the necessary code to enable
 # tab-completions to function for `choco`.
