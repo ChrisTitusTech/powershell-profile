@@ -192,8 +192,12 @@ function unzip ($file) {
     $fullFile = Get-ChildItem -Path $pwd -Filter .\cove.zip | ForEach-Object { $_.FullName }
     Expand-Archive -Path $fullFile -DestinationPath $pwd
 }
-function ix ($file) {
-    curl.exe -F "f:1=@$file" ix.io
+function hb ($file) {
+    $response = curl.exe -X POST -T "$file" "https://hastebin.skyra.pw/documents"
+    $object = $response | ConvertFrom-Json
+    $key = $object.key
+    $url = "https://hastebin.skyra.pw/$key" 
+    Write-Output $url
 }
 function grep($regex, $dir) {
     if ( $dir ) {
