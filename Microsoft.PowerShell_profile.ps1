@@ -15,14 +15,16 @@
 
 #check for updates
 try{
-    $url = "https://raw.githubusercontent.com/ChrisTitusTech/powershell-profile/main/Microsoft.PowerShell_profile.ps1"
+    $url = "https://raw.githubusercontent.com/JulianDezitter/powershell-profile/main/Microsoft.PowerShell_profile.ps1"
     $oldhash = Get-FileHash $PROFILE
     Invoke-RestMethod $url -OutFile "$env:temp/Microsoft.PowerShell_profile.ps1"
     $newhash = Get-FileHash "$env:temp/Microsoft.PowerShell_profile.ps1"
-    if ($newhash -ne $oldhash) {
-        Get-Content "$env:temp/Microsoft.PowerShell_profile.ps1" | Set-Content $PROFILE
-        . $PROFILE
-        return
+    if ($newhash.Hash -ne $oldhash.Hash) {
+        Write-Host "New profile available. Run 'Update-Profile' to update."
+        function Update-Profile {
+            Copy-Item -Path "$env:temp/Microsoft.PowerShell_profile.ps1" -Destination $PROFILE -Force
+            Write-Host "Profile updated. Please restart your shell."
+        }
     }
 }
 catch {
