@@ -21,8 +21,7 @@ try{
     $newhash = Get-FileHash "$env:temp/Microsoft.PowerShell_profile.ps1"
     if ($newhash -ne $oldhash) {
         Get-Content "$env:temp/Microsoft.PowerShell_profile.ps1" | Set-Content $PROFILE
-        . $PROFILE
-        return
+	write-host "Profile has been updated. please restart your shell to reflect changes" -ForegroundColor "Magenta"
     }
 }
 catch {
