@@ -100,7 +100,6 @@ function unzip ($file) {
     $fullFile = Get-ChildItem -Path $pwd -Filter $file | ForEach-Object { $_.FullName }
     Expand-Archive -Path $fullFile -DestinationPath $pwd
 }
-
 function hb {
     if ($args.Length -eq 0) {
         Write-Error "No file path specified."
@@ -117,10 +116,14 @@ function hb {
     }
     
     $uri = "https://bin.christitus.com/documents"
-    $response = Invoke-RestMethod -Uri $uri -Method Post -Body $Content
-    $hasteKey = $response.key
-    $url = "https://bin.christitus.com/$hasteKey"
-    Write-Output $url
+    try {
+        $response = Invoke-RestMethod -Uri $uri -Method Post -Body $Content -ErrorAction Stop
+        $hasteKey = $response.key
+        $url = "https://bin.christitus.com/$hasteKey"
+        Write-Output $url
+    } catch {
+        Write-Error "Failed to upload the document. Error: $_"
+    }
 }
 function grep($regex, $dir) {
     if ( $dir ) {
