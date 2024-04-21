@@ -115,11 +115,11 @@ function hb {
         return
     }
     
-    $uri = "https://bin.christitus.com/documents"
+    $uri = "http://bin.christitus.com/documents"
     try {
         $response = Invoke-RestMethod -Uri $uri -Method Post -Body $Content -ErrorAction Stop
         $hasteKey = $response.key
-        $url = "https://bin.christitus.com/$hasteKey"
+        $url = "http://bin.christitus.com/$hasteKey"
         Write-Output $url
     } catch {
         Write-Error "Failed to upload the document. Error: $_"
