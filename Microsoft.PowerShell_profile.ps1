@@ -101,14 +101,27 @@ function unzip ($file) {
     Expand-Archive -Path $fullFile -DestinationPath $pwd
 }
 
-function hb ($file) {
-    $response = curl.exe -X POST -T "$file" "https://bin.christitus.com/documents"
-    $object = $response | ConvertFrom-Json
-    $key = $object.key
-    $url = "https://bin.christitus.com/$key" 
+function hb {
+    if ($args.Length -eq 0) {
+        Write-Error "No file path specified."
+        return
+    }
+    
+    $FilePath = $args[0]
+    
+    if (Test-Path $FilePath) {
+        $Content = Get-Content $FilePath -Raw
+    } else {
+        Write-Error "File path does not exist."
+        return
+    }
+    
+    $uri = "https://bin.christitus.com/documents"
+    $response = Invoke-RestMethod -Uri $uri -Method Post -Body $Content
+    $hasteKey = $response.key
+    $url = "https://bin.christitus.com/$hasteKey"
     Write-Output $url
 }
-
 function grep($regex, $dir) {
     if ( $dir ) {
         Get-ChildItem $dir | select-string $regex
