@@ -63,6 +63,15 @@ Set-Alias -Name vim -Value $EDITOR
 # File and Directory Utilities
 function ll { Get-ChildItem -Path $pwd -File }
 function g { Set-Location $HOME\Documents\Github }
+function gcom {
+    git add .
+    git commit -m "$args"
+}
+function lazyg {
+    git add .
+    git commit -m "$args"
+    git push
+}
 function touch($file) { "" | Out-File $file -Encoding ASCII }
 function find-file($name) {
     Get-ChildItem -recurse -filter "*${name}*" -ErrorAction SilentlyContinue | ForEach-Object {
