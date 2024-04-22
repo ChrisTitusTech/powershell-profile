@@ -34,13 +34,19 @@ Update-Profile
 function Update-PowerShell {
     try {
         Write-Host "Checking for PowerShell updates..." -ForegroundColor Cyan
-        $updateInfo = winget upgrade --query "Microsoft.PowerShell" --accept-source-agreements --accept-package-agreements
-        if ($updateInfo -match "No applicable update found.") {
-            Write-Host "Your PowerShell is up to date." -ForegroundColor Green
-        } else {
+        $updateNeeded = $false
+        # PowerShell will prompt for updates on startup if needed. Check for this prompt.
+        $updatePrompt = Get-Content $PROFILE -Raw | Select-String -Pattern "PowerShell.*update is available"
+        if ($updatePrompt) {
+            $updateNeeded = $true
+        }
+
+        if ($updateNeeded) {
             Write-Host "Updating PowerShell..." -ForegroundColor Yellow
             winget upgrade "Microsoft.PowerShell" --accept-source-agreements --accept-package-agreements
             Write-Host "PowerShell has been updated. Please restart your shell to reflect changes" -ForegroundColor Magenta
+        } else {
+            Write-Host "Your PowerShell is up to date." -ForegroundColor Green
         }
     } catch {
         Write-Error "Failed to update PowerShell. Error: $_"
@@ -59,12 +65,9 @@ $Host.UI.RawUI.WindowTitle = "PowerShell {0}$adminSuffix" -f $PSVersionTable.PSV
 
 # Utility Functions
 function Test-CommandExists {
-    Param ($command)
-    $oldPreference = $ErrorActionPreference
-    $ErrorActionPreference = 'SilentlyContinue'
-    try { Get-Command $command -ErrorAction Stop | Out-Null; $true }
-    Catch { $false }
-    Finally { $ErrorActionPreference = $oldPreference }
+    param($command)
+    $exists = $null -ne (Get-Command $command -ErrorAction SilentlyContinue)
+    return $exists
 }
 
 # Editor Configuration
@@ -188,8 +191,6 @@ function tail {
   Get-Content $Path -Tail $n
 }
 
-### Quality of Life Functions
-
 # Quick File Creation
 function nf { param($name) New-Item -ItemType "file" -Path . -Name $name }
 
@@ -199,33 +200,38 @@ function mkcd { param($dir) mkdir $dir -Force; Set-Location $dir }
 ### Quality of Life Aliases
 
 # Navigation Shortcuts
-Set-Alias -Name docs -Value { Set-Location -Path $HOME\Documents }
-Set-Alias -Name dtop -Value { Set-Location -Path $HOME\Desktop }
+function docs { Set-Location -Path $HOME\Documents }
+
+function dtop { Set-Location -Path $HOME\Desktop }
 
 # Quick Access to Editing the Profile
-Set-Alias -Name ep -Value { vim $PROFILE }
+function ep { vim $PROFILE }
 
 # Simplified Process Management
-Set-Alias -Name k9 -Value Stop-Process
+function k9 { Stop-Process -Name $args[0] }
 
 # Enhanced Listing
-Set-Alias -Name la -Value { Get-ChildItem -Path . -Force | Format-Table -AutoSize }
+function la { Get-ChildItem -Path . -Force | Format-Table -AutoSize }
 
 # Git Shortcuts
-Set-Alias -Name gs -Value { git status }
-Set-Alias -Name ga -Value { git add . }
-Set-Alias -Name gc -Value { param($m) git commit -m "$m" }
-Set-Alias -Name gp -Value { git push }
+function gs { git status }
+
+function ga { git add . }
+
+function gc { param($m) git commit -m "$m" }
+
+function gp { git push }
 
 # Quick Access to System Information
-Set-Alias -Name sysinfo -Value { Get-ComputerInfo }
+function sysinfo { Get-ComputerInfo }
 
 # Networking Utilities
-Set-Alias -Name flushdns -Value { Clear-DnsClientCache }
+function flushdns { Clear-DnsClientCache }
 
 # Clipboard Utilities
-Set-Alias -Name cpy -Value Set-Clipboard
-Set-Alias -Name pst -Value Get-Clipboard
+function cpy { Set-Clipboard $args[0] }
+
+function pst { Get-Clipboard }
 
 # Enhanced PowerShell Experience
 Set-PSReadLineOption -Colors @{
