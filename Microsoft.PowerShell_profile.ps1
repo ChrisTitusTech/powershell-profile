@@ -1,6 +1,9 @@
 ### PowerShell Profile Refactor
 ### Version 1.03 - Refactored
 
+# Initial GitHub.com connectivity check with 1 second timeout
+$canConnectToGitHub = Test-Connection github.com -Count 1 -Quiet -TimeoutSeconds 1
+
 # Import Modules and External Profiles
 # Ensure Terminal-Icons module is installed before importing
 if (-not (Get-Module -ListAvailable -Name Terminal-Icons)) {
@@ -14,6 +17,11 @@ if (Test-Path($ChocolateyProfile)) {
 
 # Check for Profile Updates
 function Update-Profile {
+    if (-not $global:canConnectToGitHub) {
+        Write-Host "Skipping profile update check due to GitHub.com not responding within 1 second." -ForegroundColor Yellow
+        return
+    }
+
     try {
         $url = "https://raw.githubusercontent.com/ChrisTitusTech/powershell-profile/main/Microsoft.PowerShell_profile.ps1"
         $oldhash = Get-FileHash $PROFILE
@@ -32,6 +40,11 @@ function Update-Profile {
 Update-Profile
 
 function Update-PowerShell {
+    if (-not $global:canConnectToGitHub) {
+        Write-Host "Skipping PowerShell update check due to GitHub.com not responding within 1 second." -ForegroundColor Yellow
+        return
+    }
+
     try {
         Write-Host "Checking for PowerShell updates..." -ForegroundColor Cyan
         $updateNeeded = $false

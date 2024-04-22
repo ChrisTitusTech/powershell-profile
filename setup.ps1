@@ -72,7 +72,11 @@ try {
 
     if ($fontFamilies -notcontains "CaskaydiaCove NF") {
         $webClient = New-Object System.Net.WebClient
-        $webClient.DownloadFile("https://github.com/ryanoasis/nerd-fonts/releases/download/v3.0.2/CascadiaCode.zip", ".\CascadiaCode.zip")
+        $webClient.DownloadFileAsync((New-Object System.Uri("https://github.com/ryanoasis/nerd-fonts/releases/download/v3.2.1/CascadiaCode.zip")), ".\CascadiaCode.zip")
+        
+        while ($webClient.IsBusy) {
+            Start-Sleep -Seconds 2
+        }
 
         Expand-Archive -Path ".\CascadiaCode.zip" -DestinationPath ".\CascadiaCode" -Force
         $destination = (New-Object -ComObject Shell.Application).Namespace(0x14)
@@ -111,4 +115,12 @@ try {
 }
 catch {
     Write-Error "Failed to install Terminal Icons module. Error: $_"
+}
+# zoxide Install
+try {
+    winget install -e --id ajeetdsouza.zoxide
+    Write-Host "zoxide installed successfully."
+}
+catch {
+    Write-Error "Failed to install zoxide. Error: $_"
 }
