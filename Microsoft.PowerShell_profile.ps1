@@ -2,6 +2,10 @@
 ### Version 1.03 - Refactored
 
 # Import Modules and External Profiles
+# Ensure Terminal-Icons module is installed before importing
+if (-not (Get-Module -ListAvailable -Name Terminal-Icons)) {
+    Install-Module -Name Terminal-Icons -Scope CurrentUser -Force -SkipPublisherCheck
+}
 Import-Module -Name Terminal-Icons
 $ChocolateyProfile = "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"
 if (Test-Path($ChocolateyProfile)) {
@@ -27,6 +31,24 @@ function Update-Profile {
 }
 Update-Profile
 
+function Update-PowerShell {
+    try {
+        Write-Host "Checking for PowerShell updates..." -ForegroundColor Cyan
+        $updateInfo = winget upgrade --query "Microsoft.PowerShell" --accept-source-agreements --accept-package-agreements
+        if ($updateInfo -match "No applicable update found.") {
+            Write-Host "Your PowerShell is up to date." -ForegroundColor Green
+        } else {
+            Write-Host "Updating PowerShell..." -ForegroundColor Yellow
+            winget upgrade "Microsoft.PowerShell" --accept-source-agreements --accept-package-agreements
+            Write-Host "PowerShell has been updated. Please restart your shell to reflect changes" -ForegroundColor Magenta
+        }
+    } catch {
+        Write-Error "Failed to update PowerShell. Error: $_"
+    }
+}
+Update-PowerShell
+
+
 # Admin Check and Prompt Customization
 $isAdmin = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
 function prompt {
@@ -45,10 +67,6 @@ function Test-CommandExists {
     Finally { $ErrorActionPreference = $oldPreference }
 }
 
-function Edit-Profile {
-    notepad $profile.CurrentUserAllHosts
-}
-
 # Editor Configuration
 $EDITOR = if (Test-CommandExists nvim) { 'nvim' }
           elseif (Test-CommandExists pvim) { 'pvim' }
@@ -60,6 +78,9 @@ $EDITOR = if (Test-CommandExists nvim) { 'nvim' }
           else { 'notepad' }
 Set-Alias -Name vim -Value $EDITOR
 
+function Edit-Profile {
+    vim $PROFILE.CurrentUserAllHosts
+}
 # File and Directory Utilities
 function ll { Get-ChildItem -Path $pwd -File }
 function g { Set-Location $HOME\Documents\Github }
@@ -165,6 +186,52 @@ function head {
 function tail {
   param($Path, $n = 10)
   Get-Content $Path -Tail $n
+}
+
+### Quality of Life Functions
+
+# Quick File Creation
+function nf { param($name) New-Item -ItemType "file" -Path . -Name $name }
+
+# Directory Management
+function mkcd { param($dir) mkdir $dir -Force; Set-Location $dir }
+
+### Quality of Life Aliases
+
+# Navigation Shortcuts
+Set-Alias -Name docs -Value { Set-Location -Path $HOME\Documents }
+Set-Alias -Name dtop -Value { Set-Location -Path $HOME\Desktop }
+
+# Quick Access to Editing the Profile
+Set-Alias -Name ep -Value { vim $PROFILE }
+
+# Simplified Process Management
+Set-Alias -Name k9 -Value Stop-Process
+
+# Enhanced Listing
+Set-Alias -Name la -Value { Get-ChildItem -Path . -Force | Format-Table -AutoSize }
+
+# Git Shortcuts
+Set-Alias -Name gs -Value { git status }
+Set-Alias -Name ga -Value { git add . }
+Set-Alias -Name gc -Value { param($m) git commit -m "$m" }
+Set-Alias -Name gp -Value { git push }
+
+# Quick Access to System Information
+Set-Alias -Name sysinfo -Value { Get-ComputerInfo }
+
+# Networking Utilities
+Set-Alias -Name flushdns -Value { Clear-DnsClientCache }
+
+# Clipboard Utilities
+Set-Alias -Name cpy -Value Set-Clipboard
+Set-Alias -Name pst -Value Get-Clipboard
+
+# Enhanced PowerShell Experience
+Set-PSReadLineOption -Colors @{
+    Command = 'Yellow'
+    Parameter = 'Green'
+    String = 'DarkCyan'
 }
 
 ## Final Line to set prompt
