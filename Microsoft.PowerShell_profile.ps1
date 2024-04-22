@@ -35,8 +35,10 @@ function Update-PowerShell {
     try {
         Write-Host "Checking for PowerShell updates..." -ForegroundColor Cyan
         $updateNeeded = $false
-        $currentVersion = (Get-Module -ListAvailable PowerShellGet).Version
-        $latestVersion = Find-Module PowerShellGet | Select-Object -ExpandProperty Version
+        $currentVersion = $PSVersionTable.PSVersion.ToString()
+        $gitHubApiUrl = "https://api.github.com/repos/PowerShell/PowerShell/releases/latest"
+        $latestReleaseInfo = Invoke-RestMethod -Uri $gitHubApiUrl
+        $latestVersion = $latestReleaseInfo.tag_name.Trim('v')
         if ($currentVersion -lt $latestVersion) {
             $updateNeeded = $true
         }
