@@ -84,20 +84,8 @@ Set-Alias -Name vim -Value $EDITOR
 function Edit-Profile {
     vim $PROFILE.CurrentUserAllHosts
 }
-# File and Directory Utilities
-function ll { Get-ChildItem -Path $pwd -File }
-function g { Set-Location $HOME\Documents\Github }
-function gcom {
-    git add .
-    git commit -m "$args"
-}
-function lazyg {
-    git add .
-    git commit -m "$args"
-    git push
-}
 function touch($file) { "" | Out-File $file -Encoding ASCII }
-function find-file($name) {
+function ff($name) {
     Get-ChildItem -recurse -filter "*${name}*" -ErrorAction SilentlyContinue | ForEach-Object {
         Write-Output "$($_.directory)\$($_)"
     }
@@ -212,6 +200,7 @@ function k9 { Stop-Process -Name $args[0] }
 
 # Enhanced Listing
 function la { Get-ChildItem -Path . -Force | Format-Table -AutoSize }
+function ll { Get-ChildItem -Path . -Force -Hidden | Format-Table -AutoSize }
 
 # Git Shortcuts
 function gs { git status }
@@ -221,6 +210,18 @@ function ga { git add . }
 function gc { param($m) git commit -m "$m" }
 
 function gp { git push }
+
+function g { z Github }
+
+function gcom {
+    git add .
+    git commit -m "$args"
+}
+function lazyg {
+    git add .
+    git commit -m "$args"
+    git push
+}
 
 # Quick Access to System Information
 function sysinfo { Get-ComputerInfo }
