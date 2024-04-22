@@ -35,9 +35,9 @@ function Update-PowerShell {
     try {
         Write-Host "Checking for PowerShell updates..." -ForegroundColor Cyan
         $updateNeeded = $false
-        # PowerShell will prompt for updates on startup if needed. Check for this prompt.
-        $updatePrompt = Get-Content $PROFILE -Raw | Select-String -Pattern "PowerShell.*update is available"
-        if ($updatePrompt) {
+        $currentVersion = (Get-Module -ListAvailable PowerShellGet).Version
+        $latestVersion = Find-Module PowerShellGet | Select-Object -ExpandProperty Version
+        if ($currentVersion -lt $latestVersion) {
             $updateNeeded = $true
         }
 
