@@ -228,6 +228,8 @@ function gp { git push }
 
 function g { z Github }
 
+function gcl { git clone "$args" }
+
 function gcom {
     git add .
     git commit -m "$args"
