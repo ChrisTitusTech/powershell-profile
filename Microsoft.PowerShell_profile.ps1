@@ -23,7 +23,7 @@ function Update-Profile {
     }
 
     try {
-        $url = "https://raw.githubusercontent.com/ChrisTitusTech/powershell-profile/main/Microsoft.PowerShell_profile.ps1"
+        $url = "https://raw.githubusercontent.com/ruxunderscore/powershell-profile/main/Microsoft.PowerShell_profile.ps1"
         $oldhash = Get-FileHash $PROFILE
         Invoke-RestMethod $url -OutFile "$env:temp/Microsoft.PowerShell_profile.ps1"
         $newhash = Get-FileHash "$env:temp/Microsoft.PowerShell_profile.ps1"
@@ -248,6 +248,15 @@ function flushdns { Clear-DnsClientCache }
 function cpy { Set-Clipboard $args[0] }
 
 function pst { Get-Clipboard }
+
+# Call External Functions File
+$env:DOCUMENTS = [Environment]::GetFolderPath([Environment+SpecialFolder]::MyDocuments)
+fileAdditionalFunctions = "$DOCUMENTS\PowerShell\Additional.Functions.ps1"
+if (-not (Test-Path -Path $fileAdditionalFunctions)) {
+  New-Item -Path $fileAdditionalFunctions -ItemType File
+} else {
+  . $DOCUMENTS\PowerShell\Additional.Functions.ps1
+}
 
 # Enhanced PowerShell Experience
 Set-PSReadLineOption -Colors @{
