@@ -249,6 +249,16 @@ function cpy { Set-Clipboard $args[0] }
 
 function pst { Get-Clipboard }
 
+# Import External Functions File
+# Any Custom Functions can be placed into $FUNCTIONS located in the same folder as $PROFILE
+$env:DOCUMENTS = [Environment]::GetFolderPath([Environment+SpecialFolder]::MyDocuments)
+$FUNCTIONS = "$env:DOCUMENTS\PowerShell\Additional.Functions.ps1"
+if (-not (Test-Path -Path $FUNCTIONS)) {
+  New-Item -Path $FUNCTIONS -ItemType File
+} else {
+  Import-Module -Force -Name $FUNCTIONS
+}
+
 # Enhanced PowerShell Experience
 Set-PSReadLineOption -Colors @{
     Command = 'Yellow'
