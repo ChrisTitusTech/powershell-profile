@@ -2,7 +2,7 @@
 ### Version 1.03 - Refactored
 
 # Initial GitHub.com connectivity check with 1 second timeout
-$canConnectToGitHub = Test-Connection github.com -Count 1 -Quiet -TimeoutSeconds 1
+$canConnectToGitHub = Test-Connection github.com -Count 3 -Quiet -TimeoutSeconds 1
 
 # Import Modules and External Profiles
 # Ensure Terminal-Icons module is installed before importing
@@ -18,12 +18,12 @@ if (Test-Path($ChocolateyProfile)) {
 # Check for Profile Updates
 function Update-Profile {
     if (-not $global:canConnectToGitHub) {
-        Write-Host "Skipping profile update check due to GitHub.com not responding within 1 second." -ForegroundColor Yellow
+        Write-Host "Skipping profile update check due to GitHub.com not responding within 3 seconds." -ForegroundColor Yellow
         return
     }
 
     try {
-        $url = "https://raw.githubusercontent.com/ChrisTitusTech/powershell-profile/main/Microsoft.PowerShell_profile.ps1"
+        $url = "https://github.com/mews-se/powershell-profile/raw/main/Microsoft.PowerShell_profile.ps1"
         $oldhash = Get-FileHash $PROFILE
         Invoke-RestMethod $url -OutFile "$env:temp/Microsoft.PowerShell_profile.ps1"
         $newhash = Get-FileHash "$env:temp/Microsoft.PowerShell_profile.ps1"
@@ -41,7 +41,7 @@ Update-Profile
 
 function Update-PowerShell {
     if (-not $global:canConnectToGitHub) {
-        Write-Host "Skipping PowerShell update check due to GitHub.com not responding within 1 second." -ForegroundColor Yellow
+        Write-Host "Skipping PowerShell update check due to GitHub.com not responding within 3 seconds." -ForegroundColor Yellow
         return
     }
 
@@ -94,7 +94,7 @@ $EDITOR = if (Test-CommandExists nvim) { 'nvim' }
           elseif (Test-CommandExists notepad++) { 'notepad++' }
           elseif (Test-CommandExists sublime_text) { 'sublime_text' }
           else { 'notepad' }
-Set-Alias -Name vim -Value $EDITOR
+Set-Alias -Name nano -Value $EDITOR
 
 function Edit-Profile {
     vim $PROFILE.CurrentUserAllHosts
