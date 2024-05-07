@@ -225,7 +225,7 @@ function pst { Get-Clipboard }
 
 # Enhanced PowerShell Experience
 Set-PSReadLineOption -Colors @{
-    Command = 'Cyan'
+    Command = 'Yellow'
     Parameter = 'Green'
     String = 'DarkCyan'
 }
