@@ -280,6 +280,6 @@ function Show-Banner {
                                            
 Welcome to back! It is currently $currentTime
 "@
-    Write-Host $banner -ForegroundColor Magenta
+    Write-Host $banner -ForegroundColor Green
 }
 Show-Banner
