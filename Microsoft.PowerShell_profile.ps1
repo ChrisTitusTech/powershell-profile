@@ -270,3 +270,20 @@ if (Get-Command zoxide -ErrorAction SilentlyContinue) {
         Write-Error "Failed to install zoxide. Error: $_"
     }
 }
+
+# Custom Welcome Banner
+function Show-Banner {
+    $currentTime = Get-Date -Format "HH:mm"
+    $currentDate = Get-Date -Format "yyyy-MM-dd"
+    $banner = @"
+ __        __   _                          
+ \ \      / /__| | ___ ___  _ __ ___   ___ 
+  \ \ /\ / / _ \ |/ __/ _ \| '_ ` _ \ / _ \
+   \ V  V /  __/ | (_| (_) | | | | | |  __/
+    \_/\_/ \___|_|\___\___/|_| |_| |_|\___|
+                                           
+Welcome to back! It is currently $currentTime on $currentDate
+"@
+    Write-Host $banner -ForegroundColor Magenta
+}
+Show-Banner
