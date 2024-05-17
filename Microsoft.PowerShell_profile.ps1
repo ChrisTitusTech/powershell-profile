@@ -270,8 +270,7 @@ if (Get-Command zoxide -ErrorAction SilentlyContinue) {
 
 # Custom Welcome Banner
 function Show-Banner {
-    $currentTime = Get-Date -Format "HH:mm"
-    $currentDate = Get-Date -Format "yyyy-MM-dd"
+    $currentTime = Get-Date -Format "HH:mm on dd/MM/yyyy"
     $banner = @"
  __        __   _                          
  \ \      / /__| | ___ ___  _ __ ___   ___ 
@@ -279,7 +278,7 @@ function Show-Banner {
    \ V  V /  __/ | (_| (_) | | | | | |  __/
     \_/\_/ \___|_|\___\___/|_| |_| |_|\___|
                                            
-Welcome to back! It is currently $currentTime on $currentDate
+Welcome to back! It is currently $currentTime
 "@
     Write-Host $banner -ForegroundColor Magenta
 }
