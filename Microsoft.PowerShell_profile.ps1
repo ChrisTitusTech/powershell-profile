@@ -90,6 +90,7 @@ $EDITOR = if (Test-CommandExists nvim) { 'nvim' }
           elseif (Test-CommandExists pvim) { 'pvim' }
           elseif (Test-CommandExists vim) { 'vim' }
           elseif (Test-CommandExists vi) { 'vi' }
+          elseif (Test-CommandExists code-insiders) { 'ci' }
           elseif (Test-CommandExists code) { 'code' }
           elseif (Test-CommandExists notepad++) { 'notepad++' }
           elseif (Test-CommandExists sublime_text) { 'sublime_text' }
@@ -257,7 +258,8 @@ Set-PSReadLineOption -Colors @{
 }
 
 ## Final Line to set prompt
-oh-my-posh init pwsh --config https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/cobalt2.omp.json | Invoke-Expression
+oh-my-posh init pwsh --config "https://raw.githubusercontent.com/Sivivatu/posh/main/personal_theme.omp.json" | Invoke-Expression
+# oh-my-posh init pwsh --config https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/cobalt2.omp.json | Invoke-Expression
 if (Get-Command zoxide -ErrorAction SilentlyContinue) {
     Invoke-Expression (& { (zoxide init powershell | Out-String) })
 } else {
@@ -270,3 +272,27 @@ if (Get-Command zoxide -ErrorAction SilentlyContinue) {
         Write-Error "Failed to install zoxide. Error: $_"
     }
 }
+
+# Personal Custom Functions
+function OPEN_SCRIPTS {
+    Set-Location C:\Users\paulj\OneDrive\Documents\scripts\WindowsPowerShell
+   
+}
+
+function prompt {
+    $p = Split-Path -leaf -path (Get-Location)
+    "$p> "
+  }
+
+function public_ip {
+    # (
+    Invoke-RestMethod -Uri "http://ifconfig.me/ip" 
+    #).Content
+    # $ip.ip
+}
+
+# Personal Alias
+# (Invoke-WebRequest -uri "http://ifconfig.me/ip").Content
+Set-Alias -Name scripts -Value OPEN_SCRIPTS
+Set-Alias -Name ci -Value code-insiders
+# Set-Alias -Name public_ip -Value public_ip
