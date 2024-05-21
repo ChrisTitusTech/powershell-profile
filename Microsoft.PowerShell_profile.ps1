@@ -219,16 +219,17 @@ function gs { git status }
 
 function ga { git add . }
 
+Remove-Item Alias:gc -Force
 function gc { param($m) git commit -m "$m" }
 
+Remove-Item Alias:gp -Force
 function gp { git push }
-
-function g { z Github }
 
 function gcom {
     git add .
     git commit -m "$args"
 }
+
 function lazyg {
     git add .
     git commit -m "$args"
