@@ -257,22 +257,6 @@ Set-PSReadLineOption -Colors @{
     String = 'DarkCyan'
 }
 
-## Final Line to set prompt
-oh-my-posh init pwsh --config "https://raw.githubusercontent.com/Sivivatu/posh/main/personal_theme.omp.json" | Invoke-Expression
-# oh-my-posh init pwsh --config https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/cobalt2.omp.json | Invoke-Expression
-if (Get-Command zoxide -ErrorAction SilentlyContinue) {
-    Invoke-Expression (& { (zoxide init powershell | Out-String) })
-} else {
-    Write-Host "zoxide command not found. Attempting to install via winget..."
-    try {
-        winget install -e --id ajeetdsouza.zoxide
-        Write-Host "zoxide installed successfully. Initializing..."
-        Invoke-Expression (& { (zoxide init powershell | Out-String) })
-    } catch {
-        Write-Error "Failed to install zoxide. Error: $_"
-    }
-}
-
 # Personal Custom Functions
 function OPEN_SCRIPTS {
     Set-Location C:\Users\paulj\OneDrive\Documents\scripts\WindowsPowerShell
@@ -296,3 +280,19 @@ function public_ip {
 Set-Alias -Name scripts -Value OPEN_SCRIPTS
 Set-Alias -Name ci -Value code-insiders
 # Set-Alias -Name public_ip -Value public_ip
+
+## Final Line to set prompt
+oh-my-posh init pwsh --config "https://raw.githubusercontent.com/Sivivatu/posh/main/personal_theme.omp.json" | Invoke-Expression
+# oh-my-posh init pwsh --config https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/cobalt2.omp.json | Invoke-Expression
+if (Get-Command zoxide -ErrorAction SilentlyContinue) {
+    Invoke-Expression (& { (zoxide init powershell | Out-String) })
+} else {
+    Write-Host "zoxide command not found. Attempting to install via winget..."
+    try {
+        winget install -e --id ajeetdsouza.zoxide
+        Write-Host "zoxide installed successfully. Initializing..."
+        Invoke-Expression (& { (zoxide init powershell | Out-String) })
+    } catch {
+        Write-Error "Failed to install zoxide. Error: $_"
+    }
+}
