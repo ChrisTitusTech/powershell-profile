@@ -2,9 +2,13 @@
 
 A stylish and functional PowerShell profile that looks and feels almost as good as a Linux terminal.
 
+the standalone repo is [here](https://github.com/Sivivatu/powershell-profile). It is [a fork of the original](https://github.com/ChrisTitusTech/powershell-profile) with a few changes to make it work better for me.
+
 ## ⚡ One Line Install (Elevated PowerShell Recommended)
 
 Execute the following command in an elevated PowerShell window to install the PowerShell profile:
+
+ - [ ] TODO: This is not yet working for my own script needs to be updated
 
 ```
 irm "https://github.com/ChrisTitusTech/powershell-profile/raw/main/setup.ps1" | iex

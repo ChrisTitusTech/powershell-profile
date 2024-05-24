@@ -281,9 +281,6 @@ Set-Alias -Name scripts -Value OPEN_SCRIPTS
 Set-Alias -Name ci -Value code-insiders
 # Set-Alias -Name public_ip -Value public_ip
 
-## Final Line to set prompt
-oh-my-posh init pwsh --config "https://raw.githubusercontent.com/Sivivatu/posh/main/personal_theme.omp.json" | Invoke-Expression
-# oh-my-posh init pwsh --config https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/cobalt2.omp.json | Invoke-Expression
 if (Get-Command zoxide -ErrorAction SilentlyContinue) {
     Invoke-Expression (& { (zoxide init powershell | Out-String) })
 } else {
@@ -296,3 +293,8 @@ if (Get-Command zoxide -ErrorAction SilentlyContinue) {
         Write-Error "Failed to install zoxide. Error: $_"
     }
 }
+
+
+## Final Line to set prompt
+oh-my-posh init pwsh --config "https://raw.githubusercontent.com/Sivivatu/posh/main/personal_theme.omp.json" | Invoke-Expression
+# oh-my-posh init pwsh --config https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/cobalt2.omp.json | Invoke-Expression
