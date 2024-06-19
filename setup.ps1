@@ -5,10 +5,9 @@ $isadmin =
 if ($IsWindows) {
     ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
 }
-elseif (Get-Command touch -ErrorAction Ignore) {
-    touch /tmp *> $null
-    Remove-Item /tmp -ErrorAction Ignore
-    $LASTEXITCODE -eq 0
+elseif ($IsMacOS -or $IsLinux) {
+    $(whoami) -eq "root"
+}
 }
 if (!$isadmin) {
     Write-Warning "Please run this script as an Administrator!"
