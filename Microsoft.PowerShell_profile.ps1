@@ -127,6 +127,10 @@ function k9 { Stop-Process -Name $args[0] }
 function la { Get-ChildItem -Path . -Force | Format-Table -AutoSize }
 function ll { Get-ChildItem -Path . -Force -Hidden | Format-Table -AutoSize }
 
+function lf {
+    eza --long --no-user --no-permissions --icons --git --sort name --sort extension --header --git-repos --links
+}
+
 # Git Shortcuts
 function gs { git status }
 
