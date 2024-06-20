@@ -67,7 +67,7 @@ Update-PowerShell
 
 function Update-OhMyPoshProfile {
     if (-not $global:canConnectToGitHub) {
-        Write-Host "Skipping profile update check due to GitHub.com not responding within 1 second." -ForegroundColor Yellow
+        Write-Host "Skipping ohmyposh profile update check due to GitHub.com not responding within 1 second." -ForegroundColor Yellow
         return
     }
 

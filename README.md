@@ -10,6 +10,14 @@ Execute the following command in an elevated PowerShell window to install the Po
 irm "https://github.com/richardoberkofler/powershell-profile/raw/main/setup.ps1" | iex
 ```
 
+## ⚡ One Line Update (Elevated PowerShell Recommended)
+
+Execute the following command in an elevated PowerShell window to install the PowerShell profile:
+
+```
+irm "https://github.com/richardoberkofler/powershell-profile/raw/main/update.ps1" | iex
+```
+
 ## 🛠️ Fix the Missing Font
 
 After running the script, you'll find a downloaded `cove.zip` file in the folder you executed the script from. Follow these steps to install the required nerd fonts:
