@@ -23,7 +23,7 @@ function Update-Profile {
     }
 
     try {
-        $url = "https://raw.githubusercontent.com/ChrisTitusTech/powershell-profile/main/Microsoft.PowerShell_profile.ps1"
+        $url = "https://raw.githubusercontent.com/richardoberkofler/powershell-profile/main/Microsoft.PowerShell_profile.ps1"
         $oldhash = Get-FileHash $PROFILE
         Invoke-RestMethod $url -OutFile "$env:temp/Microsoft.PowerShell_profile.ps1"
         $newhash = Get-FileHash "$env:temp/Microsoft.PowerShell_profile.ps1"
@@ -127,31 +127,7 @@ function unzip ($file) {
     $fullFile = Get-ChildItem -Path $pwd -Filter $file | ForEach-Object { $_.FullName }
     Expand-Archive -Path $fullFile -DestinationPath $pwd
 }
-function hb {
-    if ($args.Length -eq 0) {
-        Write-Error "No file path specified."
-        return
-    }
-    
-    $FilePath = $args[0]
-    
-    if (Test-Path $FilePath) {
-        $Content = Get-Content $FilePath -Raw
-    } else {
-        Write-Error "File path does not exist."
-        return
-    }
-    
-    $uri = "http://bin.christitus.com/documents"
-    try {
-        $response = Invoke-RestMethod -Uri $uri -Method Post -Body $Content -ErrorAction Stop
-        $hasteKey = $response.key
-        $url = "http://bin.christitus.com/$hasteKey"
-        Write-Output $url
-    } catch {
-        Write-Error "Failed to upload the document. Error: $_"
-    }
-}
+
 function grep($regex, $dir) {
     if ( $dir ) {
         Get-ChildItem $dir | select-string $regex
@@ -206,6 +182,7 @@ function mkcd { param($dir) mkdir $dir -Force; Set-Location $dir }
 function docs { Set-Location -Path $HOME\Documents }
 
 function dtop { Set-Location -Path $HOME\Desktop }
+function dwnld { Set-Location -Path $HOME\Downloads }
 
 # Quick Access to Editing the Profile
 function ep { vim $PROFILE }
@@ -257,7 +234,7 @@ Set-PSReadLineOption -Colors @{
 }
 
 ## Final Line to set prompt
-oh-my-posh init pwsh --config https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/cobalt2.omp.json | Invoke-Expression
+oh-my-posh init pwsh --config https://github.com/richardoberkofler/powershell-profile/raw/main/richard_oberkofler.omp.json | Invoke-Expression
 if (Get-Command zoxide -ErrorAction SilentlyContinue) {
     Invoke-Expression (& { (zoxide init powershell | Out-String) })
 } else {
@@ -268,5 +245,29 @@ if (Get-Command zoxide -ErrorAction SilentlyContinue) {
         Invoke-Expression (& { (zoxide init powershell | Out-String) })
     } catch {
         Write-Error "Failed to install zoxide. Error: $_"
+    }
+}
+
+if (Get-Command fzf -ErrorAction SilentlyContinue) {
+    Set-PsFzfOption -PSReadlineChordProvider 'Ctrl+t' -PSReadlineChordReverseHistory 'Ctrl+r'
+} else {
+    Write-Host "fzf command not found. Attempting to install via winget..."
+    try {
+        winget install -e --id junegunn.fzf
+        Install-Module -Name PSFzf
+        Write-Host "fzf installed successfully. Initializing..."
+    } catch {
+        Write-Error "Failed to install fzf. Error: $_"
+    }
+}
+
+if (Get-Command eza -ErrorAction SilentlyContinue) {
+} else {
+    Write-Host "eza command not found. Attempting to install via winget..."
+    try {
+        winget install -e --id eza-community.eza
+        Write-Host "eza installed successfully. Initializing..."
+    } catch {
+        Write-Error "Failed to install eza. Error: $_"
     }
 }
