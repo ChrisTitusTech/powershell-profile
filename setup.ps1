@@ -70,7 +70,7 @@ try {
     [void] [System.Reflection.Assembly]::LoadWithPartialName("System.Drawing")
     $fontFamilies = (New-Object System.Drawing.Text.InstalledFontCollection).Families.Name
 
-    if ($fontFamilies -notcontains "JetBrainsMono NF") {
+    if ($fontFamilies -notcontains "JetBrainsMono Nerd Font Mono") {
         $webClient = New-Object System.Net.WebClient
         $webClient.DownloadFileAsync((New-Object System.Uri("https://github.com/ryanoasis/nerd-fonts/releases/download/v3.2.1/JetBrainsMono.zip")), ".\JetBrainsMono.zip")
         
@@ -95,7 +95,7 @@ catch {
 }
 
 # Final check and message to the user
-if ((Test-Path -Path $PROFILE) -and (winget list --name "OhMyPosh" -e) -and ($fontFamilies -contains "JetBrainsMono NF")) {
+if ((Test-Path -Path $PROFILE) -and (winget list --name "OhMyPosh" -e) -and ($fontFamilies -contains "JetBrainsMono Nerd Font Mono")) {
     Write-Host "Setup completed successfully. Please restart your PowerShell session to apply changes."
 } else {
     Write-Warning "Setup completed with errors. Please check the error messages above."
@@ -120,6 +120,7 @@ catch {
 # zoxide Install
 try {
     winget install -e --id ajeetdsouza.zoxide
+    Invoke-Expression (& { (zoxide init powershell | Out-String) })
     Write-Host "zoxide installed successfully."
 }
 catch {

@@ -140,7 +140,7 @@ function gc { param($m) git commit -m "$m" }
 
 function gp { git push }
 
-function g { z Github }
+function g { z repos }
 
 function gcom {
     git add .
@@ -170,42 +170,13 @@ Set-PSReadLineOption -Colors @{
     String = 'DarkCyan'
 }
 
+Invoke-Expression (& { (zoxide init powershell | Out-String) })
+
+Set-PSReadLineOption -PredictionSource History
+Set-PSReadLineOption -PredictionViewStyle ListView
+Set-PSReadLineOption -EditMode Windows
+
+Set-PsFzfOption -PSReadlineChordProvider 'Ctrl+t' -PSReadlineChordReverseHistory 'Ctrl+r'
+
 ## Final Line to set prompt
 oh-my-posh init pwsh --config $HOME\AppData\Local\Programs\oh-my-posh\themes\richard_oberkofler_ohmyposh.omp.json | Invoke-Expression
-
-if (Get-Command zoxide -ErrorAction SilentlyContinue) {
-    Invoke-Expression (& { (zoxide init powershell | Out-String) })
-} else {
-    Write-Host "zoxide command not found. Attempting to install via winget..."
-    try {
-        winget install -e --id ajeetdsouza.zoxide
-        Write-Host "zoxide installed successfully. Initializing..."
-        Invoke-Expression (& { (zoxide init powershell | Out-String) })
-    } catch {
-        Write-Error "Failed to install zoxide. Error: $_"
-    }
-}
-
-if (Get-Command fzf -ErrorAction SilentlyContinue) {
-    Set-PsFzfOption -PSReadlineChordProvider 'Ctrl+t' -PSReadlineChordReverseHistory 'Ctrl+r'
-} else {
-    Write-Host "fzf command not found. Attempting to install via winget..."
-    try {
-        winget install -e --id junegunn.fzf
-        Install-Module -Name PSFzf
-        Write-Host "fzf installed successfully. Initializing..."
-    } catch {
-        Write-Error "Failed to install fzf. Error: $_"
-    }
-}
-
-if (Get-Command eza -ErrorAction SilentlyContinue) {
-} else {
-    Write-Host "eza command not found. Attempting to install via winget..."
-    try {
-        winget install -e --id eza-community.eza
-        Write-Host "eza installed successfully. Initializing..."
-    } catch {
-        Write-Error "Failed to install eza. Error: $_"
-    }
-}
