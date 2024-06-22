@@ -19,18 +19,18 @@ function Test-CommandExists {
 }
 
 # Editor Configuration
-$EDITOR = if (Test-CommandExists nvim) { 'nvim' }
+$EDITOR = if (Test-CommandExists nvim) { 'code' }
+          elseif (Test-CommandExists code) { 'nvim' }
           elseif (Test-CommandExists pvim) { 'pvim' }
           elseif (Test-CommandExists vim) { 'vim' }
           elseif (Test-CommandExists vi) { 'vi' }
-          elseif (Test-CommandExists code) { 'code' }
           elseif (Test-CommandExists notepad++) { 'notepad++' }
           elseif (Test-CommandExists sublime_text) { 'sublime_text' }
           else { 'notepad' }
 Set-Alias -Name vim -Value $EDITOR
 
 function Edit-Profile {
-    vim $PROFILE.CurrentUserAllHosts
+    $EDITOR $PROFILE.CurrentUserAllHosts
 }
 function touch($file) { "" | Out-File $file -Encoding ASCII }
 function ff($name) {
@@ -118,7 +118,7 @@ function dtop { Set-Location -Path $HOME\Desktop }
 function dwnld { Set-Location -Path $HOME\Downloads }
 
 # Quick Access to Editing the Profile
-function ep { vim $PROFILE }
+function ep { $EDITOR $PROFILE }
 
 # Simplified Process Management
 function k9 { Stop-Process -Name $args[0] }
@@ -128,7 +128,7 @@ function la { Get-ChildItem -Path . -Force | Format-Table -AutoSize }
 function ll { Get-ChildItem -Path . -Force -Hidden | Format-Table -AutoSize }
 
 function lf {
-    eza --long --no-user --no-permissions --icons --git --sort name --sort extension --header --git-repos --links
+    eza --long --no-user --no-permissions --icons --git --sort name --sort extension --header --git-repos --links --all
 }
 
 # Git Shortcuts
