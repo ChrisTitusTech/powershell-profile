@@ -2,7 +2,9 @@
   "$schema": "https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/schema.json",
   "blocks": [
     {
+      "type": "prompt",
       "alignment": "left",
+      "newline": true,
       "segments": [
         {
           "background": "#ff479c",
@@ -164,12 +166,11 @@
           "trailing_diamond": "\ue0b4",
           "type": "status"
         }
-      ],
-      "type": "prompt"
+      ]
     },
     {
-      "segments": [],
-      "type": "rprompt"
+      "type": "rprompt",
+      "segments": []
     }
   ],
   "console_title_template": "{{ .Shell }} in {{ .Folder }}",
