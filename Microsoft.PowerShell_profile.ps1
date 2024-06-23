@@ -30,7 +30,7 @@ $EDITOR = if (Test-CommandExists nvim) { 'code' }
 Set-Alias -Name vim -Value $EDITOR
 
 function Edit-Profile {
-    $EDITOR $PROFILE.CurrentUserAllHosts
+    vim $PROFILE.CurrentUserAllHosts
 }
 function touch($file) { "" | Out-File $file -Encoding ASCII }
 function ff($name) {
@@ -118,7 +118,7 @@ function dtop { Set-Location -Path $HOME\Desktop }
 function dwnld { Set-Location -Path $HOME\Downloads }
 
 # Quick Access to Editing the Profile
-function ep { $EDITOR $PROFILE }
+function ep { vim $PROFILE }
 
 # Simplified Process Management
 function k9 { Stop-Process -Name $args[0] }
@@ -179,4 +179,4 @@ Set-PSReadLineOption -EditMode Windows
 Set-PsFzfOption -PSReadlineChordProvider 'Ctrl+t' -PSReadlineChordReverseHistory 'Ctrl+r'
 
 ## Final Line to set prompt
-oh-my-posh init pwsh --config $HOME\AppData\Local\Programs\oh-my-posh\themes\richard_oberkofler_ohmyposh.omp.json | Invoke-Expression
+oh-my-posh init pwsh --config $HOME\AppData\Local\Programs\oh-my-posh\themes\richard_oberkofler.omp.json | Invoke-Expression

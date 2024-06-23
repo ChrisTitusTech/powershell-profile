@@ -95,7 +95,7 @@
             {
                 "face": "JetBrainsMono Nerd Font Mono"
             },
-            "opacity": 85
+            "opacity": 75
         },
         "list": 
         [
@@ -110,32 +110,7 @@
                 "hidden": false,
                 "icon": "ms-appx:///ProfileIcons/pwsh.png",
                 "name": "PowerShell",
-                "opacity": 85,
-                "startingDirectory": "%USERPROFILE%"
-            },
-            {
-                "backgroundImage": null,
-                "commandline": "%SystemRoot%\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
-                "font": 
-                {
-                    "face": "JetBrainsMono Nerd Font Mono"
-                },
-                "guid": "{61c54bbd-c2c6-5271-96e7-009a87ff44bf}",
-                "hidden": true,
-                "name": "Windows PowerShell",
-                "opacity": 85,
-                "startingDirectory": "%USERPROFILE%"
-            },
-            {
-                "commandline": "%SystemRoot%\\System32\\cmd.exe",
-                "font": 
-                {
-                    "face": "JetBrainsMono Nerd Font Mono"
-                },
-                "guid": "{0caa0dad-35be-5f56-a8ff-afceeeaa6101}",
-                "hidden": false,
-                "name": "Eingabeaufforderung",
-                "opacity": 85,
+                "opacity": 75,
                 "startingDirectory": "%USERPROFILE%"
             },
             {
@@ -150,8 +125,33 @@
                 "guid": "{51855cb2-8cce-5362-8f54-464b92b32386}",
                 "hidden": false,
                 "name": "Ubuntu",
-                "opacity": 85,
+                "opacity": 75,
                 "source": "CanonicalGroupLimited.Ubuntu_79rhkp1fndgsc"
+            },
+            {
+                "backgroundImage": null,
+                "commandline": "%SystemRoot%\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+                "font": 
+                {
+                    "face": "JetBrainsMono Nerd Font Mono"
+                },
+                "guid": "{61c54bbd-c2c6-5271-96e7-009a87ff44bf}",
+                "hidden": true,
+                "name": "Windows PowerShell",
+                "opacity": 75,
+                "startingDirectory": "%USERPROFILE%"
+            },
+            {
+                "commandline": "%SystemRoot%\\System32\\cmd.exe",
+                "font": 
+                {
+                    "face": "JetBrainsMono Nerd Font Mono"
+                },
+                "guid": "{0caa0dad-35be-5f56-a8ff-afceeeaa6101}",
+                "hidden": false,
+                "name": "Eingabeaufforderung",
+                "opacity": 75,
+                "startingDirectory": "%USERPROFILE%"
             }
         ]
     },
