@@ -270,8 +270,21 @@ Set-PSReadLineOption -Colors @{
     String = 'DarkCyan'
 }
 
+# Get theme from profile.ps1 or use a default theme
+function Get-Theme {
+    if (Test-Path -Path $PROFILE.CurrentUserAllHosts -PathType leaf) {
+        $existingTheme = Select-String -Raw -Path $PROFILE.CurrentUserAllHosts -Pattern "oh-my-posh init pwsh --config"
+        if ($null -ne $existingTheme) {
+            Invoke-Expression $existingTheme
+            return
+        }
+    } else {
+        oh-my-posh init pwsh --config https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/cobalt2.omp.json | Invoke-Expression
+    }
+}
+
 ## Final Line to set prompt
-oh-my-posh init pwsh --config https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/cobalt2.omp.json | Invoke-Expression
+Get-Theme
 if (Get-Command zoxide -ErrorAction SilentlyContinue) {
     Invoke-Expression (& { (zoxide init --cmd cd powershell | Out-String) })
 } else {
