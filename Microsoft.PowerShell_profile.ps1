@@ -202,8 +202,8 @@ function head {
 }
 
 function tail {
-  param($Path, $n = 10)
-  Get-Content $Path -Tail $n
+  param($Path, $n = 10, [switch]$f = $false)
+  Get-Content $Path -Tail $n -Wait:$f
 }
 
 # Quick File Creation
