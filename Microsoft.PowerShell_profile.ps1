@@ -258,7 +258,7 @@ function gc { param($m) git commit -m "$m" }
 
 function gp { git push }
 
-function g { z Github }
+function g { __zoxide_z github }
 
 function gcl { git clone "$args" }
 
