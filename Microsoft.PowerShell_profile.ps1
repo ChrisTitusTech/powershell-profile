@@ -321,6 +321,9 @@ if (Get-Command zoxide -ErrorAction SilentlyContinue) {
     }
 }
 
+Set-Alias -Name z -Value __zoxide_z
+Set-Alias -Name zi -Value __zoxide_zi
+
 # Help Function
 function Show-Help {
     @"
