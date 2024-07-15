@@ -249,13 +249,13 @@ function k9 { Stop-Process -Name $args[0] }
 function la {
     $width = [console]::WindowWidth
     $null = [console]::BufferWidth = $width
-    eza -al -h --width=relative --color=always --icons
+    eza -al -h --color=always --icons
 }
 
 function ls {
     $width = [console]::WindowWidth
     $null = [console]::BufferWidth = $width
-    eza -l -h --width=relative  --color=always --icons
+    eza -l -h  --color=always --icons
 }
 
 # Git Shortcuts
