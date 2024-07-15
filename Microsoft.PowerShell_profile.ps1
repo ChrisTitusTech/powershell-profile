@@ -246,8 +246,17 @@ function ep { code $PROFILE }
 function k9 { Stop-Process -Name $args[0] }
 
 # Enhanced Listing
-function la { eza -al --color=always --icons | Out-String -Width ([console]::WindowWidth) }
-function ls { eza -l --color=always --icons  | Out-String -Width ([console]::WindowWidth) }
+function la {
+    $width = [console]::WindowWidth
+    $null = [console]::BufferWidth = $width
+    eza -al --color=always --icons
+}
+
+function ls {
+    $width = [console]::WindowWidth
+    $null = [console]::BufferWidth = $width
+    eza -l --color=always --icons
+}
 
 # Git Shortcuts
 function gs { git status }
