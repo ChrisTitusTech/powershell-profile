@@ -307,7 +307,9 @@ function Get-Theme {
 ## Final Line to set prompt
 Get-Theme
 if (Get-Command zoxide -ErrorAction SilentlyContinue) {
-    Invoke-Expression (& { (zoxide init --cmd cd powershell | Out-String) })
+    #Invoke-Expression (& { (zoxide init --cmd cd powershell | Out-String) })
+    Invoke-Expression (& { (zoxide init powershell | Out-String) })
+
 } else {
     Write-Host "zoxide command not found. Attempting to install via winget..."
     try {
