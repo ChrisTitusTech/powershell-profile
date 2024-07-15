@@ -7,7 +7,7 @@
 ############                                                                                                         ############
 ############                DO NOT MODIFY THIS FILE. THIS FILE IS HASHED AND UPDATED AUTOMATICALLY.                  ############
 ############                    ANY CHANGES MADE TO THIS FILE WILL BE OVERWRITTEN BY COMMITS TO                      ############
-############                       https://github.com/danteRub/powershell-profile.git.                         ############
+############                       https://github.com/danteRub/powershell-profile.git.                               ############
 ############                                                                                                         ############
 #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!#
 ############                                                                                                         ############
@@ -18,17 +18,6 @@
 
 # Initial GitHub.com connectivity check with 1 second timeout
 $canConnectToGitHub = Test-Connection github.com -Count 1 -Quiet -TimeoutSeconds 1
-
-# Import Modules and External Profiles
-# Ensure Terminal-Icons module is installed before importing
-if (-not (Get-Module -ListAvailable -Name Terminal-Icons)) {
-    Install-Module -Name Terminal-Icons -Scope CurrentUser -Force -SkipPublisherCheck
-}
-Import-Module -Name Terminal-Icons
-#$ChocolateyProfile = "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"
-#if (Test-Path($ChocolateyProfile)) {
-#    Import-Module "$ChocolateyProfile"
-#}
 
 # Check for Profile Updates
 function Update-Profile {
@@ -150,7 +139,7 @@ function uptime {
     }
 }
 
-function reload-profile {
+function Invoke-ProfileReload {
     & $profile
 }
 
