@@ -246,8 +246,8 @@ function ep { vim $PROFILE }
 function k9 { Stop-Process -Name $args[0] }
 
 # Enhanced Listing
-function la { eza -al --color=always --icons}
-function ll { eza -al --color=always --icons}
+function la { eza -al --color=always --icons | Out-String -Width ([console]::WindowWidth) }
+function ls { eza -l --color=always --icons  | Out-String -Width ([console]::WindowWidth) }
 
 # Git Shortcuts
 function gs { git status }
