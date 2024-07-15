@@ -252,7 +252,7 @@ function la {
     eza -al --color=always --icons
 }
 
-function ls {
+function l {
     $width = [console]::WindowWidth
     $null = [console]::BufferWidth = $width
     eza -l --color=always --icons
