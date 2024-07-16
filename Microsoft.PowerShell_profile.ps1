@@ -292,18 +292,14 @@ function cpy { Set-Clipboard $args[0] }
 function pst { Get-Clipboard }
 
 # Enhanced PowerShell Experience
-Set-PSReadLineOption -Colors @{
-    Command = 'Yellow'
-    Parameter = 'Green'
-    String = 'DarkCyan'
-}
-
 $PSROptions = @{
     ContinuationPrompt = '  '
     Colors             = @{
-    Parameter          = $PSStyle.Foreground.Magenta
-    Selection          = $PSStyle.Background.Black
-    InLinePrediction   = $PSStyle.Foreground.BrightYellow + $PSStyle.Background.BrightBlack
+		Command            = $PSStyle.Foreground.Yellow
+    	Parameter          = $PSStyle.Foreground.Green
+    	String 			   = $PSStyle.Foreground.Cyan
+		Selection          = $PSStyle.Background.Black
+    	InLinePrediction   = $PSStyle.Foreground.BrightYellow + $PSStyle.Background.BrightBlack
     }
 }
 Set-PSReadLineOption @PSROptions
