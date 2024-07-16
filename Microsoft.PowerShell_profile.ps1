@@ -22,8 +22,7 @@ if ([bool]([System.Security.Principal.WindowsIdentity]::GetCurrent()).IsSystem) 
 }
 
 # Initial GitHub.com connectivity check with 1 second timeout
-$pingResult = Test-Connection github.com -Count 1 -ErrorAction SilentlyContinue
-$canConnectToGitHub = $pingResult.StatusCode -eq 0
+$canConnectToGitHub = $null -ne (ping github.com -n 1 -w 1000 | Select-String "Reply from")
 
 # Import Modules and External Profiles
 # Ensure Terminal-Icons module is installed before importing
@@ -299,15 +298,17 @@ Set-PSReadLineOption -Colors @{
     String = 'DarkCyan'
 }
 
-$PSROptions = @{
-    ContinuationPrompt = '  '
-    Colors             = @{
-    Parameter          = $PSStyle.Foreground.Magenta
-    Selection          = $PSStyle.Background.Black
-    InLinePrediction   = $PSStyle.Foreground.BrightYellow + $PSStyle.Background.BrightBlack
+if ($PSVersionTable.PSVersion.Major -ge 7) {
+    $PSROptions = @{
+        ContinuationPrompt = '  '
+        Colors             = @{
+            Parameter          = $PSStyle.Foreground.Magenta
+            Selection          = $PSStyle.Background.Black
+            InLinePrediction   = $PSStyle.Foreground.BrightYellow + $PSStyle.Background.BrightBlack
+        }
     }
+    Set-PSReadLineOption @PSROptions
 }
-Set-PSReadLineOption @PSROptions
 Set-PSReadLineKeyHandler -Chord 'Ctrl+f' -Function ForwardWord
 Set-PSReadLineKeyHandler -Chord 'Enter' -Function ValidateAndAcceptLine
 
