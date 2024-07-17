@@ -129,9 +129,14 @@ function ff($name) {
 # Network Utilities
 function Get-PubIP { (Invoke-WebRequest http://ifconfig.me/ip).Content }
 
-# Open WinUtil
+# Open WinUtil full-release
 function winutil {
-	iwr -useb https://christitus.com/win | iex
+	irm https://christitus.com/win | iex
+}
+
+# Open WinUtil pre-release
+function winutildev {
+	irm https://christitus.com/windev | iex
 }
 
 # System Utilities
@@ -369,7 +374,9 @@ ff <name> - Finds files recursively with the specified name.
 
 Get-PubIP - Retrieves the public IP address of the machine.
 
-winutil - Runs the WinUtil script from Chris Titus Tech.
+winutil - Runs the latest WinUtil full-release script from Chris Titus Tech.
+
+winutildev - Runs the latest WinUtil pre-release script from Chris Titus Tech.
 
 uptime - Displays the system uptime.
 
