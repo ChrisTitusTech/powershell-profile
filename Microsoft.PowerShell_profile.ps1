@@ -87,7 +87,7 @@ function Update-PowerShell {
         Write-Error "Failed to update PowerShell. Error: $_"
     }
 }
-Update-PowerShell
+#Update-PowerShell
 
 
 # Admin Check and Prompt Customization
