@@ -333,7 +333,7 @@ function Get-Theme {
     }
 }
 
-Get-Theme
+#Get-Theme
 
 if (Get-Command zoxide -ErrorAction SilentlyContinue) {
     Invoke-Expression (& { (zoxide init --cmd cd powershell | Out-String) })
