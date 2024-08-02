@@ -242,9 +242,12 @@ function la {
 }
 
 function ls {
-    $width = [console]::WindowWidth
-    $null = [console]::BufferWidth = $width
-    eza -l -h  --color=always --icons
+    [alias('ls')]
+    param(
+        [string]$Path # path for ls
+    )
+
+    eza.exe -lab --group-directories-first --git --icons $Path
 }
 
 # Git Shortcuts
