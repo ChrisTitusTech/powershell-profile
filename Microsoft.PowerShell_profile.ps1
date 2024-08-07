@@ -438,4 +438,9 @@ pst - Retrieves text from the clipboard.
 Use 'Show-Help' to display this help message.
 "@
 }
+
+if (Test-Path "$PSScriptRoot\CTTcustom.ps1") {
+    Invoke-Expression -Command "& `"$PSScriptRoot\CTTcustom.ps1`""
+}
+
 Write-Host "Use 'Show-Help' to display help"
