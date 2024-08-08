@@ -7,7 +7,7 @@
 ############                                                                                                         ############
 ############                DO NOT MODIFY THIS FILE. THIS FILE IS HASHED AND UPDATED AUTOMATICALLY.                  ############
 ############                    ANY CHANGES MADE TO THIS FILE WILL BE OVERWRITTEN BY COMMITS TO                      ############
-############                       https://github.com/danteRub/powershell-profile.git.                         ############
+############                       https://github.com/danteRub/powershell-profile.git.                               ############
 ############                                                                                                         ############
 #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!#
 ############                                                                                                         ############
@@ -18,17 +18,6 @@
 
 # Initial GitHub.com connectivity check with 1 second timeout
 $canConnectToGitHub = Test-Connection github.com -Count 1 -Quiet -TimeoutSeconds 1
-
-# Import Modules and External Profiles
-# Ensure Terminal-Icons module is installed before importing
-if (-not (Get-Module -ListAvailable -Name Terminal-Icons)) {
-    Install-Module -Name Terminal-Icons -Scope CurrentUser -Force -SkipPublisherCheck
-}
-Import-Module -Name Terminal-Icons
-#$ChocolateyProfile = "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"
-#if (Test-Path($ChocolateyProfile)) {
-#    Import-Module "$ChocolateyProfile"
-#}
 
 # Check for Profile Updates
 function Update-Profile {
@@ -150,7 +139,7 @@ function uptime {
     }
 }
 
-function reload-profile {
+function Invoke-ProfileReload {
     & $profile
 }
 
@@ -240,15 +229,32 @@ function docs { Set-Location -Path $HOME\Documents }
 function dtop { Set-Location -Path $HOME\Desktop }
 
 # Quick Access to Editing the Profile
-function ep { vim $PROFILE }
+function ep { code $PROFILE }
 
 # Simplified Process Management
 function k9 { Stop-Process -Name $args[0] }
 
 # Enhanced Listing
+<<<<<<< HEAD
 function ls { Get-ChildItem -Path . | Format-Table -AutoSize }
 function la { Get-ChildItem -Path . -Force | Format-Table -AutoSize }
 function ll { Get-ChildItem -Path . -Force -Hidden | Format-Table -AutoSize }
+=======
+function la {
+    $width = [console]::WindowWidth
+    $null = [console]::BufferWidth = $width
+    eza -al -h --color=always --icons
+}
+
+function ls {
+    [alias('ls')]
+    param(
+        [string]$Path # path for ls
+    )
+
+    eza.exe -lab --group-directories-first --git --icons $Path
+}
+>>>>>>> 98d296258e4c53980b75505ecad8fd3770dd4d63
 
 # Git Shortcuts
 function gs { git status }
@@ -303,14 +309,17 @@ function Get-Theme {
             return
         }
     } else {
-        oh-my-posh init pwsh --config https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/tokyonight_storm.omp.json | Invoke-Expression
+        oh-my-posh init pwsh --config https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/pure.omp.json | Invoke-Expression
     }
 }
 
 ## Final Line to set prompt
 Get-Theme
+
 if (Get-Command zoxide -ErrorAction SilentlyContinue) {
-    Invoke-Expression (& { (zoxide init --cmd cd powershell | Out-String) })
+    #Invoke-Expression (& { (zoxide init --cmd cd powershell | Out-String) })
+    Invoke-Expression (& { (zoxide init powershell | Out-String) })
+
 } else {
     Write-Host "zoxide command not found. Attempting to install via winget..."
     try {
@@ -321,6 +330,7 @@ if (Get-Command zoxide -ErrorAction SilentlyContinue) {
         Write-Error "Failed to install zoxide. Error: $_"
     }
 }
+
 
 # Help Function
 function Show-Help {
