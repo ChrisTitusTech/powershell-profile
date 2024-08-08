@@ -26,20 +26,16 @@ function Install-ModuleIfMissing {
         [string]$moduleName
     )
     if (-not (Get-Module -ListAvailable -Name $moduleName)) {
-        if (-not (Get-Command winget -ErrorAction SilentlyContinue)) {
-            Write-Host "winget no está instalado. Instalando módulo $moduleName usando Install-Module..." -ForegroundColor Yellow
-            try {
-                Install-Module -Name $moduleName -Force -Scope CurrentUser
-            } catch {
-                Write-Error "Falló la instalación del módulo $moduleName. Error: $_"
+        try {
+            if (-not (Get-Command winget -ErrorAction SilentlyContinue)) {
+                Write-Host "winget no está instalado. Instalando módulo $moduleName usando Install-Module..." -ForegroundColor Yellow
+                Install-Module -Name $moduleName -Force -Scope CurrentUser -ErrorAction Stop
+            } else {
+                Write-Host "Instalando módulo $moduleName usando winget..." -ForegroundColor Yellow
+                winget install -e --id $moduleName --accept-source-agreements --accept-package-agreements -ErrorAction Stop
             }
-        } else {
-            Write-Host "Instalando módulo $moduleName usando winget..." -ForegroundColor Yellow
-            try {
-                winget install -e --id $moduleName
-            } catch {
-                Write-Error "Falló la instalación del módulo $moduleName usando winget. Error: $_"
-            }
+        } catch {
+            Write-Error "Falló la instalación del módulo $moduleName. Error: $_"
         }
     } else {
         Write-Host "Módulo $moduleName ya está instalado." -ForegroundColor Green
@@ -80,14 +76,15 @@ function Update-Profile {
     try {
         $url = "https://raw.githubusercontent.com/danteRub/powershell-profile/main/Microsoft.PowerShell_profile.ps1"
         $oldhash = Get-FileHash $PROFILE
-        Invoke-RestMethod $url -OutFile "$env:temp/Microsoft.PowerShell_profile.ps1"
+        Invoke-RestMethod -Uri $url -OutFile "$env:temp/Microsoft.PowerShell_profile.ps1" -ErrorAction Stop
         $newhash = Get-FileHash "$env:temp/Microsoft.PowerShell_profile.ps1"
+
         if ($newhash.Hash -ne $oldhash.Hash) {
-            Copy-Item -Path "$env:temp/Microsoft.PowerShell_profile.ps1" -Destination $PROFILE -Force
+            Copy-Item -Path "$env:temp/Microsoft.PowerShell_profile.ps1" -Destination $PROFILE -Force -ErrorAction Stop
             Write-Host "Profile has been updated. Please restart your shell to reflect changes" -ForegroundColor Magenta
         }
     } catch {
-        Write-Error "Unable to check for `$profile updates"
+        Write-Error "Failed to check or update the profile. Error: $_"
     } finally {
         Remove-Item "$env:temp/Microsoft.PowerShell_profile.ps1" -ErrorAction SilentlyContinue
     }
@@ -105,14 +102,15 @@ function Update-PowerShell {
         $updateNeeded = $false
         $currentVersion = $PSVersionTable.PSVersion.ToString()
         $gitHubApiUrl = "https://api.github.com/repos/PowerShell/PowerShell/releases/latest"
-        $latestReleaseInfo = Invoke-RestMethod -Uri $gitHubApiUrl
+        $latestReleaseInfo = Invoke-RestMethod -Uri $gitHubApiUrl -ErrorAction Stop
         $latestVersion = $latestReleaseInfo.tag_name.Trim('v')
-        if ($currentVersion -lt $latestVersion) {
+        
+        if ([version]$currentVersion -lt [version]$latestVersion) {
             $updateNeeded = $true
         }
 
         if ($updateNeeded) {
-            Write-Host "Updating PowerShell..." -ForegroundColor Yellow
+            Write-Host "Updating PowerShell to version $latestVersion..." -ForegroundColor Yellow
             winget upgrade "Microsoft.PowerShell" --accept-source-agreements --accept-package-agreements
             Write-Host "PowerShell has been updated. Please restart your shell to reflect changes" -ForegroundColor Magenta
         } else {
