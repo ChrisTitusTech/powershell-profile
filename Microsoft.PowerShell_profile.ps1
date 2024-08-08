@@ -19,6 +19,57 @@
 # Initial GitHub.com connectivity check with 1 second timeout
 $canConnectToGitHub = Test-Connection github.com -Count 1 -Quiet -TimeoutSeconds 1
 
+# Instalación y configuración de módulos adicionales
+
+function Install-ModuleIfMissing {
+    param (
+        [string]$moduleName
+    )
+    if (-not (Get-Module -ListAvailable -Name $moduleName)) {
+        if (-not (Get-Command winget -ErrorAction SilentlyContinue)) {
+            Write-Host "winget no está instalado. Instalando módulo $moduleName usando Install-Module..." -ForegroundColor Yellow
+            try {
+                Install-Module -Name $moduleName -Force -Scope CurrentUser
+            } catch {
+                Write-Error "Falló la instalación del módulo $moduleName. Error: $_"
+            }
+        } else {
+            Write-Host "Instalando módulo $moduleName usando winget..." -ForegroundColor Yellow
+            try {
+                winget install -e --id $moduleName
+            } catch {
+                Write-Error "Falló la instalación del módulo $moduleName usando winget. Error: $_"
+            }
+        }
+    } else {
+        Write-Host "Módulo $moduleName ya está instalado." -ForegroundColor Green
+    }
+}
+
+# Instalar y configurar PSReadLine para mejorar la experiencia en la línea de comandos
+Install-ModuleIfMissing -moduleName "PSReadLine"
+
+if (Get-Module -ListAvailable -Name "PSReadLine") {
+    Import-Module PSReadLine
+    Set-PSReadLineOption -EditMode Windows
+    Set-PSReadLineOption -Colors @{
+        Command   = 'Yellow'
+        Parameter = 'Green'
+        String    = 'DarkCyan'
+    }
+} else {
+    Write-Warning "No se pudo cargar el módulo PSReadLine. Asegúrate de que esté instalado correctamente."
+}
+
+# Instalar y configurar Terminal-Icons para mostrar íconos en la terminal
+Install-ModuleIfMissing -moduleName "Terminal-Icons"
+
+if (Get-Module -ListAvailable -Name "Terminal-Icons") {
+    Import-Module Terminal-Icons
+} else {
+    Write-Warning "No se pudo cargar el módulo Terminal-Icons. Asegúrate de que esté instalado correctamente."
+}
+
 # Check for Profile Updates
 function Update-Profile {
     if (-not $global:canConnectToGitHub) {
@@ -236,35 +287,10 @@ function k9 { Stop-Process -Name $args[0] }
 
 # Enhanced Listing with icons
 
-function ls {
-    Get-ChildItem -Force | ForEach-Object {
-        if ($_.PSIsContainer) {
-            $icon = '📁'
-        } else {
-            $icon = switch ($_.Extension.ToLower()) {
-                ".txt"  { '📝' }
-                ".pdf"  { '📕' }
-                ".jpg"  { '🖼️' }
-                ".png"  { '🖼️' }
-                ".doc"  { '📄' }
-                ".docx" { '📄' }
-                ".xls"  { '📊' }
-                ".xlsx" { '📊' }
-                ".zip"  { '🗜️' }
-                ".exe"  { '⚙️' }
-                ".mp3"  { '🎵' }
-                ".mp4"  { '🎥' }
-                ".avi"  { '🎥' }
-                #".html" { '' }
-                default { '📄' } # Icono por defecto
-            }
-        }
-        $type = if ($_.PSIsContainer) { '[DIR]' } else { "[FILE - $($_.Extension)]" }
-        Write-Output "$icon $type $($_.Name)"
-    }
-}
+function ls { Get-ChildItem -Path . -Force | Format-Table -AutoSize }
 function la { Get-ChildItem -Path . -Force | Format-Table -AutoSize }
 function ll { Get-ChildItem -Path . -Force -Hidden | Format-Table -AutoSize }
+
 
 # Git Shortcuts
 function gs { git status }
