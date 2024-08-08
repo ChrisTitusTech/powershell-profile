@@ -235,26 +235,9 @@ function ep { code $PROFILE }
 function k9 { Stop-Process -Name $args[0] }
 
 # Enhanced Listing
-<<<<<<< HEAD
 function ls { Get-ChildItem -Path . | Format-Table -AutoSize }
 function la { Get-ChildItem -Path . -Force | Format-Table -AutoSize }
 function ll { Get-ChildItem -Path . -Force -Hidden | Format-Table -AutoSize }
-=======
-function la {
-    $width = [console]::WindowWidth
-    $null = [console]::BufferWidth = $width
-    eza -al -h --color=always --icons
-}
-
-function ls {
-    [alias('ls')]
-    param(
-        [string]$Path # path for ls
-    )
-
-    eza.exe -lab --group-directories-first --git --icons $Path
-}
->>>>>>> 98d296258e4c53980b75505ecad8fd3770dd4d63
 
 # Git Shortcuts
 function gs { git status }
@@ -309,7 +292,7 @@ function Get-Theme {
             return
         }
     } else {
-        oh-my-posh init pwsh --config https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/pure.omp.json | Invoke-Expression
+        oh-my-posh init pwsh --config https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/tokyonight_storm.omp.json | Invoke-Expression
     }
 }
 
