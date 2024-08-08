@@ -234,8 +234,35 @@ function ep { code $PROFILE }
 # Simplified Process Management
 function k9 { Stop-Process -Name $args[0] }
 
-# Enhanced Listing
-function ls { Get-ChildItem -Path . | Format-Table -AutoSize }
+# Enhanced Listing with icons
+
+function ls {
+    Get-ChildItem -Force | ForEach-Object {
+        if ($_.PSIsContainer) {
+            $icon = '📁'
+        } else {
+            $icon = switch ($_.Extension.ToLower()) {
+                ".txt"  { '📝' }
+                ".pdf"  { '📕' }
+                ".jpg"  { '🖼️' }
+                ".png"  { '🖼️' }
+                ".doc"  { '📄' }
+                ".docx" { '📄' }
+                ".xls"  { '📊' }
+                ".xlsx" { '📊' }
+                ".zip"  { '🗜️' }
+                ".exe"  { '⚙️' }
+                ".mp3"  { '🎵' }
+                ".mp4"  { '🎥' }
+                ".avi"  { '🎥' }
+                #".html" { '' }
+                default { '📄' } # Icono por defecto
+            }
+        }
+        $type = if ($_.PSIsContainer) { '[DIR]' } else { "[FILE - $($_.Extension)]" }
+        Write-Output "$icon $type $($_.Name)"
+    }
+}
 function la { Get-ChildItem -Path . -Force | Format-Table -AutoSize }
 function ll { Get-ChildItem -Path . -Force -Hidden | Format-Table -AutoSize }
 
