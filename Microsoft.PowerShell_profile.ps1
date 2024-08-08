@@ -246,6 +246,7 @@ function ep { vim $PROFILE }
 function k9 { Stop-Process -Name $args[0] }
 
 # Enhanced Listing
+function ls { Get-ChildItem -Path . | Format-Table -AutoSize }
 function la { Get-ChildItem -Path . -Force | Format-Table -AutoSize }
 function ll { Get-ChildItem -Path . -Force -Hidden | Format-Table -AutoSize }
 
