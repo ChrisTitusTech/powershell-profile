@@ -185,11 +185,11 @@ function hb {
         return
     }
     
-    $uri = "http://https://hastebin.de/documents"
+    $uri = "https://hastebin.de/documents"
     try {
         $response = Invoke-RestMethod -Uri $uri -Method Post -Body $Content -ErrorAction Stop
         $hasteKey = $response.key
-        $url = "http://https://hastebin.de/$hasteKey"
+        $url = "https://hastebin.de/$hasteKey"
         Write-Output $url
     } catch {
         Write-Error "Failed to upload the document. Error: $_"
