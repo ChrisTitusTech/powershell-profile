@@ -1,5 +1,5 @@
 ### PowerShell Profile Refactor
-### Version 1.03 - Refactored
+### Version 1.04 - Refactored
 
 #################################################################################################################################
 ############                                                                                                         ############
@@ -7,7 +7,7 @@
 ############                                                                                                         ############
 ############                DO NOT MODIFY THIS FILE. THIS FILE IS HASHED AND UPDATED AUTOMATICALLY.                  ############
 ############                    ANY CHANGES MADE TO THIS FILE WILL BE OVERWRITTEN BY COMMITS TO                      ############
-############                       https://github.com/ChrisTitusTech/powershell-profile.git.                         ############
+############                       https://github.com/moeller-projects/powershell-profile.git.                         ############
 ############                                                                                                         ############
 #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!#
 ############                                                                                                         ############
@@ -15,6 +15,8 @@
 ############                              AND SAVE YOUR CHANGES IN THE FILE CREATED.                                 ############
 ############                                                                                                         ############
 #################################################################################################################################
+
+[console]::InputEncoding = [console]::OutputEncoding = New-Object System.Text.UTF8Encoding
 
 #opt-out of telemetry before doing anything, only if PowerShell is run as admin
 if ([bool]([System.Security.Principal.WindowsIdentity]::GetCurrent()).IsSystem) {
@@ -27,9 +29,9 @@ $canConnectToGitHub = Test-Connection github.com -Count 1 -Quiet -TimeoutSeconds
 # Import Modules and External Profiles
 # Ensure Terminal-Icons module is installed before importing
 if (-not (Get-Module -ListAvailable -Name Terminal-Icons)) {
-    Install-Module -Name Terminal-Icons -Scope CurrentUser -Force -SkipPublisherCheck
+    Install-Module -Name Terminal-Icons, PSMenu, PSReadLine, CompletionPredictor -Scope CurrentUser -Force -SkipPublisherCheck
 }
-Import-Module -Name Terminal-Icons
+Import-Module -Name Terminal-Icons, PSMenu, PSReadLine, CompletionPredictor
 $ChocolateyProfile = "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"
 if (Test-Path($ChocolateyProfile)) {
     Import-Module "$ChocolateyProfile"
@@ -43,7 +45,7 @@ function Update-Profile {
     }
 
     try {
-        $url = "https://raw.githubusercontent.com/ChrisTitusTech/powershell-profile/main/Microsoft.PowerShell_profile.ps1"
+        $url = "https://raw.githubusercontent.com/moeller-projects/powershell-profile/main/Microsoft.PowerShell_profile.ps1"
         $oldhash = Get-FileHash $PROFILE
         Invoke-RestMethod $url -OutFile "$env:temp/Microsoft.PowerShell_profile.ps1"
         $newhash = Get-FileHash "$env:temp/Microsoft.PowerShell_profile.ps1"
@@ -125,6 +127,9 @@ function ff($name) {
         Write-Output "$($_.FullName)"
     }
 }
+
+# Ask ChatGPT
+function askChatGpt { Invoke-Expression "tgpt --provider openai --key $env:OPENAI_API_KEY --model ""gpt-3.5-turbo"" ""$args""" }
 
 # Network Utilities
 function Get-PubIP { (Invoke-WebRequest http://ifconfig.me/ip).Content }
@@ -291,6 +296,74 @@ function cpy { Set-Clipboard $args[0] }
 
 function pst { Get-Clipboard }
 
+# Define a class for menu options
+class MenuOption {
+    [String]$Name
+    [String]$Value
+
+    [String]ToString() {
+        return "$($this.Name) ($($this.Value))"
+    }
+}
+
+# Function to create a new menu item
+function New-MenuItem([String]$Name, [String]$Value) {
+    $MenuItem = [MenuOption]::new()
+    $MenuItem.Name = $Name
+    $MenuItem.Value = $Value
+    return $MenuItem
+}
+
+# Switch Azure Subscription
+function Switch-Azure-Subscription {
+    # Fetch the list of Azure subscriptions
+    $AZ_SUBSCRIPTIONS = az account list --output json | ConvertFrom-Json
+    if ($AZ_SUBSCRIPTIONS.Count -eq 0) {
+        Write-Host "No Azure Subscriptions found."
+        return
+    }
+
+    # Populate the options array
+    $Options = $AZ_SUBSCRIPTIONS | ForEach-Object { New-MenuItem -Name $_.name -Value $_.id }
+
+    # Display the menu and get the selected subscription
+    $selectedAZSub = Show-Menu -MenuItems $Options
+
+    # Set the selected Azure subscription
+    & az account set -s $selectedAZSub.Value
+}
+function sas { Switch-Azure-Subscription }
+
+
+# Login to Docker Registry
+function Login-Azure-Container-Registry {
+    # Retrieve the list of Azure Container Registries
+    $ACRs = az acr list --output json | ConvertFrom-Json
+
+    # Check if $ACRs is empty
+    if ($ACRs.Count -eq 0) {
+        Write-Host "No Azure Container Registries found."
+        return
+    }
+
+    # Create menu options from the ACR list
+    $Options = $ACRs | ForEach-Object { New-MenuItem -Name $_.loginServer -Value $_.name }
+
+    # Display the menu and get the selected ACR
+    $selectedACR = Show-Menu -MenuItems $Options
+
+    # Get the credentials for the selected ACR
+    $credentials = az acr credential show --name $selectedACR.Value -o json | ConvertFrom-Json
+
+    # Login to Docker registry using the credentials
+    docker login $selectedACR.Name --username $credentials.username --password $credentials.passwords[0].value
+}
+function lacr { Login-Azure-Container-Registry }
+
+# Terminal Apps
+function lzg { lazygit }
+function lzd { lazydocker }
+
 # Enhanced PowerShell Experience
 Set-PSReadLineOption -Colors @{
     Command = 'Yellow'
@@ -329,7 +402,7 @@ function Get-Theme {
             return
         }
     } else {
-        oh-my-posh init pwsh --config https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/cobalt2.omp.json | Invoke-Expression
+        oh-my-posh init pwsh --config "$env:POSH_THEMES_PATH/material.omp.json" | Invoke-Expression
     }
 }
 
@@ -350,6 +423,10 @@ if (Get-Command zoxide -ErrorAction SilentlyContinue) {
 
 Set-Alias -Name z -Value __zoxide_z -Option AllScope -Scope Global -Force
 Set-Alias -Name zi -Value __zoxide_zi -Option AllScope -Scope Global -Force
+
+# Set-PSReadLineOption -PredictionSource History
+# Set-PSReadLineOption -PredictionViewStyle ListView
+# Set-PSReadLineOption -EditMode Windows
 
 # Help Function
 function Show-Help {
@@ -434,6 +511,10 @@ flushdns - Clears the DNS cache.
 cpy <text> - Copies the specified text to the clipboard.
 
 pst - Retrieves text from the clipboard.
+
+sas - Switch current selected Azure Subscription.
+
+lacr - Login to Azure Container Registry.
 
 Use 'Show-Help' to display this help message.
 "@
