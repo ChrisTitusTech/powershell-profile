@@ -129,10 +129,11 @@ function ff($name) {
 }
 
 # Ask ChatGPT
-function askChatGpt { Invoke-Expression "tgpt --provider openai --key $env:OPENAI_API_KEY --model ""gpt-3.5-turbo"" ""$args""" }
+function Ask-ChatGpt { Invoke-Expression "tgpt --provider openai --key $env:OPENAI_API_KEY --model ""gpt-3.5-turbo"" ""$args""" }
+function ask { Ask-ChatGpt }
 
 # Network Utilities
-function Get-PubIP { (Invoke-WebRequest http://ifconfig.me/ip).Content }
+function Get-PubIP { (Invoke-WebRequest https://ipv4.icanhazip.com).Content }
 
 # Open WinUtil
 function winutil {
@@ -184,11 +185,11 @@ function hb {
         return
     }
     
-    $uri = "http://bin.christitus.com/documents"
+    $uri = "http://https://hastebin.de/documents"
     try {
         $response = Invoke-RestMethod -Uri $uri -Method Post -Body $Content -ErrorAction Stop
         $hasteKey = $response.key
-        $url = "http://bin.christitus.com/$hasteKey"
+        $url = "http://https://hastebin.de/$hasteKey"
         Write-Output $url
     } catch {
         Write-Error "Failed to upload the document. Error: $_"
@@ -515,6 +516,8 @@ pst - Retrieves text from the clipboard.
 sas - Switch current selected Azure Subscription.
 
 lacr - Login to Azure Container Registry.
+
+ask - Ask ChatGPT.
 
 Use 'Show-Help' to display this help message.
 "@
