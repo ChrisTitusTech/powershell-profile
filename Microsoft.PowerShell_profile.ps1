@@ -133,7 +133,7 @@ function Ask-ChatGpt { Invoke-Expression "tgpt --provider openai --key $env:OPEN
 function ask { Ask-ChatGpt }
 
 # Network Utilities
-function Get-PubIP { (Invoke-WebRequest https://ipv4.icanhazip.com).Content }
+function Get-PubIP { (Invoke-WebRequest https://ipv4.icanhazip.com).Content.Trim() }
 
 # Open WinUtil
 function winutil {
