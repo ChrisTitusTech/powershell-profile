@@ -361,6 +361,26 @@ function Login-Azure-Container-Registry {
 }
 function lacr { Login-Azure-Container-Registry }
 
+function Get-FileSize {
+    param(
+        [string]$Path
+    )
+    
+    $file = Get-Item $Path
+    $sizeInBytes = $file.Length
+
+    $units = @("Bytes", "KB", "MB", "GB", "TB")
+    $unitValues = 1, 1KB, 1MB, 1GB, 1TB
+
+    for ($i = $units.Length - 1; $i -ge 0; $i--) {
+        if ($sizeInBytes -ge $unitValues[$i]) {
+            $size = [math]::round($sizeInBytes / $unitValues[$i], 2)
+            Write-Output "$size $($units[$i])"
+            return
+        }
+    }
+}
+
 # Share File via HiDrive Share
 function Share-File {
     param (
@@ -395,7 +415,7 @@ function Share-File {
             # Upload the file
             $uploadUri = "$baseApiUrl/$($credentials.id)/patch?dst=$($file.name)&offset=0"
             $uploadResponse = Invoke-WebRequest -Method POST -Uri $uploadUri -Form @{file = $file} -ContentType "multipart/form-data" -Headers @{"x-auth-token" = $credentials.token}
-            Write-Output "[DONE] $($file.Name)- $($file.Length) bytes"
+            Write-Output "[DONE] $($file.Name) - $(Get-FileSize -Path $Path)"
         }
         catch {
             Write-Error "An error occurred while processing '$Path': $_"
