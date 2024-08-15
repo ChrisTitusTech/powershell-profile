@@ -366,7 +366,7 @@ function Get-FileSize {
         [string]$Path
     )
     
-    $file = Get-Item $Path
+    $file = Get-Item -Path $Path
     $sizeInBytes = $file.Length
 
     $units = @("Bytes", "KB", "MB", "GB", "TB")
