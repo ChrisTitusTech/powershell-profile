@@ -361,6 +361,60 @@ function Login-Azure-Container-Registry {
 }
 function lacr { Login-Azure-Container-Registry }
 
+# Share File via HiDrive Share
+function Share-File {
+    param (
+        [Parameter(Mandatory=$true)]
+        [string[]]$Paths
+    )
+    
+    # Base URLs
+    $baseApiUrl = "https://share.hidrive.com/api"
+
+    # Request credentials for file sharing
+    try {
+        $credentialsResponse = Invoke-WebRequest -Method POST -Uri "$baseApiUrl/new"
+        $credentials = $credentialsResponse.Content | ConvertFrom-Json
+    }
+    catch {
+        Write-Error "Failed to obtain credentials: $_"
+        return
+    }
+
+    foreach ($Path in $Paths) {
+        # Validate file path
+        if (-not (Test-Path -Path $Path)) {
+            Write-Error "The specified path '$Path' does not exist."
+            continue
+        }
+
+        try {
+            # Get the file item
+            $file = Get-Item -Path $Path
+
+            # Upload the file
+            $uploadUri = "$baseApiUrl/$($credentials.id)/patch?dst=$($file.name)&offset=0"
+            $uploadResponse = Invoke-WebRequest -Method POST -Uri $uploadUri -Form @{file = $file} -ContentType "multipart/form-data" -Headers @{"x-auth-token" = $credentials.token}
+            Write-Output "[DONE] $($file.Name)- $($file.Length) bytes"
+        }
+        catch {
+            Write-Error "An error occurred while processing '$Path': $_"
+        }
+    }
+
+    # Finalize the upload
+    $finalizeUri = "$baseApiUrl/$($credentials.id)/finalize"
+    $finalizeResponse = Invoke-WebRequest -Method POST -Uri $finalizeUri -Headers @{"x-auth-token" = $credentials.token}
+
+    # Collect the shareable link
+    $share = "https://get.hidrive.com/$($credentials.id)"
+    
+    $share | clip
+    Write-Output $share
+}
+function sf { Share-File }
+
+
 # Terminal Apps
 function lzg { lazygit }
 function lzd { lazydocker }
