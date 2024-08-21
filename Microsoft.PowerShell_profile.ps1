@@ -445,6 +445,10 @@ if (Test-CommandExists fnm) {
     fnm env --use-on-cd --shell power-shell | Out-String | Invoke-Expression
 }
 
+function Init-fnm {
+	node --version > .node-version
+}
+
 # Enhanced PowerShell Experience
 Set-PSReadLineOption -Colors @{
     Command = 'Yellow'
