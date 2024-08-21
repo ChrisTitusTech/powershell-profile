@@ -439,6 +439,12 @@ function sf { Share-File }
 function lzg { lazygit }
 function lzd { lazydocker }
 
+
+# Init fnm (Fast Node.js Manager)
+if (Test-CommandExists fnm) {
+    fnm env --use-on-cd --shell power-shell | Out-String | Invoke-Expression
+}
+
 # Enhanced PowerShell Experience
 Set-PSReadLineOption -Colors @{
     Command = 'Yellow'
