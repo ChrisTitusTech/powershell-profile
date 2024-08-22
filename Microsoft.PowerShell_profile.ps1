@@ -129,8 +129,28 @@ function ff($name) {
 }
 
 # Ask ChatGPT
-function Ask-ChatGpt { Invoke-Expression "tgpt --provider openai --key $env:OPENAI_API_KEY --model ""gpt-3.5-turbo"" ""$args""" }
-function ask { Ask-ChatGpt }
+function Ask-ChatGpt {
+    param (
+        [string[]]$Args,
+        [switch]$UseShell
+    )
+
+    if (-not $env:OPENAI_API_KEY) {
+        Write-Host "Error: The OPENAI_API_KEY environment variable is not set."
+        return
+    }
+
+    $argsString = $Args -join ' '
+    $shellOption = if ($UseShell) { '-s ' } else { '' }
+    $command = "tgpt --provider openai --key $env:OPENAI_API_KEY --model 'gpt-4o' $shellOption'$argsString'"
+    Invoke-Expression $command
+}
+function ask {
+    param (
+        [string[]]$Args
+    )
+    Ask-ChatGpt -Args $Args
+}
 
 # Network Utilities
 function Get-PubIP { (Invoke-WebRequest https://ipv4.icanhazip.com).Content.Trim() }
