@@ -469,6 +469,15 @@ function Init-fnm {
 	node --version > .node-version
 }
 
+function Watch-File {
+	param (
+        [string]$Path
+    )
+	Get-Content $Path -Wait -Tail 1
+}
+
+function wf { Watch-File -Path $args[0] }
+
 # Enhanced PowerShell Experience
 Set-PSReadLineOption -Colors @{
     Command = 'Yellow'
