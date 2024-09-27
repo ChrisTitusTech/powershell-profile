@@ -494,8 +494,9 @@ $PSROptions = @{
     }
 }
 Set-PSReadLineOption @PSROptions
-Set-PSReadLineKeyHandler -Chord 'Ctrl+f' -Function ForwardWord
 Set-PSReadLineKeyHandler -Chord 'Enter' -Function ValidateAndAcceptLine
+Set-PSReadLineKeyHandler -Chord 'Ctrl+Enter' -Function AcceptSuggestion
+Set-PSReadLineKeyHandler -Chord 'Alt+v' -Function SwitchPredictionView
 
 $scriptblock = {
     param($wordToComplete, $commandAst, $cursorPosition)
