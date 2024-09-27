@@ -478,25 +478,32 @@ function Watch-File {
 
 function wf { Watch-File -Path $args[0] }
 
-# Enhanced PowerShell Experience
+# Customize syntax highlighting
 Set-PSReadLineOption -Colors @{
-    Command = 'Yellow'
-    Parameter = 'Green'
-    String = 'DarkCyan'
+    Command = "Cyan"
+    Keyword = "Green"
+    String = "Magenta"
+    Operator = "Yellow"
+    Variable = "White"
+    Comment = "DarkGray"
 }
 
-$PSROptions = @{
-    ContinuationPrompt = '  '
-    Colors             = @{
-    Parameter          = $PSStyle.Foreground.Magenta
-    Selection          = $PSStyle.Background.Black
-    InLinePrediction   = $PSStyle.Foreground.BrightYellow + $PSStyle.Background.BrightBlack
-    }
-}
-Set-PSReadLineOption @PSROptions
-Set-PSReadLineKeyHandler -Chord 'Enter' -Function ValidateAndAcceptLine
-Set-PSReadLineKeyHandler -Chord 'Ctrl+Enter' -Function AcceptSuggestion
-Set-PSReadLineKeyHandler -Chord 'Alt+v' -Function SwitchPredictionView
+# Increase history size
+Set-PSReadLineOption -MaximumHistoryCount 4096
+# Enable predictive IntelliSense
+Set-PSReadLineOption -PredictionSource History
+# Case insensitive history search with cursor at the end
+Set-PSReadLineOption -HistorySearchCursorMovesToEnd
+# Disable bell
+Set-PSReadLineOption -BellStyle None
+# Set custom key bindings
+Set-PSReadLineKeyHandler -Key Ctrl+L -Function ClearScreen
+Set-PSReadLineKeyHandler -Chord Enter -Function ValidateAndAcceptLine
+Set-PSReadLineKeyHandler -Chord Ctrl+Enter -Function AcceptSuggestion
+Set-PSReadLineKeyHandler -Chord Alt+V -Function SwitchPredictionView
+# Save command history to file
+Set-PSReadLineOption -HistorySavePath "$env:APPDATA\PSReadLine\CommandHistory.txt"
+Set-PSReadLineOption -HistorySaveInterval 60
 
 $scriptblock = {
     param($wordToComplete, $commandAst, $cursorPosition)
