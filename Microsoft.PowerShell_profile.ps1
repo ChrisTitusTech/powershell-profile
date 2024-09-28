@@ -479,6 +479,8 @@ function Watch-File {
 function wf { Watch-File -Path $args[0] }
 
 Set-Alias k kubectl
+Set-Alias d docker
+Set-Alias dc docker-compose
 function global:Select-KubeContext {
   [CmdletBinding()]
   [Alias('kubectx')]
@@ -521,6 +523,53 @@ function global:Select-KubeNamespace {
     }
   }
 }
+
+$ProjectPaths = @(
+	"D:\projects\aveato",
+	"D:\projects\laekkerai",
+	"D:\projects\private"
+)
+# Class to support auto-completion of project folders from multiple paths
+Class MyProjects : System.Management.Automation.IValidateSetValuesGenerator {
+    [string[]] GetValidValues() {        
+        # Collect project names from all specified paths
+        $ProjectNames = foreach ($ProjectPath in $ProjectPaths) {
+            if (Test-Path $ProjectPath) {
+                (Get-ChildItem -Path $ProjectPath -Directory).BaseName
+            }
+        }
+
+        # Return distinct project names
+        return [string[]] $ProjectNames | Sort-Object -Unique
+    }
+}
+
+# Command Definition
+function Enter-Projects {
+    [CmdletBinding()]
+    param(
+        # Enable tab completion with projects found in multiple paths
+        [ValidateSet([MyProjects])]
+        [ArgumentCompletions([MyProjects])]
+        [string]
+        $projects
+    )
+
+    # Find the first matching project folder in the specified paths
+    foreach ($ProjectPath in $ProjectPaths) {
+        $FullProjectPath = Join-Path -Path $ProjectPath -ChildPath $projects
+        if (Test-Path $FullProjectPath) {
+            Set-Location -Path $FullProjectPath
+            Get-ChildItem
+            return
+        }
+    }
+
+    # If no match found, throw an error
+    Write-Error "Project '$projects' not found in the specified paths."
+}
+New-Alias -Name "project" Enter-Projects
+
 
 # Customize syntax highlighting
 Set-PSReadLineOption -Colors @{
