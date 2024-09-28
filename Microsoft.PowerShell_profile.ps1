@@ -497,10 +497,12 @@ Set-PSReadLineOption -HistorySearchCursorMovesToEnd
 # Disable bell
 Set-PSReadLineOption -BellStyle None
 # Set custom key bindings
-Set-PSReadLineKeyHandler -Key Ctrl+L -Function ClearScreen
+Set-PSReadLineKeyHandler -Key Ctrl+l -Function ClearScreen
 Set-PSReadLineKeyHandler -Chord Enter -Function ValidateAndAcceptLine
 Set-PSReadLineKeyHandler -Chord Ctrl+Enter -Function AcceptSuggestion
-Set-PSReadLineKeyHandler -Chord Alt+V -Function SwitchPredictionView
+Set-PSReadLineKeyHandler -Chord Alt+v -Function SwitchPredictionView
+Set-PSReadlineKeyHandler -Key Tab -Function MenuComplete
+
 # Save command history to file
 Set-PSReadLineOption -HistorySavePath "$env:APPDATA\PSReadLine\CommandHistory.txt"
 
@@ -512,6 +514,24 @@ $scriptblock = {
         }
 }
 Register-ArgumentCompleter -Native -CommandName dotnet -ScriptBlock $scriptblock
+
+Register-ArgumentCompleter -Native -CommandName az -ScriptBlock {
+    param($commandName, $wordToComplete, $cursorPosition)
+    $completion_file = New-TemporaryFile
+    $env:ARGCOMPLETE_USE_TEMPFILES = 1
+    $env:_ARGCOMPLETE_STDOUT_FILENAME = $completion_file
+    $env:COMP_LINE = $wordToComplete
+    $env:COMP_POINT = $cursorPosition
+    $env:_ARGCOMPLETE = 1
+    $env:_ARGCOMPLETE_SUPPRESS_SPACE = 0
+    $env:_ARGCOMPLETE_IFS = "`n"
+    $env:_ARGCOMPLETE_SHELL = 'powershell'
+    az 2>&1 | Out-Null
+    Get-Content $completion_file | Sort-Object | ForEach-Object {
+        [System.Management.Automation.CompletionResult]::new($_, $_, "ParameterValue", $_)
+    }
+    Remove-Item $completion_file, Env:\_ARGCOMPLETE_STDOUT_FILENAME, Env:\ARGCOMPLETE_USE_TEMPFILES, Env:\COMP_LINE, Env:\COMP_POINT, Env:\_ARGCOMPLETE, Env:\_ARGCOMPLETE_SUPPRESS_SPACE, Env:\_ARGCOMPLETE_IFS, Env:\_ARGCOMPLETE_SHELL
+}
 
 
 # Get theme from profile.ps1 or use a default theme
