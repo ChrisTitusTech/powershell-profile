@@ -533,7 +533,7 @@ $Global:ProjectPaths = @(
 Class MyProjects : System.Management.Automation.IValidateSetValuesGenerator {
     [string[]] GetValidValues() {        
         # Collect project names from all specified paths
-        $ProjectNames = foreach ($ProjectPath in $ProjectPaths) {
+        $ProjectNames = foreach ($ProjectPath in $Global:ProjectPaths) {
             if (Test-Path $ProjectPath) {
                 (Get-ChildItem -Path $ProjectPath -Directory).BaseName
             }
@@ -556,7 +556,7 @@ function Enter-Projects {
     )
 
     # Find the first matching project folder in the specified paths
-    foreach ($ProjectPath in $ProjectPaths) {
+    foreach ($ProjectPath in $Global:ProjectPaths) {
         $FullProjectPath = Join-Path -Path $ProjectPath -ChildPath $projects
         if (Test-Path $FullProjectPath) {
             Set-Location -Path $FullProjectPath
