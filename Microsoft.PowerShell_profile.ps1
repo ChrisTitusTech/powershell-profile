@@ -636,7 +636,7 @@ function Get-Theme {
             return
         }
     } else {
-        oh-my-posh init pwsh --config "$env:POSH_THEMES_PATH/material.omp.json" | Invoke-Expression
+        oh-my-posh init pwsh --config "$env:POSH_THEMES_PATH/clean-detailed.omp.json" | Invoke-Expression
     }
 }
 
