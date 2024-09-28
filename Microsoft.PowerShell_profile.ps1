@@ -524,7 +524,7 @@ function global:Select-KubeNamespace {
   }
 }
 
-$ProjectPaths = @(
+$Global:ProjectPaths = @(
 	"D:\projects\aveato",
 	"D:\projects\laekkerai",
 	"D:\projects\private"
