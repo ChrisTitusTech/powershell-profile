@@ -503,7 +503,6 @@ Set-PSReadLineKeyHandler -Chord Ctrl+Enter -Function AcceptSuggestion
 Set-PSReadLineKeyHandler -Chord Alt+V -Function SwitchPredictionView
 # Save command history to file
 Set-PSReadLineOption -HistorySavePath "$env:APPDATA\PSReadLine\CommandHistory.txt"
-Set-PSReadLineOption -HistorySaveInterval 60
 
 $scriptblock = {
     param($wordToComplete, $commandAst, $cursorPosition)
