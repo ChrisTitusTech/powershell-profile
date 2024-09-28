@@ -29,9 +29,9 @@ $canConnectToGitHub = Test-Connection github.com -Count 1 -Quiet -TimeoutSeconds
 # Import Modules and External Profiles
 # Ensure Terminal-Icons module is installed before importing
 if (-not (Get-Module -ListAvailable -Name Terminal-Icons)) {
-    Install-Module -Name Terminal-Icons, PSMenu, InteractiveMenu, PSReadLine, CompletionPredictor -Scope CurrentUser -Force -SkipPublisherCheck
+    Install-Module -Name Terminal-Icons, PSMenu, InteractiveMenu, PSReadLine, CompletionPredictor, PSFzf -Scope CurrentUser -Force -SkipPublisherCheck
 }
-Import-Module -Name Terminal-Icons, PSMenu, InteractiveMenu, PSReadLine, CompletionPredictor
+Import-Module -Name Terminal-Icons, PSMenu, InteractiveMenu, PSReadLine, CompletionPredictor, PSFzf
 $ChocolateyProfile = "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"
 if (Test-Path($ChocolateyProfile)) {
     Import-Module "$ChocolateyProfile"
@@ -477,6 +477,50 @@ function Watch-File {
 }
 
 function wf { Watch-File -Path $args[0] }
+
+Set-Alias k kubectl
+function global:Select-KubeContext {
+  [CmdletBinding()]
+  [Alias('kubectx')]
+  param (
+    [parameter(Mandatory=$False,Position=0,ValueFromRemainingArguments=$True)]
+    [Object[]] $Arguments
+  )
+  begin {
+    if ($Arguments.Length -gt 0) {
+      $ctx = & kubectl config get-contexts -o=name | fzf -q @Arguments
+    } else {
+      $ctx = & kubectl config get-contexts -o=name | fzf
+    }
+  }
+  process {
+    if ($ctx -ne '') {
+      & kubectl config use-context $ctx
+    }
+  }
+}
+
+function global:Select-KubeNamespace {
+  [CmdletBinding()]
+  [Alias('kubens')]
+  param (
+    [parameter(Mandatory=$False,Position=0,ValueFromRemainingArguments=$True)]
+    [Object[]] $Arguments
+  )
+  begin {
+    if ($Arguments.Length -gt 0) {
+      $ns = & kubectl get namespace -o=name | fzf -q @Arguments
+    } else {
+      $ns = & kubectl get namespace -o=name | fzf
+    }
+  }
+  process {
+    if ($ns -ne '') {
+      $ns = $ns -replace '^namespace/'
+      & kubectl config set-context --current --namespace=$ns
+    }
+  }
+}
 
 # Customize syntax highlighting
 Set-PSReadLineOption -Colors @{
