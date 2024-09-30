@@ -789,7 +789,7 @@ function global:Show-HelpV2 {
 
             # If no aliases, use "None"
             if (-not $aliasList) {
-                $aliasList = "None"
+                $aliasList = " "
             }
 
             # Add functions to the hashtable, grouped by category
