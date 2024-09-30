@@ -129,7 +129,9 @@ function ff($name) {
 }
 
 # Ask ChatGPT
-function Ask-ChatGpt {
+function global:Ask-ChatGpt {
+    [CmdletBinding()]
+    [Alias("ask")]
     param (
         [string[]]$Args,
         [switch]$UseShell
@@ -141,15 +143,9 @@ function Ask-ChatGpt {
     }
 
     $argsString = $Args -join ' '
-    $shellOption = if ($UseShell) { '-s ' } else { '' }
-    $command = "tgpt --provider openai --key $env:OPENAI_API_KEY --model 'gpt-4o' $shellOption'$argsString'"
+    $shellOption = if ($UseShell) { '-s' } else { '' }
+    $command = "tgpt $shellOption \"$argsString\""
     Invoke-Expression $command
-}
-function ask {
-    param (
-        [string[]]$Args
-    )
-    Ask-ChatGpt -Args $Args
 }
 
 # Network Utilities
