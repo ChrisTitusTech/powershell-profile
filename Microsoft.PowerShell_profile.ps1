@@ -570,6 +570,9 @@ function Enter-Projects {
 }
 New-Alias -Name "project" Enter-Projects
 
+if (Test-CommandExists fnm) {
+	volta completions powershell | Out-String | Invoke-Expression
+}
 
 # Customize syntax highlighting
 Set-PSReadLineOption -Colors @{
