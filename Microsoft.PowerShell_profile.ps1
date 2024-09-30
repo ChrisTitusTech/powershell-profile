@@ -639,7 +639,7 @@ function Get-Theme {
             return
         }
     } else {
-        oh-my-posh init pwsh --config "$env:POSH_THEMES_PATH/clean-detailed.omp.json" | Invoke-Expression
+        oh-my-posh init pwsh --config "$env:POSH_THEMES_PATH/powerlevel10k_lean.omp.json" | Invoke-Expression
     }
 }
 
