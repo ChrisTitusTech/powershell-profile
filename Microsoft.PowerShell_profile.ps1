@@ -144,7 +144,7 @@ function global:Ask-ChatGpt {
 
     $argsString = $Args -join ' '
     $shellOption = if ($UseShell) { '-s' } else { '' }
-    $command = "tgpt $shellOption \"$argsString\""
+    $command = "tgpt $shellOption `"$argsString`""
     Invoke-Expression $command
 }
 
