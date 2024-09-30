@@ -769,8 +769,6 @@ Use 'Show-Help' to display this help message.
 Write-Host "Use 'Show-Help' to display help"
 
 function global:Show-HelpV2 {
-    [Alias("help")]
-    # Get all functions in the current session
     $functions = Get-Command -CommandType Function
 
     # Create a hashtable to group functions by category
@@ -784,11 +782,14 @@ function global:Show-HelpV2 {
             $category = $attr.Category
             $description = $attr.Description
             $functionName = $function.Name
-            $aliases = $attr.Aliases -join ", "  # Join aliases into a comma-separated list
+
+            # Find aliases associated with the function
+            $aliases = Get-Alias | Where-Object { $_.Definition -eq $functionName }
+            $aliasList = $aliases | ForEach-Object { $_.Name } -join ", "  # Join aliases into a comma-separated list
 
             # If no aliases, use "None"
-            if (-not $aliases) {
-                $aliases = "None"
+            if (-not $aliasList) {
+                $aliasList = "None"
             }
 
             # Add functions to the hashtable, grouped by category
@@ -799,7 +800,7 @@ function global:Show-HelpV2 {
             $groupedByCategory[$category] += [pscustomobject]@{
                 Name        = $functionName
                 Description = $description
-                Aliases     = $aliases
+                Aliases     = $aliasList
             }
         }
     }
