@@ -37,6 +37,16 @@ if (Test-Path($ChocolateyProfile)) {
     Import-Module "$ChocolateyProfile"
 }
 
+class InfoAttribute : System.Attribute {
+    [string]$Description
+    [string]$Category
+
+    InfoAttribute([string]$description, [string]$category) {
+        $this.Description = $description
+        $this.Category = $category
+    }
+}
+
 # Check for Profile Updates
 function Update-Profile {
     if (-not $global:canConnectToGitHub) {
@@ -399,6 +409,9 @@ function Get-FileSize {
 
 # Share File via HiDrive Share
 function Share-File {
+    [Info("Upload one or more Files to share it using HiDrive", "Share")]
+    [CmdletBinder()]
+    [Alias("sf")]
     param (
         [Parameter(Mandatory=$true)]
         [string[]]$Paths
@@ -448,7 +461,6 @@ function Share-File {
     $share | clip
     Write-Output $share
 }
-function sf { Share-File }
 
 
 # Terminal Apps
@@ -540,9 +552,10 @@ Class MyProjects : System.Management.Automation.IValidateSetValuesGenerator {
     }
 }
 
-# Command Definition
 function Enter-Projects {
+    [Info("Enter a predefined Project Folder", "Navigation")]
     [CmdletBinding()]
+    [Alias("project")]
     param(
         # Enable tab completion with projects found in multiple paths
         [ValidateSet([MyProjects])]
@@ -564,7 +577,6 @@ function Enter-Projects {
     # If no match found, throw an error
     Write-Error "Project '$projects' not found in the specified paths."
 }
-New-Alias -Name "project" Enter-Projects
 
 if (Test-CommandExists fnm) {
 	volta completions powershell | Out-String | Invoke-Expression
@@ -755,3 +767,51 @@ Use 'Show-Help' to display this help message.
 "@
 }
 Write-Host "Use 'Show-Help' to display help"
+
+function global:Show-HelpV2 {
+    [Alias("help")]
+    # Get all functions in the current session
+    $functions = Get-Command -CommandType Function
+
+    # Create a hashtable to group functions by category
+    $groupedByCategory = @{}
+
+    foreach ($function in $functions) {
+        # Retrieve custom attributes for each function
+        $customAttributes = $function.ScriptBlock.Attributes | Where-Object { $_ -is [CustomInfoAttribute] }
+
+        foreach ($attr in $customAttributes) {
+            $category = $attr.Category
+            $description = $attr.Description
+            $functionName = $function.Name
+            $aliases = $attr.Aliases -join ", "  # Join aliases into a comma-separated list
+
+            # If no aliases, use "None"
+            if (-not $aliases) {
+                $aliases = "None"
+            }
+
+            # Add functions to the hashtable, grouped by category
+            if (-not $groupedByCategory.ContainsKey($category)) {
+                $groupedByCategory[$category] = @()
+            }
+
+            $groupedByCategory[$category] += [pscustomobject]@{
+                Name        = $functionName
+                Description = $description
+                Aliases     = $aliases
+            }
+        }
+    }
+
+    # Now print the functions, grouped by category
+    foreach ($category in $groupedByCategory.Keys) {
+        Write-Host "Category: $category" -ForegroundColor Cyan
+        Write-Host "------------------------------------------"
+
+        # Print a formatted table of functions under this category with Aliases
+        $groupedByCategory[$category] | Format-Table -Property Name, Aliases, Description -AutoSize
+
+        Write-Host ""
+    }
+}
