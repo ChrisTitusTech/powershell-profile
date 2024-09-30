@@ -778,7 +778,7 @@ function global:Show-HelpV2 {
 
     foreach ($function in $functions) {
         # Retrieve custom attributes for each function
-        $customAttributes = $function.ScriptBlock.Attributes | Where-Object { $_ -is [CustomInfoAttribute] }
+        $customAttributes = $function.ScriptBlock.Attributes | Where-Object { $_ -is [InfoAttribute] }
 
         foreach ($attr in $customAttributes) {
             $category = $attr.Category
