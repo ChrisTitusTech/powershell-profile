@@ -410,7 +410,7 @@ function Get-FileSize {
 # Share File via HiDrive Share
 function Share-File {
     [Info("Upload one or more Files to share it using HiDrive", "Share")]
-    [CmdletBinder()]
+    [CmdletBinding()]
     [Alias("sf")]
     param (
         [Parameter(Mandatory=$true)]
@@ -785,7 +785,7 @@ function global:Show-HelpV2 {
 
             # Find aliases associated with the function
             $aliases = Get-Alias | Where-Object { $_.Definition -eq $functionName }
-            $aliasList = $aliases | ForEach-Object { $_.Name } -join ", "  # Join aliases into a comma-separated list
+            $aliasList = $($aliases | foreach { $_.Name }) -join ", "  # Join aliases into a comma-separated list
 
             # If no aliases, use "None"
             if (-not $aliasList) {
