@@ -396,7 +396,7 @@ function pst { Get-Clipboard }
 
 function Switch-Azure-Subscription {
     [Info("Select and login to Azure Subscription", [CommandCategory]::Development)]
-    [CmdletBinder]
+    [CmdletBinder()]
     [Alias("sas")]
     param ()
     
@@ -421,7 +421,7 @@ function Switch-Azure-Subscription {
 # Login to Docker Registry
 function Login-ACR {
     [Info("Select and login to Azure Container Registry using Docker", [CommandCategory]::Development)]
-    [CmdletBinder]
+    [CmdletBinder()]
     [Alias("lacr")]
     param ()
     
