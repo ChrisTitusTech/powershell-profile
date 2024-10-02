@@ -16,6 +16,8 @@
 ############                                                                                                         ############
 #################################################################################################################################
 
+#region Basic Setup
+
 [console]::InputEncoding = [console]::OutputEncoding = New-Object System.Text.UTF8Encoding
 
 #opt-out of telemetry before doing anything, only if PowerShell is run as admin
@@ -37,6 +39,32 @@ if (Test-Path($ChocolateyProfile)) {
     Import-Module "$ChocolateyProfile"
 }
 
+# Admin Check and Prompt Customization
+$isAdmin = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
+function prompt {
+    if ($isAdmin) { "[" + (Get-Location) + "] # " } else { "[" + (Get-Location) + "] $ " }
+}
+$adminSuffix = if ($isAdmin) { " [ADMIN]" } else { "" }
+$Host.UI.RawUI.WindowTitle = "PowerShell {0}$adminSuffix" -f $PSVersionTable.PSVersion.ToString()
+
+# Utility Functions
+function Test-CommandExists {
+    param($command)
+    $exists = $null -ne (Get-Command $command -ErrorAction SilentlyContinue)
+    return $exists
+}
+
+# Editor Configuration
+$EDITOR = if (Test-CommandExists nvim) { 'nvim' }
+elseif (Test-CommandExists pvim) { 'pvim' }
+elseif (Test-CommandExists vim) { 'vim' }
+elseif (Test-CommandExists vi) { 'vi' }
+elseif (Test-CommandExists code) { 'code' }
+elseif (Test-CommandExists notepad++) { 'notepad++' }
+elseif (Test-CommandExists sublime_text) { 'sublime_text' }
+else { 'notepad' }
+Set-Alias -Name vim -Value $EDITOR
+
 class InfoAttribute : System.Attribute {
     [string]$Description
     [string]$Category
@@ -47,8 +75,14 @@ class InfoAttribute : System.Attribute {
     }
 }
 
+#endregion
+
+#region System
+
 # Check for Profile Updates
 function Update-Profile {
+    [Info("")]
+    
     if (-not $global:canConnectToGitHub) {
         Write-Host "Skipping profile update check due to GitHub.com not responding within 1 second." -ForegroundColor Yellow
         return
@@ -101,36 +135,14 @@ function Update-PowerShell {
 }
 Update-PowerShell
 
-
-# Admin Check and Prompt Customization
-$isAdmin = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
-function prompt {
-    if ($isAdmin) { "[" + (Get-Location) + "] # " } else { "[" + (Get-Location) + "] $ " }
-}
-$adminSuffix = if ($isAdmin) { " [ADMIN]" } else { "" }
-$Host.UI.RawUI.WindowTitle = "PowerShell {0}$adminSuffix" -f $PSVersionTable.PSVersion.ToString()
-
-# Utility Functions
-function Test-CommandExists {
-    param($command)
-    $exists = $null -ne (Get-Command $command -ErrorAction SilentlyContinue)
-    return $exists
-}
-
-# Editor Configuration
-$EDITOR = if (Test-CommandExists nvim) { 'nvim' }
-          elseif (Test-CommandExists pvim) { 'pvim' }
-          elseif (Test-CommandExists vim) { 'vim' }
-          elseif (Test-CommandExists vi) { 'vi' }
-          elseif (Test-CommandExists code) { 'code' }
-          elseif (Test-CommandExists notepad++) { 'notepad++' }
-          elseif (Test-CommandExists sublime_text) { 'sublime_text' }
-          else { 'notepad' }
-Set-Alias -Name vim -Value $EDITOR
-
 function Edit-Profile {
     vim $PROFILE.CurrentUserAllHosts
 }
+
+#endregion
+
+#region File Management
+
 function touch($file) { "" | Out-File $file -Encoding ASCII }
 function ff($name) {
     Get-ChildItem -recurse -filter "*${name}*" -ErrorAction SilentlyContinue | ForEach-Object {
@@ -138,8 +150,25 @@ function ff($name) {
     }
 }
 
-# Ask ChatGPT
+#endregion
+
+#region AI
+function global:Configure-ChatGpt {
+    [Info("Configure the Ask-ChatGpt function", "AI")]
+    [CmdletBinding()]
+    param ()
+
+    $provider = Read-Host "Enter AI Provider"
+    $apiKey = Read-Host "Enter OpenAI API Key"
+    $model = Read-Host "Enter OpenAI Model"
+    
+    [System.Environment]::SetEnvironmentVariable('AI_PROVIDER', $provider, [System.EnvironmentVariableTarget]::Machine)
+    [System.Environment]::SetEnvironmentVariable('OPENAI_API_KEY', $apiKey, [System.EnvironmentVariableTarget]::Machine)
+    [System.Environment]::SetEnvironmentVariable('OPENAI_MODEL ', $model, [System.EnvironmentVariableTarget]::Machine)
+}
+
 function global:Ask-ChatGpt {
+    [Info("Ask ChatGpt a Question", "AI")]
     [CmdletBinding()]
     [Alias("ask")]
     param (
@@ -157,6 +186,7 @@ function global:Ask-ChatGpt {
     $command = "tgpt $shellOption `"$argsString`""
     Invoke-Expression $command
 }
+#endregion
 
 # Network Utilities
 function Get-PubIP { (Invoke-WebRequest https://ipv4.icanhazip.com).Content.Trim() }
