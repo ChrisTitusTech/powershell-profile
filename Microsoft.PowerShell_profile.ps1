@@ -7,7 +7,7 @@
 ############                                                                                                         ############
 ############                DO NOT MODIFY THIS FILE. THIS FILE IS HASHED AND UPDATED AUTOMATICALLY.                  ############
 ############                    ANY CHANGES MADE TO THIS FILE WILL BE OVERWRITTEN BY COMMITS TO                      ############
-############                       https://github.com/ChrisTitusTech/powershell-profile.git.                         ############
+############                       https://github.com/JulianDezitter/powershell-profile.git.                         ############
 ############                                                                                                         ############
 #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!#
 ############                                                                                                         ############
@@ -90,7 +90,8 @@ Update-PowerShell
 # Admin Check and Prompt Customization
 $isAdmin = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
 function prompt {
-    if ($isAdmin) { "[" + (Get-Location) + "] # " } else { "[" + (Get-Location) + "] $ " }
+    $currentTime = Get-Date -Format "HH:mm:ss on dd/MM/yyyy"
+    if ($isAdmin) { "[" + (Get-Location) + "] $currentTime # " } else { "[" + (Get-Location) + "] $currentTime $ " }
 }
 $adminSuffix = if ($isAdmin) { " [ADMIN]" } else { "" }
 $Host.UI.RawUI.WindowTitle = "PowerShell {0}$adminSuffix" -f $PSVersionTable.PSVersion.ToString()
@@ -262,13 +263,10 @@ function gc { param($m) git commit -m "$m" }
 Remove-Item Alias:gp -Force
 function gp { git push }
 
-<<<<<<< HEAD
-=======
 function g { __zoxide_z github }
 
 function gcl { git clone "$args" }
 
->>>>>>> fd0676878905ad3af47d453c9311ddb15fe8560b
 function gcom {
     git add .
     git commit -m "$args"
@@ -351,23 +349,6 @@ if (Get-Command zoxide -ErrorAction SilentlyContinue) {
     }
 }
 
-<<<<<<< HEAD
-# Custom Welcome Banner
-function Show-Banner {
-    $currentTime = Get-Date -Format "HH:mm:ss on dd/MM/yyyy"
-    $banner = @"
- __        __   _                          
- \ \      / /__| | ___ ___  _ __ ___   ___ 
-  \ \ /\ / / _ \ |/ __/ _ \| '_ ` _ \ / _ \
-   \ V  V /  __/ | (_| (_) | | | | | |  __/
-    \_/\_/ \___|_|\___\___/|_| |_| |_|\___|
-                                           
-Welcome to back! It is currently $currentTime
-"@
-    Write-Host $banner -ForegroundColor Green
-}
-Show-Banner
-=======
 Set-Alias -Name z -Value __zoxide_z -Option AllScope -Scope Global -Force
 Set-Alias -Name zi -Value __zoxide_zi -Option AllScope -Scope Global -Force
 
@@ -459,4 +440,19 @@ Use 'Show-Help' to display this help message.
 "@
 }
 Write-Host "Use 'Show-Help' to display help"
->>>>>>> fd0676878905ad3af47d453c9311ddb15fe8560b
+
+# Custom Welcome Banner
+function Show-Banner {
+    $currentTime = Get-Date -Format "HH:mm:ss on dd/MM/yyyy"
+    $banner = @"
+ __        __   _                          
+ \ \      / /__| | ___ ___  _ __ ___   ___ 
+  \ \ /\ / / _ \ |/ __/ _ \| '_ ` _ \ / _ \
+   \ V  V /  __/ | (_| (_) | | | | | |  __/
+    \_/\_/ \___|_|\___\___/|_| |_| |_|\___|
+                                           
+Welcome back! It is currently $currentTime
+"@
+    Write-Host $banner -ForegroundColor Green
+}
+Show-Banner
