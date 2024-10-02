@@ -173,6 +173,19 @@ function Reload-Profile {
     & $profile
 }
 
+function Get-RecentHistory {
+    [Info("Get Recent PowerShell History", "Development")]
+    [CmdletBinding()]
+    param (
+        [Int32]$Last
+    )
+
+    $historyEntries = $(Get-Content $(Get-PSReadLineOption).HistorySavePath | Select-Object -Last $Last) -join "`n"
+    Write-Host $historyEntries
+    $historyEntries | clip
+    Write-Host "Copied to Clipboard" -ForegroundColor Magenta
+}
+
 #endregion
 
 #region File Management
