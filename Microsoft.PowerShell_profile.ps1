@@ -65,14 +65,41 @@ elseif (Test-CommandExists sublime_text) { 'sublime_text' }
 else { 'notepad' }
 Set-Alias -Name vim -Value $EDITOR
 
+enum CommandCategory {
+    System
+    Environment
+    AI
+    Git
+    FileManagement
+    Share
+    Navigation
+    Development
+}
+
 class InfoAttribute : System.Attribute {
     [string]$Description
-    [string]$Category
+    [CommandCategory]$Category
 
-    InfoAttribute([string]$description, [string]$category) {
+    InfoAttribute([string]$description, [CommandCategory]$category) {
         $this.Description = $description
         $this.Category = $category
     }
+}
+
+class MenuOption {
+    [String]$Name
+    [String]$Value
+
+    [String]ToString() {
+        return "$($this.Name) ($($this.Value))"
+    }
+}
+
+function New-MenuItem([String]$Name, [String]$Value) {
+    $MenuItem = [MenuOption]::new()
+    $MenuItem.Name = $Name
+    $MenuItem.Value = $Value
+    return $MenuItem
 }
 
 #endregion
@@ -81,7 +108,7 @@ class InfoAttribute : System.Attribute {
 
 # Check for Profile Updates
 function Update-Profile {
-    [Info("")]
+    [Info("Download the newest Version of my PowerShell Profile", [CommandCategory]::Environment)]
     
     if (-not $global:canConnectToGitHub) {
         Write-Host "Skipping profile update check due to GitHub.com not responding within 1 second." -ForegroundColor Yellow
@@ -106,6 +133,8 @@ function Update-Profile {
 Update-Profile
 
 function Update-PowerShell {
+    [Info("Download the newest Version of PowerShell", [CommandCategory]::Environment)]
+    
     if (-not $global:canConnectToGitHub) {
         Write-Host "Skipping PowerShell update check due to GitHub.com not responding within 1 second." -ForegroundColor Yellow
         return
@@ -136,7 +165,13 @@ function Update-PowerShell {
 Update-PowerShell
 
 function Edit-Profile {
+    [Info("Open my PowerShell Profile in my Favorite Editor", [CommandCategory]::Environment)]
     vim $PROFILE.CurrentUserAllHosts
+}
+
+function Reload-Profile {
+    [Info("Reload my PowerShell Profile", [CommandCategory]::Environment)]
+    & $profile
 }
 
 #endregion
@@ -153,8 +188,8 @@ function ff($name) {
 #endregion
 
 #region AI
-function global:Configure-ChatGpt {
-    [Info("Configure the Ask-ChatGpt function", "AI")]
+function global:Configure-AI {
+    [Info("Configure the AI-Feature", [CommandCategory]::AI)]
     [CmdletBinding()]
     param ()
 
@@ -168,7 +203,7 @@ function global:Configure-ChatGpt {
 }
 
 function global:Ask-ChatGpt {
-    [Info("Ask ChatGpt a Question", "AI")]
+    [Info("Ask ChatGpt a Question", [CommandCategory]::AI)]
     [CmdletBinding()]
     [Alias("ask")]
     param (
@@ -215,10 +250,6 @@ function uptime {
     } else {
         net statistics workstation | Select-String "since" | ForEach-Object { $_.ToString().Replace('Statistics since ', '') }
     }
-}
-
-function reload-profile {
-    & $profile
 }
 
 function unzip ($file) {
@@ -353,26 +384,10 @@ function cpy { Set-Clipboard $args[0] }
 
 function pst { Get-Clipboard }
 
-# Define a class for menu options
-class MenuOption {
-    [String]$Name
-    [String]$Value
-
-    [String]ToString() {
-        return "$($this.Name) ($($this.Value))"
-    }
-}
-
-# Function to create a new menu item
-function New-MenuItem([String]$Name, [String]$Value) {
-    $MenuItem = [MenuOption]::new()
-    $MenuItem.Name = $Name
-    $MenuItem.Value = $Value
-    return $MenuItem
-}
-
-# Switch Azure Subscription
 function Switch-Azure-Subscription {
+    [Info("Select and login to Azure Subscription", [CommandCategory]::Development)]
+    [CmdletBinder]
+    [Alias("sas")]
     # Fetch the list of Azure subscriptions
     $AZ_SUBSCRIPTIONS = az account list --output json | ConvertFrom-Json
     if ($AZ_SUBSCRIPTIONS.Count -eq 0) {
@@ -389,11 +404,14 @@ function Switch-Azure-Subscription {
     # Set the selected Azure subscription
     & az account set -s $selectedAZSub.Value
 }
-function sas { Switch-Azure-Subscription }
 
 
 # Login to Docker Registry
-function Login-Azure-Container-Registry {
+function Login-ACR {
+    [Info("Select and login to Azure Container Registry using Docker", [CommandCategory]::Development)]
+    [CmdletBinder]
+    [Alias("lacr")]
+    
     # Retrieve the list of Azure Container Registries
     $ACRs = az acr list --output json | ConvertFrom-Json
 
@@ -415,7 +433,6 @@ function Login-Azure-Container-Registry {
     # Login to Docker registry using the credentials
     docker login $selectedACR.Name --username $credentials.username --password $credentials.passwords[0].value
 }
-function lacr { Login-Azure-Container-Registry }
 
 function Get-FileSize {
     param(
@@ -439,7 +456,7 @@ function Get-FileSize {
 
 # Share File via HiDrive Share
 function Share-File {
-    [Info("Upload one or more Files to share it using HiDrive", "Share")]
+    [Info("Upload one or more Files to share it using HiDrive", [CommandCategory]::Share)]
     [CmdletBinding()]
     [Alias("sf")]
     param (
@@ -499,10 +516,6 @@ function lzd { lazydocker }
 
 
 # Init fnm (Fast Node.js Manager)
-if (Test-CommandExists fnm) {
-    fnm env --use-on-cd --shell power-shell | Out-String | Invoke-Expression
-}
-
 function Init-fnm {
 	node --version > .node-version
 }
@@ -583,7 +596,7 @@ Class MyProjects : System.Management.Automation.IValidateSetValuesGenerator {
 }
 
 function Enter-Projects {
-    [Info("Enter a predefined Project Folder", "Navigation")]
+    [Info("Enter a predefined Project Folder", [CommandCategory]::Navigation)]
     [CmdletBinding()]
     [Alias("project")]
     param(
@@ -608,9 +621,17 @@ function Enter-Projects {
     Write-Error "Project '$projects' not found in the specified paths."
 }
 
+#region Setup Command Completions
+
+if (Test-CommandExists fnm) {
+    fnm env --use-on-cd --shell power-shell | Out-String | Invoke-Expression
+}
+
 if (Test-CommandExists fnm) {
 	volta completions powershell | Out-String | Invoke-Expression
 }
+
+#endregion
 
 # Customize syntax highlighting
 Set-PSReadLineOption -Colors @{
