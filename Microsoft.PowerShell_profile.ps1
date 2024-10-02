@@ -109,6 +109,8 @@ function New-MenuItem([String]$Name, [String]$Value) {
 # Check for Profile Updates
 function Update-Profile {
     [Info("Download the newest Version of my PowerShell Profile", [CommandCategory]::Environment)]
+    [CmdletBinding()]
+    param ()
     
     if (-not $global:canConnectToGitHub) {
         Write-Host "Skipping profile update check due to GitHub.com not responding within 1 second." -ForegroundColor Yellow
@@ -134,6 +136,8 @@ Update-Profile
 
 function Update-PowerShell {
     [Info("Download the newest Version of PowerShell", [CommandCategory]::Environment)]
+    [CmdletBinding()]
+    param ()
     
     if (-not $global:canConnectToGitHub) {
         Write-Host "Skipping PowerShell update check due to GitHub.com not responding within 1 second." -ForegroundColor Yellow
@@ -166,11 +170,17 @@ Update-PowerShell
 
 function Edit-Profile {
     [Info("Open my PowerShell Profile in my Favorite Editor", [CommandCategory]::Environment)]
+    [CmdletBinding()]
+    param ()
+    
     vim $PROFILE.CurrentUserAllHosts
 }
 
 function Reload-Profile {
     [Info("Reload my PowerShell Profile", [CommandCategory]::Environment)]
+    [CmdletBinding()]
+    param ()
+    
     & $profile
 }
 
@@ -388,6 +398,8 @@ function Switch-Azure-Subscription {
     [Info("Select and login to Azure Subscription", [CommandCategory]::Development)]
     [CmdletBinder]
     [Alias("sas")]
+    param ()
+    
     # Fetch the list of Azure subscriptions
     $AZ_SUBSCRIPTIONS = az account list --output json | ConvertFrom-Json
     if ($AZ_SUBSCRIPTIONS.Count -eq 0) {
@@ -411,6 +423,7 @@ function Login-ACR {
     [Info("Select and login to Azure Container Registry using Docker", [CommandCategory]::Development)]
     [CmdletBinder]
     [Alias("lacr")]
+    param ()
     
     # Retrieve the list of Azure Container Registries
     $ACRs = az acr list --output json | ConvertFrom-Json
@@ -858,12 +871,8 @@ function global:Show-HelpV2 {
 
     # Now print the functions, grouped by category
     foreach ($category in $groupedByCategory.Keys) {
-        Write-Host "Category: $category" -ForegroundColor Cyan
-        Write-Host "------------------------------------------"
-
-        # Print a formatted table of functions under this category with Aliases
+        Write-Host "=> $category" -ForegroundColor Cyan
         $groupedByCategory[$category] | Format-Table -Property Name, Aliases, Description -AutoSize
-
         Write-Host ""
     }
 }
