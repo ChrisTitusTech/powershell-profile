@@ -65,22 +65,11 @@ elseif (Test-CommandExists sublime_text) { 'sublime_text' }
 else { 'notepad' }
 Set-Alias -Name vim -Value $EDITOR
 
-enum CommandCategory {
-    System
-    Environment
-    AI
-    Git
-    FileManagement
-    Share
-    Navigation
-    Development
-}
-
 class InfoAttribute : System.Attribute {
     [string]$Description
-    [CommandCategory]$Category
+    [string]$Category
 
-    InfoAttribute([string]$description, [CommandCategory]$category) {
+    InfoAttribute([string]$description, [string]$category) {
         $this.Description = $description
         $this.Category = $category
     }
@@ -108,7 +97,7 @@ function New-MenuItem([String]$Name, [String]$Value) {
 
 # Check for Profile Updates
 function Update-Profile {
-    [Info("Download the newest Version of my PowerShell Profile", [CommandCategory]::Environment)]
+    [Info("Download the newest Version of my PowerShell Profile", "Environment")]
     [CmdletBinding()]
     param ()
     
@@ -135,7 +124,7 @@ function Update-Profile {
 Update-Profile
 
 function Update-PowerShell {
-    [Info("Download the newest Version of PowerShell", [CommandCategory]::Environment)]
+    [Info("Download the newest Version of PowerShell", "Environment")]
     [CmdletBinding()]
     param ()
     
@@ -169,7 +158,7 @@ function Update-PowerShell {
 Update-PowerShell
 
 function Edit-Profile {
-    [Info("Open my PowerShell Profile in my Favorite Editor", [CommandCategory]::Environment)]
+    [Info("Open my PowerShell Profile in my Favorite Editor", "Environment")]
     [CmdletBinding()]
     param ()
     
@@ -177,7 +166,7 @@ function Edit-Profile {
 }
 
 function Reload-Profile {
-    [Info("Reload my PowerShell Profile", [CommandCategory]::Environment)]
+    [Info("Reload my PowerShell Profile", "Environment")]
     [CmdletBinding()]
     param ()
     
@@ -199,7 +188,7 @@ function ff($name) {
 
 #region AI
 function global:Configure-AI {
-    [Info("Configure the AI-Feature", [CommandCategory]::AI)]
+    [Info("Configure the AI-Feature", "AI")]
     [CmdletBinding()]
     param ()
 
@@ -213,7 +202,7 @@ function global:Configure-AI {
 }
 
 function global:Ask-ChatGpt {
-    [Info("Ask ChatGpt a Question", [CommandCategory]::AI)]
+    [Info("Ask ChatGpt a Question", "AI")]
     [CmdletBinding()]
     [Alias("ask")]
     param (
@@ -395,7 +384,7 @@ function cpy { Set-Clipboard $args[0] }
 function pst { Get-Clipboard }
 
 function Switch-Azure-Subscription {
-    [Info("Select and login to Azure Subscription", [CommandCategory]::Development)]
+    [Info("Select and login to Azure Subscription", "Development")]
     [CmdletBinder()]
     [Alias("sas")]
     param ()
@@ -420,7 +409,7 @@ function Switch-Azure-Subscription {
 
 # Login to Docker Registry
 function Login-ACR {
-    [Info("Select and login to Azure Container Registry using Docker", [CommandCategory]::Development)]
+    [Info("Select and login to Azure Container Registry using Docker", "Development")]
     [CmdletBinder()]
     [Alias("lacr")]
     param ()
@@ -469,7 +458,7 @@ function Get-FileSize {
 
 # Share File via HiDrive Share
 function Share-File {
-    [Info("Upload one or more Files to share it using HiDrive", [CommandCategory]::Share)]
+    [Info("Upload one or more Files to share it using HiDrive", "Share")]
     [CmdletBinding()]
     [Alias("sf")]
     param (
@@ -609,7 +598,7 @@ Class MyProjects : System.Management.Automation.IValidateSetValuesGenerator {
 }
 
 function Enter-Projects {
-    [Info("Enter a predefined Project Folder", [CommandCategory]::Navigation)]
+    [Info("Enter a predefined Project Folder", "Navigation")]
     [CmdletBinding()]
     [Alias("project")]
     param(
