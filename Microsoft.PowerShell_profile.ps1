@@ -7,7 +7,7 @@
 ############                                                                                                         ############
 ############                DO NOT MODIFY THIS FILE. THIS FILE IS HASHED AND UPDATED AUTOMATICALLY.                  ############
 ############                    ANY CHANGES MADE TO THIS FILE WILL BE OVERWRITTEN BY COMMITS TO                      ############
-############                       https://github.com/moeller-projects/powershell-profile.git.                         ############
+############                       https://github.com/moeller-projects/powershell-profile.git.                       ############
 ############                                                                                                         ############
 #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!#
 ############                                                                                                         ############
@@ -17,6 +17,28 @@
 #################################################################################################################################
 
 #region Basic Setup
+
+$global:commandDescriptions = @()
+function Add-Command-Description {
+    [CmdletBinding()]
+    param (
+        [string]$CommandName,
+        [string]$Description,
+        [string]$Category,
+        [string[]]$Aliases = @()
+    )
+    if (-not $CommandName -or -not $Description) {
+        Write-Error "Both CommandName and Description are required."
+        return
+    }
+    $commandDescription = [PSCustomObject]@{
+        CommandName = $CommandName
+        Description = $Description
+        Category    = $Category
+        Aliases     = $Aliases -join ", "
+    }
+    $global:commandDescriptions += $commandDescription
+}
 
 [console]::InputEncoding = [console]::OutputEncoding = New-Object System.Text.UTF8Encoding
 
@@ -29,11 +51,16 @@ if ([bool]([System.Security.Principal.WindowsIdentity]::GetCurrent()).IsSystem) 
 $canConnectToGitHub = Test-Connection github.com -Count 1 -Quiet -TimeoutSeconds 1
 
 # Import Modules and External Profiles
-# Ensure Terminal-Icons module is installed before importing
-if (-not (Get-Module -ListAvailable -Name Terminal-Icons)) {
-    Install-Module -Name Terminal-Icons, PSMenu, InteractiveMenu, PSReadLine, CompletionPredictor, PSFzf -Scope CurrentUser -Force -SkipPublisherCheck
+function Import-RequiredModules {    
+    $modules = @('Terminal-Icons', 'PSMenu', 'InteractiveMenu', 'PSReadLine', 'CompletionPredictor', 'PSFzf')
+    $missingModules = $modules | Where-Object { -not (Get-Module -ListAvailable -Name $_) }
+    if ($missingModules) {
+        Install-Module -Name $missingModules -Scope CurrentUser -Force -SkipPublisherCheck
+    }
+    Import-Module -Name $modules
 }
-Import-Module -Name Terminal-Icons, PSMenu, InteractiveMenu, PSReadLine, CompletionPredictor, PSFzf
+Import-RequiredModules
+
 $ChocolateyProfile = "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"
 if (Test-Path($ChocolateyProfile)) {
     Import-Module "$ChocolateyProfile"
@@ -95,12 +122,8 @@ function New-MenuItem([String]$Name, [String]$Value) {
 
 #region System
 
-# Check for Profile Updates
-function Update-Profile {
-    [Info("Download the newest Version of my PowerShell Profile", "Environment")]
-    [CmdletBinding()]
-    param ()
-    
+Add-Command-Description("Update-Profile", "Checks for profile updates from a remote repository and updates if necessary", "System")
+function Update-Profile {    
     if (-not $global:canConnectToGitHub) {
         Write-Host "Skipping profile update check due to GitHub.com not responding within 1 second." -ForegroundColor Yellow
         return
@@ -123,11 +146,8 @@ function Update-Profile {
 }
 Update-Profile
 
+Add-Command-Description("Update-PowerShell", "Checks for the latest PowerShell release and updates if a new version is available", "System")
 function Update-PowerShell {
-    [Info("Download the newest Version of PowerShell", "Environment")]
-    [CmdletBinding()]
-    param ()
-    
     if (-not $global:canConnectToGitHub) {
         Write-Host "Skipping PowerShell update check due to GitHub.com not responding within 1 second." -ForegroundColor Yellow
         return
@@ -157,24 +177,18 @@ function Update-PowerShell {
 }
 Update-PowerShell
 
+Add-Command-Description("Edit-Profile", "Opens the current user's profile for editing using the configured editor", "System")
 function Edit-Profile {
-    [Info("Open my PowerShell Profile in my Favorite Editor", "Environment")]
-    [CmdletBinding()]
-    param ()
-    
     vim $PROFILE.CurrentUserAllHosts
 }
 
-function Reload-Profile {
-    [Info("Reload my PowerShell Profile", "Environment")]
-    [CmdletBinding()]
-    param ()
-    
+Add-Command-Description("Reload-Profile", "Reloads the current user's PowerShell profile", "System")
+function Reload-Profile {    
     & $profile
 }
 
+Add-Command-Description("Get-RecentHistory", "Gets recent PowerShell history", "Development")
 function Get-RecentHistory {
-    [Info("Get Recent PowerShell History", "Development")]
     [CmdletBinding()]
     param (
         [Int32]$Last
@@ -190,7 +204,12 @@ function Get-RecentHistory {
 
 #region File Management
 
-function touch($file) { "" | Out-File $file -Encoding ASCII }
+Add-Command-Description("touch", "Creates a new empty file", "File Management")
+function touch($file) {
+    "" | Out-File $file -Encoding ASCII
+}
+
+Add-Command-Description("ff", "Finds files recursively with the specified name", "File Management")
 function ff($name) {
     Get-ChildItem -recurse -filter "*${name}*" -ErrorAction SilentlyContinue | ForEach-Object {
         Write-Output "$($_.FullName)"
@@ -200,11 +219,8 @@ function ff($name) {
 #endregion
 
 #region AI
+Add-Command-Description("Configure-AI", "Configure the AI-Feature", "AI")
 function global:Configure-AI {
-    [Info("Configure the AI-Feature", "AI")]
-    [CmdletBinding()]
-    param ()
-
     $provider = Read-Host "Enter AI Provider"
     $apiKey = Read-Host "Enter OpenAI API Key"
     $model = Read-Host "Enter OpenAI Model"
@@ -214,8 +230,8 @@ function global:Configure-AI {
     [System.Environment]::SetEnvironmentVariable('OPENAI_MODEL ', $model, [System.EnvironmentVariableTarget]::Machine)
 }
 
+Add-Command-Description("Ask-ChatGpt", "Ask ChatGpt a Question", "AI", @("ask"))
 function global:Ask-ChatGpt {
-    [Info("Ask ChatGpt a Question", "AI")]
     [CmdletBinding()]
     [Alias("ask")]
     param (
@@ -235,16 +251,28 @@ function global:Ask-ChatGpt {
 }
 #endregion
 
-# Network Utilities
-function Get-PubIP { (Invoke-WebRequest https://ipv4.icanhazip.com).Content.Trim() }
+#region Network Utilities
+
+Add-Command-Description("Get-PubIP", "Retrieves the public IP address of the machine", "Network Utilities")
+function Get-PubIP {    
+    (Invoke-WebRequest https://ipv4.icanhazip.com).Content.Trim()
+}
+
+#endregion
 
 # Open WinUtil
+Add-Command-Description("winutil", "Runs the WinUtil script from Chris Titus Tech", "System Utilities")
 function winutil {
 	iwr -useb https://christitus.com/win | iex
 }
 
 # System Utilities
+Add-Command-Description("admin", "Runs a command as an administrator", "System Utilities", @("su"))
 function admin {
+    [CmdletBinding()]
+    [Alias("su")]
+    param ()
+    
     if ($args.Count -gt 0) {
         $argList = "& '$args'"
         Start-Process wt -Verb runAs -ArgumentList "pwsh.exe -NoExit -Command $argList"
@@ -253,9 +281,7 @@ function admin {
     }
 }
 
-# Set UNIX-like aliases for the admin command, so sudo <command> will run the command with elevated rights.
-Set-Alias -Name su -Value admin
-
+Add-Command-Description("uptime", "Displays the system uptime", "System Utilities")
 function uptime {
     if ($PSVersionTable.PSVersion.Major -eq 5) {
         Get-WmiObject win32_operatingsystem | Select-Object @{Name='LastBootUpTime'; Expression={$_.ConverttoDateTime($_.lastbootuptime)}} | Format-Table -HideTableHeaders
@@ -264,11 +290,14 @@ function uptime {
     }
 }
 
+Add-Command-Description("unzip", "Extracts a zip file to the current directory", "File Management")
 function unzip ($file) {
     Write-Output("Extracting", $file, "to", $pwd)
     $fullFile = Get-ChildItem -Path $pwd -Filter $file | ForEach-Object { $_.FullName }
     Expand-Archive -Path $fullFile -DestinationPath $pwd
 }
+
+Add-Command-Description("hb", "Uploads the specified file's content to a hastebin-like service and returns the URL", "File Management")
 function hb {
     if ($args.Length -eq 0) {
         Write-Error "No file path specified."
@@ -294,6 +323,8 @@ function hb {
         Write-Error "Failed to upload the document. Error: $_"
     }
 }
+
+Add-Command-Description("grep", "Searches for a regex pattern in files within the specified directory or from the pipeline input", "File Management")
 function grep($regex, $dir) {
     if ( $dir ) {
         Get-ChildItem $dir | select-string $regex
@@ -302,102 +333,141 @@ function grep($regex, $dir) {
     $input | select-string $regex
 }
 
+Add-Command-Description("df", "Displays information about volumes", "System Utilities")
 function df {
     get-volume
 }
 
+Add-Command-Description("sed", "Replaces text in a file", "File Management")
 function sed($file, $find, $replace) {
     (Get-Content $file).replace("$find", $replace) | Set-Content $file
 }
 
+Add-Command-Description("which", "Shows the path of the command", "System Utilities")
 function which($name) {
     Get-Command $name | Select-Object -ExpandProperty Definition
 }
 
+Add-Command-Description("export", "Sets an environment variable", "System Utilities")
 function export($name, $value) {
     set-item -force -path "env:$name" -value $value;
 }
 
+Add-Command-Description("pkill", "Kills processes by name", "System Utilities")
 function pkill($name) {
     Get-Process $name -ErrorAction SilentlyContinue | Stop-Process
 }
 
+Add-Command-Description("pgrep", "Lists processes by name", "System Utilities")
 function pgrep($name) {
     Get-Process $name
 }
 
+Add-Command-Description("head", "Displays the first n lines of a file", "File Management")
 function head {
   param($Path, $n = 10)
   Get-Content $Path -Head $n
 }
 
+Add-Command-Description("tail", "Displays the last n lines of a file", "File Management")
 function tail {
   param($Path, $n = 10, [switch]$f = $false)
   Get-Content $Path -Tail $n -Wait:$f
 }
 
 # Quick File Creation
+Add-Command-Description("nf", "Creates a new file with the specified name", "File Management")
 function nf { param($name) New-Item -ItemType "file" -Path . -Name $name }
 
 # Directory Management
+Add-Command-Description("mkcd", "Creates and changes to a new directory", "Directory Management")
 function mkcd { param($dir) mkdir $dir -Force; Set-Location $dir }
 
-### Quality of Life Aliases
-
+#region Quality of Life Aliases
 # Navigation Shortcuts
+Add-Command-Description("docs", "Changes the current directory to the user's Documents folder", "Navigation Shortcuts")
 function docs { Set-Location -Path $HOME\Documents }
 
+Add-Command-Description("dtop", "Changes the current directory to the user's Desktop folder", "Navigation Shortcuts")
 function dtop { Set-Location -Path $HOME\Desktop }
 
 # Quick Access to Editing the Profile
+Add-Command-Description("ep", "Opens the profile for editing", "Navigation Shortcuts")
 function ep { vim $PROFILE }
 
 # Simplified Process Management
+Add-Command-Description("k9", "Kills a process by name", "Simplified Process Management")
 function k9 { Stop-Process -Name $args[0] }
 
 # Enhanced Listing
+Add-Command-Description("la", "Lists all files in the current directory with detailed formatting", "Enhanced Listing")
 function la { Get-ChildItem -Path . -Force | Format-Table -AutoSize }
+Add-Command-Description("ll", "Lists all files, including hidden, in the current directory with detailed formatting", "Enhanced Listing")
 function ll { Get-ChildItem -Path . -Force -Hidden | Format-Table -AutoSize }
 
 # Git Shortcuts
+Add-Command-Description("gs", "Shortcut for 'git status'", "Git Shortcuts")
 function gs { git status }
 
+Add-Command-Description("ga", "Shortcut for 'git add .'", "Git Shortcuts")
 function ga { git add . }
 
+Add-Command-Description("gc", "Shortcut for 'git commit -m'", "Git Shortcuts")
 function gc { param($m) git commit -m "$m" }
 
+Add-Command-Description("gp", "Shortcut for 'git push'", "Git Shortcuts")
 function gp { git push }
 
+Add-Command-Description("g", "Changes to the GitHub directory", "Git Shortcuts")
 function g { __zoxide_z github }
 
+Add-Command-Description("gcl", "Clones a git repository", "Git Shortcuts")
 function gcl { git clone "$args" }
 
+Add-Command-Description("gcom", "Adds all changes and commits with the specified message", "Git Shortcuts")
 function gcom {
     git add .
     git commit -m "$args"
 }
+Add-Command-Description("lazyg", "Adds all changes, commits with the specified message, and pushes to the remote repository", "Git Shortcuts")
 function lazyg {
     git add .
     git commit -m "$args"
     git push
 }
 
+Add-Command-Description("lzg", "Runs lazygit", "Terminal Apps")
+function lzg { lazygit }
+
+Add-Command-Description("lzd", "Runs lazydocker", "Terminal Apps")
+function lzd { lazydocker }
+
+Set-Alias k kubectl
+Set-Alias d docker
+Set-Alias dc docker-compose
+
+#endregion
+
 # Quick Access to System Information
+Add-Command-Description("sysinfo", "Displays detailed system information", "Quick Access to System Information")
 function sysinfo { Get-ComputerInfo }
 
 # Networking Utilities
+Add-Command-Description("flushdns", "Clears the DNS cache", "Networking Utilities")
 function flushdns {
 	Clear-DnsClientCache
 	Write-Host "DNS has been flushed"
 }
 
 # Clipboard Utilities
+Add-Command-Description("cpy", "Copies the specified text to the clipboard", "Clipboard Utilities")
 function cpy { Set-Clipboard $args[0] }
 
+Add-Command-Description("pst", "Retrieves text from the clipboard", "Clipboard Utilities")
 function pst { Get-Clipboard }
 
+Add-Command-Description("Switch-Azure-Subscription", "Select and login to Azure Subscription", "Development", @("sas"))
 function Switch-Azure-Subscription {
-    [Info("Select and login to Azure Subscription", "Development")]
     [CmdletBinder()]
     [Alias("sas")]
     param ()
@@ -421,8 +491,8 @@ function Switch-Azure-Subscription {
 
 
 # Login to Docker Registry
+Add-Command-Description("Login-ACR", "Select and login to Azure Container Registry using Docker", "Development", @("lacr"))
 function Login-ACR {
-    [Info("Select and login to Azure Container Registry using Docker", "Development")]
     [CmdletBinder()]
     [Alias("lacr")]
     param ()
@@ -449,6 +519,7 @@ function Login-ACR {
     docker login $selectedACR.Name --username $credentials.username --password $credentials.passwords[0].value
 }
 
+Add-Command-Description("Get-FileSize", "Gets the size of a file", "File Management")
 function Get-FileSize {
     param(
         [string]$Path
@@ -470,6 +541,7 @@ function Get-FileSize {
 }
 
 # Share File via HiDrive Share
+Add-Command-Description("Share-File", "Uploads one or more files to share it using HiDrive", "Share")
 function Share-File {
     [Info("Upload one or more Files to share it using HiDrive", "Share")]
     [CmdletBinding()]
@@ -524,29 +596,16 @@ function Share-File {
     Write-Output $share
 }
 
-
-# Terminal Apps
-function lzg { lazygit }
-function lzd { lazydocker }
-
-
-# Init fnm (Fast Node.js Manager)
-function Init-fnm {
-	node --version > .node-version
-}
-
+Add-Command-Description("Watch-File", "Watches a file for changes", "File Management", @("wf"))
 function Watch-File {
 	param (
         [string]$Path
     )
 	Get-Content $Path -Wait -Tail 1
 }
-
 function wf { Watch-File -Path $args[0] }
 
-Set-Alias k kubectl
-Set-Alias d docker
-Set-Alias dc docker-compose
+Add-Command-Description("Select-KubeContext", "Selects a Kubernetes context", "Kubernetes Utilities", @("kubectx"))
 function global:Select-KubeContext {
   [CmdletBinding()]
   [Alias('kubectx')]
@@ -568,6 +627,7 @@ function global:Select-KubeContext {
   }
 }
 
+Add-Command-Description("Select-KubeNamespace", "Selects a Kubernetes namespace", "Kubernetes Utilities", @("kubens"))
 function global:Select-KubeNamespace {
   [CmdletBinding()]
   [Alias('kubens')]
@@ -610,8 +670,8 @@ Class MyProjects : System.Management.Automation.IValidateSetValuesGenerator {
     }
 }
 
+Add-Command-Description("Enter-Projects", "Enters a predefined project folder", "Navigation", @("project"))
 function Enter-Projects {
-    [Info("Enter a predefined Project Folder", "Navigation")]
     [CmdletBinding()]
     [Alias("project")]
     param(
@@ -739,126 +799,19 @@ Set-Alias -Name zi -Value __zoxide_zi -Option AllScope -Scope Global -Force
 # Set-PSReadLineOption -PredictionViewStyle ListView
 # Set-PSReadLineOption -EditMode Windows
 
-# Help Function
-function Show-Help {
-    @"
-PowerShell Profile Help
-=======================
-
-Update-Profile - Checks for profile updates from a remote repository and updates if necessary.
-
-Update-PowerShell - Checks for the latest PowerShell release and updates if a new version is available.
-
-Edit-Profile - Opens the current user's profile for editing using the configured editor.
-
-touch <file> - Creates a new empty file.
-
-ff <name> - Finds files recursively with the specified name.
-
-Get-PubIP - Retrieves the public IP address of the machine.
-
-winutil - Runs the WinUtil script from Chris Titus Tech.
-
-uptime - Displays the system uptime.
-
-reload-profile - Reloads the current user's PowerShell profile.
-
-unzip <file> - Extracts a zip file to the current directory.
-
-hb <file> - Uploads the specified file's content to a hastebin-like service and returns the URL.
-
-grep <regex> [dir] - Searches for a regex pattern in files within the specified directory or from the pipeline input.
-
-df - Displays information about volumes.
-
-sed <file> <find> <replace> - Replaces text in a file.
-
-which <name> - Shows the path of the command.
-
-export <name> <value> - Sets an environment variable.
-
-pkill <name> - Kills processes by name.
-
-pgrep <name> - Lists processes by name.
-
-head <path> [n] - Displays the first n lines of a file (default 10).
-
-tail <path> [n] - Displays the last n lines of a file (default 10).
-
-nf <name> - Creates a new file with the specified name.
-
-mkcd <dir> - Creates and changes to a new directory.
-
-docs - Changes the current directory to the user's Documents folder.
-
-dtop - Changes the current directory to the user's Desktop folder.
-
-ep - Opens the profile for editing.
-
-k9 <name> - Kills a process by name.
-
-la - Lists all files in the current directory with detailed formatting.
-
-ll - Lists all files, including hidden, in the current directory with detailed formatting.
-
-gs - Shortcut for 'git status'.
-
-ga - Shortcut for 'git add .'.
-
-gc <message> - Shortcut for 'git commit -m'.
-
-gp - Shortcut for 'git push'.
-
-g - Changes to the GitHub directory.
-
-gcom <message> - Adds all changes and commits with the specified message.
-
-lazyg <message> - Adds all changes, commits with the specified message, and pushes to the remote repository.
-
-sysinfo - Displays detailed system information.
-
-flushdns - Clears the DNS cache.
-
-cpy <text> - Copies the specified text to the clipboard.
-
-pst - Retrieves text from the clipboard.
-
-sas - Switch current selected Azure Subscription.
-
-lacr - Login to Azure Container Registry.
-
-ask - Ask ChatGPT.
-
-Use 'Show-Help' to display this help message.
-"@
-}
-Write-Host "Use 'Show-Help' to display help"
-
-function global:Show-HelpV2 {
-    $functions = Get-Command -CommandType Function
-
+function global:Show-Help {
     # Create a hashtable to group functions by category
     $groupedByCategory = @{}
 
-    foreach ($function in $functions) {
-        # Retrieve custom attributes for each function
-        $customAttributes = $function.ScriptBlock.Attributes | Where-Object { $_ -is [InfoAttribute] }
+    foreach ($commandDescription in $commandDescriptions) {
+            $category = $commandDescription.Category
+            $description = $commandDescription.Description
+            $functionName = $commandDescription.CommandName
 
-        foreach ($attr in $customAttributes) {
-            $category = $attr.Category
-            $description = $attr.Description
-            $functionName = $function.Name
-
-            # Find aliases associated with the function
-            $aliases = Get-Alias | Where-Object { $_.Definition -eq $functionName }
-            $aliasList = $($aliases | foreach { $_.Name }) -join ", "  # Join aliases into a comma-separated list
-
-            # If no aliases, use "None"
+            $aliasList = $commandDescription.aliases -join ", "
             if (-not $aliasList) {
                 $aliasList = " "
             }
-
-            # Add functions to the hashtable, grouped by category
             if (-not $groupedByCategory.ContainsKey($category)) {
                 $groupedByCategory[$category] = @()
             }
@@ -868,7 +821,6 @@ function global:Show-HelpV2 {
                 Description = $description
                 Aliases     = $aliasList
             }
-        }
     }
 
     # Now print the functions, grouped by category
@@ -878,3 +830,4 @@ function global:Show-HelpV2 {
         Write-Host ""
     }
 }
+Write-Host "Use 'Show-Help' to display help"
