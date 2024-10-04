@@ -27,10 +27,19 @@ function Add-Command-Description {
         [string]$Category,
         [string[]]$Aliases = @()
     )
-    if (-not $CommandName -or -not $Description) {
-        Write-Error "Both CommandName and Description are required."
+    
+    # Validate that CommandName is not null or empty
+    if ([string]::IsNullOrWhiteSpace($CommandName)) {
+        Write-Error "CommandName must be a non-empty string."
         return
     }
+
+    # Validate that Description is not null or empty
+    if ([string]::IsNullOrWhiteSpace($Description)) {
+        Write-Error "Description must be a non-empty string."
+        return
+    }
+    
     $commandDescription = [PSCustomObject]@{
         CommandName = $CommandName
         Description = $Description
