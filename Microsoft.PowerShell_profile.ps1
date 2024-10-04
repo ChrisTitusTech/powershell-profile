@@ -81,17 +81,6 @@ function Test-CommandExists {
     return $exists
 }
 
-# Editor Configuration
-$EDITOR = if (Test-CommandExists nvim) { 'nvim' }
-elseif (Test-CommandExists pvim) { 'pvim' }
-elseif (Test-CommandExists vim) { 'vim' }
-elseif (Test-CommandExists vi) { 'vi' }
-elseif (Test-CommandExists code) { 'code' }
-elseif (Test-CommandExists notepad++) { 'notepad++' }
-elseif (Test-CommandExists sublime_text) { 'sublime_text' }
-else { 'notepad' }
-Set-Alias -Name vim -Value $EDITOR
-
 class InfoAttribute : System.Attribute {
     [string]$Description
     [string]$Category
@@ -125,7 +114,7 @@ function New-MenuItem([String]$Name, [String]$Value) {
 Add-Command-Description("Update-Profile", "Checks for profile updates from a remote repository and updates if necessary", "System")
 function Update-Profile {    
     if (-not $global:canConnectToGitHub) {
-        Write-Host "Skipping profile update check due to GitHub.com not responding within 1 second." -ForegroundColor Yellow
+        Write-Information "Skipping profile update check due to GitHub.com not responding within 1 second." -ForegroundColor Yellow
         return
     }
 
@@ -136,7 +125,7 @@ function Update-Profile {
         $newhash = Get-FileHash "$env:temp/Microsoft.PowerShell_profile.ps1"
         if ($newhash.Hash -ne $oldhash.Hash) {
             Copy-Item -Path "$env:temp/Microsoft.PowerShell_profile.ps1" -Destination $PROFILE -Force
-            Write-Host "Profile has been updated. Please restart your shell to reflect changes" -ForegroundColor Magenta
+            Write-Information "Profile has been updated. Please restart your shell to reflect changes" -ForegroundColor Magenta
         }
     } catch {
         Write-Error "Unable to check for `$profile updates"
@@ -149,12 +138,12 @@ Update-Profile
 Add-Command-Description("Update-PowerShell", "Checks for the latest PowerShell release and updates if a new version is available", "System")
 function Update-PowerShell {
     if (-not $global:canConnectToGitHub) {
-        Write-Host "Skipping PowerShell update check due to GitHub.com not responding within 1 second." -ForegroundColor Yellow
+        Write-Information "Skipping PowerShell update check due to GitHub.com not responding within 1 second." -ForegroundColor Yellow
         return
     }
 
     try {
-        Write-Host "Checking for PowerShell updates..." -ForegroundColor Cyan
+        Write-Information "Checking for PowerShell updates..." -ForegroundColor Cyan
         $updateNeeded = $false
         $currentVersion = $PSVersionTable.PSVersion.ToString()
         $gitHubApiUrl = "https://api.github.com/repos/PowerShell/PowerShell/releases/latest"
@@ -165,11 +154,11 @@ function Update-PowerShell {
         }
 
         if ($updateNeeded) {
-            Write-Host "Updating PowerShell..." -ForegroundColor Yellow
+            Write-Information "Updating PowerShell..." -ForegroundColor Yellow
             winget upgrade "Microsoft.PowerShell" --accept-source-agreements --accept-package-agreements
-            Write-Host "PowerShell has been updated. Please restart your shell to reflect changes" -ForegroundColor Magenta
+            Write-Information "PowerShell has been updated. Please restart your shell to reflect changes" -ForegroundColor Magenta
         } else {
-            Write-Host "Your PowerShell is up to date." -ForegroundColor Green
+            Write-Information "Your PowerShell is up to date." -ForegroundColor Green
         }
     } catch {
         Write-Error "Failed to update PowerShell. Error: $_"
@@ -179,7 +168,7 @@ Update-PowerShell
 
 Add-Command-Description("Edit-Profile", "Opens the current user's profile for editing using the configured editor", "System")
 function Edit-Profile {
-    vim $PROFILE.CurrentUserAllHosts
+    nvim $PROFILE.CurrentUserAllHosts
 }
 
 Add-Command-Description("Reload-Profile", "Reloads the current user's PowerShell profile", "System")
@@ -195,9 +184,9 @@ function Get-RecentHistory {
     )
 
     $historyEntries = $(Get-Content $(Get-PSReadLineOption).HistorySavePath | Select-Object -Last $Last) -join "`n"
-    Write-Host $historyEntries
+    Write-Output $historyEntries
     $historyEntries | clip
-    Write-Host "Copied to Clipboard" -ForegroundColor Magenta
+    Write-Information "Copied to Clipboard" -ForegroundColor Magenta
 }
 
 #endregion
@@ -240,7 +229,7 @@ function global:Ask-ChatGpt {
     )
 
     if (-not $env:OPENAI_API_KEY) {
-        Write-Host "Error: The OPENAI_API_KEY environment variable is not set."
+        Write-Error "Error: The OPENAI_API_KEY environment variable is not set."
         return
     }
 
@@ -263,7 +252,7 @@ function Get-PubIP {
 # Open WinUtil
 Add-Command-Description("winutil", "Runs the WinUtil script from Chris Titus Tech", "System Utilities")
 function winutil {
-	iwr -useb https://christitus.com/win | iex
+	Invoke-WebRequest -useb https://christitus.com/win | Invoke-Expression
 }
 
 # System Utilities
@@ -292,7 +281,7 @@ function uptime {
 
 Add-Command-Description("unzip", "Extracts a zip file to the current directory", "File Management")
 function unzip ($file) {
-    Write-Output("Extracting", $file, "to", $pwd)
+    Write-Information("Extracting", $file, "to", $pwd)
     $fullFile = Get-ChildItem -Path $pwd -Filter $file | ForEach-Object { $_.FullName }
     Expand-Archive -Path $fullFile -DestinationPath $pwd
 }
@@ -393,7 +382,7 @@ function dtop { Set-Location -Path $HOME\Desktop }
 
 # Quick Access to Editing the Profile
 Add-Command-Description("ep", "Opens the profile for editing", "Navigation Shortcuts")
-function ep { vim $PROFILE }
+function ep { nvim $PROFILE }
 
 # Simplified Process Management
 Add-Command-Description("k9", "Kills a process by name", "Simplified Process Management")
@@ -456,7 +445,7 @@ function sysinfo { Get-ComputerInfo }
 Add-Command-Description("flushdns", "Clears the DNS cache", "Networking Utilities")
 function flushdns {
 	Clear-DnsClientCache
-	Write-Host "DNS has been flushed"
+	Write-Information "DNS has been flushed"
 }
 
 # Clipboard Utilities
@@ -468,14 +457,14 @@ function pst { Get-Clipboard }
 
 Add-Command-Description("Switch-Azure-Subscription", "Select and login to Azure Subscription", "Development", @("sas"))
 function Switch-Azure-Subscription {
-    [CmdletBinder()]
+    [CmdletBinding()]
     [Alias("sas")]
     param ()
     
     # Fetch the list of Azure subscriptions
     $AZ_SUBSCRIPTIONS = az account list --output json | ConvertFrom-Json
     if ($AZ_SUBSCRIPTIONS.Count -eq 0) {
-        Write-Host "No Azure Subscriptions found."
+        Write-Error "No Azure Subscriptions found."
         return
     }
 
@@ -493,7 +482,7 @@ function Switch-Azure-Subscription {
 # Login to Docker Registry
 Add-Command-Description("Login-ACR", "Select and login to Azure Container Registry using Docker", "Development", @("lacr"))
 function Login-ACR {
-    [CmdletBinder()]
+    [CmdletBinding()]
     [Alias("lacr")]
     param ()
     
@@ -502,7 +491,7 @@ function Login-ACR {
 
     # Check if $ACRs is empty
     if ($ACRs.Count -eq 0) {
-        Write-Host "No Azure Container Registries found."
+        Write-Error "No Azure Container Registries found."
         return
     }
 
@@ -578,7 +567,7 @@ function Share-File {
             # Upload the file
             $uploadUri = "$baseApiUrl/$($credentials.id)/patch?dst=$($file.name)&offset=0"
             $uploadResponse = Invoke-WebRequest -Method POST -Uri $uploadUri -Form @{file = $file} -ContentType "multipart/form-data" -Headers @{"x-auth-token" = $credentials.token}
-            Write-Output "[DONE] $($file.Name) - $(Get-FileSize -Path $Path)"
+            Write-Information "[DONE] $($file.Name) - $(Get-FileSize -Path $Path)"
         }
         catch {
             Write-Error "An error occurred while processing '$Path': $_"
@@ -782,10 +771,10 @@ Get-Theme
 if (Get-Command zoxide -ErrorAction SilentlyContinue) {
     Invoke-Expression (& { (zoxide init --cmd cd powershell | Out-String) })
 } else {
-    Write-Host "zoxide command not found. Attempting to install via winget..."
+    Write-Information "zoxide command not found. Attempting to install via winget..."
     try {
         winget install -e --id ajeetdsouza.zoxide
-        Write-Host "zoxide installed successfully. Initializing..."
+        Write-Information "zoxide installed successfully. Initializing..."
         Invoke-Expression (& { (zoxide init powershell | Out-String) })
     } catch {
         Write-Error "Failed to install zoxide. Error: $_"
@@ -825,9 +814,9 @@ function global:Show-Help {
 
     # Now print the functions, grouped by category
     foreach ($category in $groupedByCategory.Keys) {
-        Write-Host "=> $category" -ForegroundColor Cyan
+        Write-Information "=> $category" -ForegroundColor Cyan
         $groupedByCategory[$category] | Format-Table -Property Name, Aliases, Description -AutoSize
-        Write-Host ""
+        Write-Information ""
     }
 }
-Write-Host "Use 'Show-Help' to display help"
+Write-Information "Use 'Show-Help' to display help"
