@@ -123,7 +123,7 @@ function New-MenuItem([String]$Name, [String]$Value) {
 Add-Command-Description -CommandName "Update-Profile" -Description "Checks for profile updates from a remote repository and updates if necessary" -Category "System"
 function Update-Profile {    
     if (-not $global:canConnectToGitHub) {
-        Write-Information "Skipping profile update check due to GitHub.com not responding within 1 second." -ForegroundColor Yellow
+        Write-Host "Skipping profile update check due to GitHub.com not responding within 1 second." -ForegroundColor Yellow
         return
     }
 
@@ -134,7 +134,7 @@ function Update-Profile {
         $newhash = Get-FileHash "$env:temp/Microsoft.PowerShell_profile.ps1"
         if ($newhash.Hash -ne $oldhash.Hash) {
             Copy-Item -Path "$env:temp/Microsoft.PowerShell_profile.ps1" -Destination $PROFILE -Force
-            Write-Information "Profile has been updated. Please restart your shell to reflect changes" -ForegroundColor Magenta
+            Write-Host "Profile has been updated. Please restart your shell to reflect changes" -ForegroundColor Magenta
         }
     } catch {
         Write-Error "Unable to check for `$profile updates"
@@ -147,12 +147,12 @@ Update-Profile
 Add-Command-Description -CommandName "Update-PowerShell" -Description "Checks for the latest PowerShell release and updates if a new version is available" -Category "System"
 function Update-PowerShell {
     if (-not $global:canConnectToGitHub) {
-        Write-Information "Skipping PowerShell update check due to GitHub.com not responding within 1 second." -ForegroundColor Yellow
+        Write-Host "Skipping PowerShell update check due to GitHub.com not responding within 1 second." -ForegroundColor Yellow
         return
     }
 
     try {
-        Write-Information "Checking for PowerShell updates..." -ForegroundColor Cyan
+        Write-Host "Checking for PowerShell updates..." -ForegroundColor Cyan
         $updateNeeded = $false
         $currentVersion = $PSVersionTable.PSVersion.ToString()
         $gitHubApiUrl = "https://api.github.com/repos/PowerShell/PowerShell/releases/latest"
@@ -163,11 +163,11 @@ function Update-PowerShell {
         }
 
         if ($updateNeeded) {
-            Write-Information "Updating PowerShell..." -ForegroundColor Yellow
+            Write-Host "Updating PowerShell..." -ForegroundColor Yellow
             winget upgrade "Microsoft.PowerShell" --accept-source-agreements --accept-package-agreements
-            Write-Information "PowerShell has been updated. Please restart your shell to reflect changes" -ForegroundColor Magenta
+            Write-Host "PowerShell has been updated. Please restart your shell to reflect changes" -ForegroundColor Magenta
         } else {
-            Write-Information "Your PowerShell is up to date." -ForegroundColor Green
+            Write-Host "Your PowerShell is up to date." -ForegroundColor Green
         }
     } catch {
         Write-Error "Failed to update PowerShell. Error: $_"
@@ -195,7 +195,7 @@ function Get-RecentHistory {
     $historyEntries = $(Get-Content $(Get-PSReadLineOption).HistorySavePath | Select-Object -Last $Last) -join "`n"
     Write-Output $historyEntries
     $historyEntries | clip
-    Write-Information "Copied to Clipboard" -ForegroundColor Magenta
+    Write-Information "Copied to Clipboard"
 }
 
 #endregion
@@ -823,7 +823,7 @@ function global:Show-Help {
 
     # Now print the functions, grouped by category
     foreach ($category in $groupedByCategory.Keys) {
-        Write-Information "=> $category" -ForegroundColor Cyan
+        Write-Host "=> $category" -ForegroundColor Cyan
         $groupedByCategory[$category] | Format-Table -Property Name, Aliases, Description -AutoSize
         Write-Information ""
     }
