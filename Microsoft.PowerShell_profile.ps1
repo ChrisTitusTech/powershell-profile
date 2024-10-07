@@ -694,6 +694,15 @@ function Enter-Projects {
     Write-Error "Project '$projects' not found in the specified paths."
 }
 
+Add-Command-Description -CommandName "Create-Network-Access-Exceptions-For-Resources" -Description "Adds Network access exceptions for my current public ip" -Category "Development" -Aliases @("cna")
+function Create-Network-Access-Exceptions-For-Resources {
+    [CmdletBinding()]
+    [Alias("cna")]
+    param()
+    
+    Invoke-WebRequest -UseBasicParsing https://gist.githubusercontent.com/moeller-projects/edef0e5eb63797f7fab3c79c0a30809b/raw/106b33a431f36ab905054c3acc5d1787f8dc7b5e/add-network-exception-for-resources.ps1 | Invoke-Expression
+}
+
 #region Setup Command Completions
 
 if (Test-CommandExists fnm) {
