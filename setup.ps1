@@ -132,6 +132,15 @@ try {
 catch {
     Write-Error "Failed to install Terminal Icons module. Error: $_"
 }
+
+# Git-posh Install
+try {
+    Install-Module -Name posh-git -Repository PSGallery -Force
+}
+catch {
+    Write-Error "Failed to install Terminal Icons module. Error: $_"
+}
+
 # zoxide Install
 try {
     winget install -e --id ajeetdsouza.zoxide
