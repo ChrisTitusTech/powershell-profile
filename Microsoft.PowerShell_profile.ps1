@@ -89,6 +89,28 @@ function Update-PowerShell {
 }
 Update-PowerShell
 
+function Clear-Cache {
+    # add clear cache logic here
+    Write-Host "Clearing cache..." -ForegroundColor Cyan
+
+    # Clear Windows Prefetch
+    Write-Host "Clearing Windows Prefetch..." -ForegroundColor Yellow
+    Remove-Item -Path "$env:SystemRoot\Prefetch\*" -Force -ErrorAction SilentlyContinue
+
+    # Clear Windows Temp
+    Write-Host "Clearing Windows Temp..." -ForegroundColor Yellow
+    Remove-Item -Path "$env:SystemRoot\Temp\*" -Recurse -Force -ErrorAction SilentlyContinue
+
+    # Clear User Temp
+    Write-Host "Clearing User Temp..." -ForegroundColor Yellow
+    Remove-Item -Path "$env:TEMP\*" -Recurse -Force -ErrorAction SilentlyContinue
+
+    # Clear Internet Explorer Cache
+    Write-Host "Clearing Internet Explorer Cache..." -ForegroundColor Yellow
+    Remove-Item -Path "$env:LOCALAPPDATA\Microsoft\Windows\INetCache\*" -Recurse -Force -ErrorAction SilentlyContinue
+
+    Write-Host "Cache clearing completed." -ForegroundColor Green
+}
 
 # Admin Check and Prompt Customization
 $isAdmin = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
@@ -329,7 +351,7 @@ function Get-Theme {
             return
         }
     } else {
-        oh-my-posh init pwsh --config https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/cobalt2.omp.json | Invoke-Expression
+        oh-my-posh init pwsh --config https://raw.githubusercontent.com/ru-dr/rudr-Theme/refs/heads/main/rudr-theme.omp.json | Invoke-Expression
     }
 }
 
@@ -353,89 +375,90 @@ Set-Alias -Name zi -Value __zoxide_zi -Option AllScope -Scope Global -Force
 
 # Help Function
 function Show-Help {
-    @"
-PowerShell Profile Help
-=======================
+    $helpText = @"
+$($PSStyle.Foreground.Cyan)PowerShell Profile Help$($PSStyle.Reset)
+$($PSStyle.Foreground.Yellow)=======================$($PSStyle.Reset)
 
-Update-Profile - Checks for profile updates from a remote repository and updates if necessary.
+$($PSStyle.Foreground.Green)Update-Profile$($PSStyle.Reset) - Checks for profile updates from a remote repository and updates if necessary.
 
-Update-PowerShell - Checks for the latest PowerShell release and updates if a new version is available.
+$($PSStyle.Foreground.Green)Update-PowerShell$($PSStyle.Reset) - Checks for the latest PowerShell release and updates if a new version is available.
 
-Edit-Profile - Opens the current user's profile for editing using the configured editor.
+$($PSStyle.Foreground.Green)Edit-Profile$($PSStyle.Reset) - Opens the current user's profile for editing using the configured editor.
 
-touch <file> - Creates a new empty file.
+$($PSStyle.Foreground.Green)touch$($PSStyle.Reset) <file> - Creates a new empty file.
 
-ff <name> - Finds files recursively with the specified name.
+$($PSStyle.Foreground.Green)ff$($PSStyle.Reset) <name> - Finds files recursively with the specified name.
 
-Get-PubIP - Retrieves the public IP address of the machine.
+$($PSStyle.Foreground.Green)Get-PubIP$($PSStyle.Reset) - Retrieves the public IP address of the machine.
 
-winutil - Runs the WinUtil script from Chris Titus Tech.
+$($PSStyle.Foreground.Green)winutil$($PSStyle.Reset) - Runs the WinUtil script from Chris Titus Tech.
 
-uptime - Displays the system uptime.
+$($PSStyle.Foreground.Green)uptime$($PSStyle.Reset) - Displays the system uptime.
 
-reload-profile - Reloads the current user's PowerShell profile.
+$($PSStyle.Foreground.Green)reload-profile$($PSStyle.Reset) - Reloads the current user's PowerShell profile.
 
-unzip <file> - Extracts a zip file to the current directory.
+$($PSStyle.Foreground.Green)unzip$($PSStyle.Reset) <file> - Extracts a zip file to the current directory.
 
-hb <file> - Uploads the specified file's content to a hastebin-like service and returns the URL.
+$($PSStyle.Foreground.Green)hb$($PSStyle.Reset) <file> - Uploads the specified file's content to a hastebin-like service and returns the URL.
 
-grep <regex> [dir] - Searches for a regex pattern in files within the specified directory or from the pipeline input.
+$($PSStyle.Foreground.Green)grep$($PSStyle.Reset) <regex> [dir] - Searches for a regex pattern in files within the specified directory or from the pipeline input.
 
-df - Displays information about volumes.
+$($PSStyle.Foreground.Green)df$($PSStyle.Reset) - Displays information about volumes.
 
-sed <file> <find> <replace> - Replaces text in a file.
+$($PSStyle.Foreground.Green)sed$($PSStyle.Reset) <file> <find> <replace> - Replaces text in a file.
 
-which <name> - Shows the path of the command.
+$($PSStyle.Foreground.Green)which$($PSStyle.Reset) <name> - Shows the path of the command.
 
-export <name> <value> - Sets an environment variable.
+$($PSStyle.Foreground.Green)export$($PSStyle.Reset) <name> <value> - Sets an environment variable.
 
-pkill <name> - Kills processes by name.
+$($PSStyle.Foreground.Green)pkill$($PSStyle.Reset) <name> - Kills processes by name.
 
-pgrep <name> - Lists processes by name.
+$($PSStyle.Foreground.Green)pgrep$($PSStyle.Reset) <name> - Lists processes by name.
 
-head <path> [n] - Displays the first n lines of a file (default 10).
+$($PSStyle.Foreground.Green)head$($PSStyle.Reset) <path> [n] - Displays the first n lines of a file (default 10).
 
-tail <path> [n] - Displays the last n lines of a file (default 10).
+$($PSStyle.Foreground.Green)tail$($PSStyle.Reset) <path> [n] - Displays the last n lines of a file (default 10).
 
-nf <name> - Creates a new file with the specified name.
+$($PSStyle.Foreground.Green)nf$($PSStyle.Reset) <name> - Creates a new file with the specified name.
 
-mkcd <dir> - Creates and changes to a new directory.
+$($PSStyle.Foreground.Green)mkcd$($PSStyle.Reset) <dir> - Creates and changes to a new directory.
 
-docs - Changes the current directory to the user's Documents folder.
+$($PSStyle.Foreground.Green)docs$($PSStyle.Reset) - Changes the current directory to the user's Documents folder.
 
-dtop - Changes the current directory to the user's Desktop folder.
+$($PSStyle.Foreground.Green)dtop$($PSStyle.Reset) - Changes the current directory to the user's Desktop folder.
 
-ep - Opens the profile for editing.
+$($PSStyle.Foreground.Green)ep$($PSStyle.Reset) - Opens the profile for editing.
 
-k9 <name> - Kills a process by name.
+$($PSStyle.Foreground.Green)k9$($PSStyle.Reset) <name> - Kills a process by name.
 
-la - Lists all files in the current directory with detailed formatting.
+$($PSStyle.Foreground.Green)la$($PSStyle.Reset) - Lists all files in the current directory with detailed formatting.
 
-ll - Lists all files, including hidden, in the current directory with detailed formatting.
+$($PSStyle.Foreground.Green)ll$($PSStyle.Reset) - Lists all files, including hidden, in the current directory with detailed formatting.
 
-gs - Shortcut for 'git status'.
+$($PSStyle.Foreground.Green)gs$($PSStyle.Reset) - Shortcut for 'git status'.
 
-ga - Shortcut for 'git add .'.
+$($PSStyle.Foreground.Green)ga$($PSStyle.Reset) - Shortcut for 'git add .'.
 
-gc <message> - Shortcut for 'git commit -m'.
+$($PSStyle.Foreground.Green)gc$($PSStyle.Reset) <message> - Shortcut for 'git commit -m'.
 
-gp - Shortcut for 'git push'.
+$($PSStyle.Foreground.Green)gp$($PSStyle.Reset) - Shortcut for 'git push'.
 
-g - Changes to the GitHub directory.
+$($PSStyle.Foreground.Green)g$($PSStyle.Reset) - Changes to the GitHub directory.
 
-gcom <message> - Adds all changes and commits with the specified message.
+$($PSStyle.Foreground.Green)gcom$($PSStyle.Reset) <message> - Adds all changes and commits with the specified message.
 
-lazyg <message> - Adds all changes, commits with the specified message, and pushes to the remote repository.
+$($PSStyle.Foreground.Green)lazyg$($PSStyle.Reset) <message> - Adds all changes, commits with the specified message, and pushes to the remote repository.
 
-sysinfo - Displays detailed system information.
+$($PSStyle.Foreground.Green)sysinfo$($PSStyle.Reset) - Displays detailed system information.
 
-flushdns - Clears the DNS cache.
+$($PSStyle.Foreground.Green)flushdns$($PSStyle.Reset) - Clears the DNS cache.
 
-cpy <text> - Copies the specified text to the clipboard.
+$($PSStyle.Foreground.Green)cpy$($PSStyle.Reset) <text> - Copies the specified text to the clipboard.
 
-pst - Retrieves text from the clipboard.
+$($PSStyle.Foreground.Green)pst$($PSStyle.Reset) - Retrieves text from the clipboard.
 
-Use 'Show-Help' to display this help message.
+Use '$($PSStyle.Foreground.Magenta)Show-Help$($PSStyle.Reset)' to display this help message.
 "@
+    Write-Host $helpText
 }
-Write-Host "Use 'Show-Help' to display help"
+Write-Host "$($PSStyle.Foreground.Yellow)Use 'Show-Help' to display help$($PSStyle.Reset)"
