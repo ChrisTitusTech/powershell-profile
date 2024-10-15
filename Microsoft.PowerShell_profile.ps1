@@ -22,7 +22,7 @@ if ([bool]([System.Security.Principal.WindowsIdentity]::GetCurrent()).IsSystem) 
 }
 
 # Initial GitHub.com connectivity check with 1 second timeout
-$canConnectToGitHub = Test-Connection github.com -Count 1 -Quiet -TimeoutSeconds 1
+$global:canConnectToGitHub = Test-Connection github.com -Count 1 -Quiet -TimeoutSeconds 1
 
 # Import Modules and External Profiles
 # Ensure Terminal-Icons module is installed before importing
@@ -37,11 +37,6 @@ if (Test-Path($ChocolateyProfile)) {
 
 # Check for Profile Updates
 function Update-Profile {
-    if (-not $global:canConnectToGitHub) {
-        Write-Host "Skipping profile update check due to GitHub.com not responding within 1 second." -ForegroundColor Yellow
-        return
-    }
-
     try {
         $url = "https://raw.githubusercontent.com/ChrisTitusTech/powershell-profile/main/Microsoft.PowerShell_profile.ps1"
         $oldhash = Get-FileHash $PROFILE
@@ -50,21 +45,17 @@ function Update-Profile {
         if ($newhash.Hash -ne $oldhash.Hash) {
             Copy-Item -Path "$env:temp/Microsoft.PowerShell_profile.ps1" -Destination $PROFILE -Force
             Write-Host "Profile has been updated. Please restart your shell to reflect changes" -ForegroundColor Magenta
+        } else {
+            Write-Host "Profile is up to date." -ForegroundColor Green
         }
     } catch {
-        Write-Error "Unable to check for `$profile updates"
+        Write-Error "Unable to check for `$profile updates: $_"
     } finally {
         Remove-Item "$env:temp/Microsoft.PowerShell_profile.ps1" -ErrorAction SilentlyContinue
     }
 }
-Update-Profile
 
 function Update-PowerShell {
-    if (-not $global:canConnectToGitHub) {
-        Write-Host "Skipping PowerShell update check due to GitHub.com not responding within 1 second." -ForegroundColor Yellow
-        return
-    }
-
     try {
         Write-Host "Checking for PowerShell updates..." -ForegroundColor Cyan
         $updateNeeded = $false
@@ -314,23 +305,70 @@ function cpy { Set-Clipboard $args[0] }
 function pst { Get-Clipboard }
 
 # Enhanced PowerShell Experience
-Set-PSReadLineOption -Colors @{
-    Command = 'Yellow'
-    Parameter = 'Green'
-    String = 'DarkCyan'
+# Enhanced PSReadLine Configuration
+$PSReadLineOptions = @{
+    EditMode = 'Windows'
+    HistoryNoDuplicates = $true
+    HistorySearchCursorMovesToEnd = $true
+    Colors = @{
+        Command = '#87CEEB'  # SkyBlue (pastel)
+        Parameter = '#98FB98'  # PaleGreen (pastel)
+        Operator = '#FFB6C1'  # LightPink (pastel)
+        Variable = '#DDA0DD'  # Plum (pastel)
+        String = '#FFDAB9'  # PeachPuff (pastel)
+        Number = '#B0E0E6'  # PowderBlue (pastel)
+        Type = '#F0E68C'  # Khaki (pastel)
+        Comment = '#D3D3D3'  # LightGray (pastel)
+        Keyword = '#8367c7'  # Violet (pastel)
+        Error = '#FF6347'  # Tomato (keeping it close to red for visibility)
+    }
+    PredictionSource = 'History'
+    PredictionViewStyle = 'ListView'
+    BellStyle = 'None'
+}
+Set-PSReadLineOption @PSReadLineOptions
+
+# Custom key handlers
+Set-PSReadLineKeyHandler -Key UpArrow -Function HistorySearchBackward
+Set-PSReadLineKeyHandler -Key DownArrow -Function HistorySearchForward
+Set-PSReadLineKeyHandler -Key Tab -Function MenuComplete
+Set-PSReadLineKeyHandler -Chord 'Ctrl+d' -Function DeleteChar
+Set-PSReadLineKeyHandler -Chord 'Ctrl+w' -Function BackwardDeleteWord
+Set-PSReadLineKeyHandler -Chord 'Alt+d' -Function DeleteWord
+Set-PSReadLineKeyHandler -Chord 'Ctrl+LeftArrow' -Function BackwardWord
+Set-PSReadLineKeyHandler -Chord 'Ctrl+RightArrow' -Function ForwardWord
+Set-PSReadLineKeyHandler -Chord 'Ctrl+z' -Function Undo
+Set-PSReadLineKeyHandler -Chord 'Ctrl+y' -Function Redo
+
+# Custom functions for PSReadLine
+Set-PSReadLineOption -AddToHistoryHandler {
+    param($line)
+    $sensitive = @('password', 'secret', 'token', 'apikey', 'connectionstring')
+    $hasSensitive = $sensitive | Where-Object { $line -match $_ }
+    return ($null -eq $hasSensitive)
 }
 
-$PSROptions = @{
-    ContinuationPrompt = '  '
-    Colors             = @{
-    Parameter          = $PSStyle.Foreground.Magenta
-    Selection          = $PSStyle.Background.Black
-    InLinePrediction   = $PSStyle.Foreground.BrightYellow + $PSStyle.Background.BrightBlack
+# Improved prediction settings
+Set-PSReadLineOption -PredictionSource HistoryAndPlugin
+Set-PSReadLineOption -MaximumHistoryCount 10000
+
+# Custom completion for common commands
+$scriptblock = {
+    param($wordToComplete, $commandAst, $cursorPosition)
+    $customCompletions = @{
+        'git' = @('status', 'add', 'commit', 'push', 'pull', 'clone', 'checkout')
+        'npm' = @('install', 'start', 'run', 'test', 'build')
+        'deno' = @('run', 'compile', 'bundle', 'test', 'lint', 'fmt', 'cache', 'info', 'doc', 'upgrade')
+    }
+    
+    $command = $commandAst.CommandElements[0].Value
+    if ($customCompletions.ContainsKey($command)) {
+        $customCompletions[$command] | Where-Object { $_ -like "$wordToComplete*" } | ForEach-Object {
+            [System.Management.Automation.CompletionResult]::new($_, $_, 'ParameterValue', $_)
+        }
     }
 }
-Set-PSReadLineOption @PSROptions
-Set-PSReadLineKeyHandler -Chord 'Ctrl+f' -Function ForwardWord
-Set-PSReadLineKeyHandler -Chord 'Enter' -Function ValidateAndAcceptLine
+Register-ArgumentCompleter -Native -CommandName git, npm, deno -ScriptBlock $scriptblock
 
 $scriptblock = {
     param($wordToComplete, $commandAst, $cursorPosition)
