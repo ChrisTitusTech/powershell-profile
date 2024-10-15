@@ -16,82 +16,51 @@
 ############                                                                                                         ############
 #################################################################################################################################
 
-#opt-out of telemetry before doing anything, only if PowerShell is run as admin
-if ([bool]([System.Security.Principal.WindowsIdentity]::GetCurrent()).IsSystem) {
-    [System.Environment]::SetEnvironmentVariable('POWERSHELL_TELEMETRY_OPTOUT', 'true', [System.EnvironmentVariableTarget]::Machine)
-}
+oh-my-posh init pwsh --config "$env:POSH_THEMES_PATH/stelbent-compact.minimal.omp.json" | Invoke-Expression
 
-# Initial GitHub.com connectivity check with 1 second timeout
-$canConnectToGitHub = Test-Connection github.com -Count 1 -Quiet -TimeoutSeconds 1
-
-# Import Modules and External Profiles
-# Ensure Terminal-Icons module is installed before importing
-if (-not (Get-Module -ListAvailable -Name Terminal-Icons)) {
-    Install-Module -Name Terminal-Icons -Scope CurrentUser -Force -SkipPublisherCheck
-}
 Import-Module -Name Terminal-Icons
-$ChocolateyProfile = "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"
-if (Test-Path($ChocolateyProfile)) {
-    Import-Module "$ChocolateyProfile"
+
+Set-PSReadLineOption -PredictionSource History
+Set-PSReadLineOption -PredictionViewStyle ListView
+
+# Define the animation characters
+$animationChars = @('|', '/', '-', '\')
+
+# Set the duration for the animation
+$duration = 2  # Total time to run the animation (in seconds)
+$endTime = (Get-Date).AddSeconds($duration)
+
+# Hide the cursor
+[Console]::CursorVisible = $false
+
+# Loop until the duration is reached
+while ((Get-Date) -lt $endTime) {
+    foreach ($char in $animationChars) {
+        # Clear the line and write the current animation character
+        Write-Host -NoNewline "`r$char"
+
+        # Pause for a short duration to control the speed of the animation
+        Start-Sleep -Milliseconds 100
+
+        # Check if the time is up to break out of the loop
+        if ((Get-Date) -ge $endTime) {
+            break
+        }
+    }
 }
 
-# Check for Profile Updates
-function Update-Profile {
-    if (-not $global:canConnectToGitHub) {
-        Write-Host "Skipping profile update check due to GitHub.com not responding within 1 second." -ForegroundColor Yellow
-        return
-    }
+# Show the cursor again after the animation ends
+[Console]::CursorVisible = $true
 
-    try {
-        $url = "https://raw.githubusercontent.com/ChrisTitusTech/powershell-profile/main/Microsoft.PowerShell_profile.ps1"
-        $oldhash = Get-FileHash $PROFILE
-        Invoke-RestMethod $url -OutFile "$env:temp/Microsoft.PowerShell_profile.ps1"
-        $newhash = Get-FileHash "$env:temp/Microsoft.PowerShell_profile.ps1"
-        if ($newhash.Hash -ne $oldhash.Hash) {
-            Copy-Item -Path "$env:temp/Microsoft.PowerShell_profile.ps1" -Destination $PROFILE -Force
-            Write-Host "Profile has been updated. Please restart your shell to reflect changes" -ForegroundColor Magenta
-        }
-    } catch {
-        Write-Error "Unable to check for `$profile updates"
-    } finally {
-        Remove-Item "$env:temp/Microsoft.PowerShell_profile.ps1" -ErrorAction SilentlyContinue
-    }
-}
-Update-Profile
+# Clear the last character after the animation
+clear
 
-function Update-PowerShell {
-    if (-not $global:canConnectToGitHub) {
-        Write-Host "Skipping PowerShell update check due to GitHub.com not responding within 1 second." -ForegroundColor Yellow
-        return
-    }
 
-    try {
-        Write-Host "Checking for PowerShell updates..." -ForegroundColor Cyan
-        $updateNeeded = $false
-        $currentVersion = $PSVersionTable.PSVersion.ToString()
-        $gitHubApiUrl = "https://api.github.com/repos/PowerShell/PowerShell/releases/latest"
-        $latestReleaseInfo = Invoke-RestMethod -Uri $gitHubApiUrl
-        $latestVersion = $latestReleaseInfo.tag_name.Trim('v')
-        if ($currentVersion -lt $latestVersion) {
-            $updateNeeded = $true
-        }
-
-        if ($updateNeeded) {
-            Write-Host "Updating PowerShell..." -ForegroundColor Yellow
-            winget upgrade "Microsoft.PowerShell" --accept-source-agreements --accept-package-agreements
-            Write-Host "PowerShell has been updated. Please restart your shell to reflect changes" -ForegroundColor Magenta
-        } else {
-            Write-Host "Your PowerShell is up to date." -ForegroundColor Green
-        }
-    } catch {
-        Write-Error "Failed to update PowerShell. Error: $_"
-    }
-}
-Update-PowerShell
-
+# ###################################### Linux Customization
 
 # Admin Check and Prompt Customization
 $isAdmin = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
+
 function prompt {
     if ($isAdmin) { "[" + (Get-Location) + "] # " } else { "[" + (Get-Location) + "] $ " }
 }
@@ -119,7 +88,9 @@ Set-Alias -Name vim -Value $EDITOR
 function Edit-Profile {
     vim $PROFILE.CurrentUserAllHosts
 }
+
 function touch($file) { "" | Out-File $file -Encoding ASCII }
+
 function ff($name) {
     Get-ChildItem -recurse -filter "*${name}*" -ErrorAction SilentlyContinue | ForEach-Object {
         Write-Output "$($_.FullName)"
@@ -131,7 +102,7 @@ function Get-PubIP { (Invoke-WebRequest http://ifconfig.me/ip).Content }
 
 # Open WinUtil
 function winutil {
-	iwr -useb https://christitus.com/win | iex
+    iwr -useb https://christitus.com/win | iex
 }
 
 # System Utilities
@@ -164,33 +135,10 @@ function unzip ($file) {
     $fullFile = Get-ChildItem -Path $pwd -Filter $file | ForEach-Object { $_.FullName }
     Expand-Archive -Path $fullFile -DestinationPath $pwd
 }
-function hb {
-    if ($args.Length -eq 0) {
-        Write-Error "No file path specified."
-        return
-    }
-    
-    $FilePath = $args[0]
-    
-    if (Test-Path $FilePath) {
-        $Content = Get-Content $FilePath -Raw
-    } else {
-        Write-Error "File path does not exist."
-        return
-    }
-    
-    $uri = "http://bin.christitus.com/documents"
-    try {
-        $response = Invoke-RestMethod -Uri $uri -Method Post -Body $Content -ErrorAction Stop
-        $hasteKey = $response.key
-        $url = "http://bin.christitus.com/$hasteKey"
-        Write-Output $url
-    } catch {
-        Write-Error "Failed to upload the document. Error: $_"
-    }
-}
+
+
 function grep($regex, $dir) {
-    if ( $dir ) {
+    if ($dir) {
         Get-ChildItem $dir | select-string $regex
         return
     }
@@ -222,13 +170,13 @@ function pgrep($name) {
 }
 
 function head {
-  param($Path, $n = 10)
-  Get-Content $Path -Head $n
+    param($Path, $n = 10)
+    Get-Content $Path -Head $n
 }
 
 function tail {
-  param($Path, $n = 10, [switch]$f = $false)
-  Get-Content $Path -Tail $n -Wait:$f
+    param($Path, $n = 10, [switch]$f = $false)
+    Get-Content $Path -Tail $n -Wait:$f
 }
 
 # Quick File Creation
@@ -268,11 +216,11 @@ function g { __zoxide_z github }
 function gcl { git clone "$args" }
 
 function gcom {
-    git add .
+    git add . 
     git commit -m "$args"
 }
 function lazyg {
-    git add .
+    git add . 
     git commit -m "$args"
     git push
 }
@@ -282,8 +230,8 @@ function sysinfo { Get-ComputerInfo }
 
 # Networking Utilities
 function flushdns {
-	Clear-DnsClientCache
-	Write-Host "DNS has been flushed"
+    Clear-DnsClientCache
+    Write-Host "DNS has been flushed"
 }
 
 # Clipboard Utilities
@@ -292,24 +240,23 @@ function cpy { Set-Clipboard $args[0] }
 function pst { Get-Clipboard }
 
 # Enhanced PowerShell Experience
+# Set color options for PSReadLine
 Set-PSReadLineOption -Colors @{
     Command = 'Yellow'
     Parameter = 'Green'
     String = 'DarkCyan'
+    Keyword = 'Magenta'
+    Operator = 'Cyan'
 }
 
-$PSROptions = @{
-    ContinuationPrompt = '  '
-    Colors             = @{
-    Parameter          = $PSStyle.Foreground.Magenta
-    Selection          = $PSStyle.Background.Black
-    InLinePrediction   = $PSStyle.Foreground.BrightYellow + $PSStyle.Background.BrightBlack
-    }
-}
-Set-PSReadLineOption @PSROptions
+# Set continuation prompt
+Set-PSReadLineOption -ContinuationPrompt '  '
+
+# Set key handlers for navigation
 Set-PSReadLineKeyHandler -Chord 'Ctrl+f' -Function ForwardWord
 Set-PSReadLineKeyHandler -Chord 'Enter' -Function ValidateAndAcceptLine
 
+# Argument completer for dotnet
 $scriptblock = {
     param($wordToComplete, $commandAst, $cursorPosition)
     dotnet complete --position $cursorPosition $commandAst.ToString() |
@@ -318,38 +265,6 @@ $scriptblock = {
         }
 }
 Register-ArgumentCompleter -Native -CommandName dotnet -ScriptBlock $scriptblock
-
-
-# Get theme from profile.ps1 or use a default theme
-function Get-Theme {
-    if (Test-Path -Path $PROFILE.CurrentUserAllHosts -PathType leaf) {
-        $existingTheme = Select-String -Raw -Path $PROFILE.CurrentUserAllHosts -Pattern "oh-my-posh init pwsh --config"
-        if ($null -ne $existingTheme) {
-            Invoke-Expression $existingTheme
-            return
-        }
-    } else {
-        oh-my-posh init pwsh --config https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/cobalt2.omp.json | Invoke-Expression
-    }
-}
-
-## Final Line to set prompt
-Get-Theme
-if (Get-Command zoxide -ErrorAction SilentlyContinue) {
-    Invoke-Expression (& { (zoxide init --cmd cd powershell | Out-String) })
-} else {
-    Write-Host "zoxide command not found. Attempting to install via winget..."
-    try {
-        winget install -e --id ajeetdsouza.zoxide
-        Write-Host "zoxide installed successfully. Initializing..."
-        Invoke-Expression (& { (zoxide init powershell | Out-String) })
-    } catch {
-        Write-Error "Failed to install zoxide. Error: $_"
-    }
-}
-
-Set-Alias -Name z -Value __zoxide_z -Option AllScope -Scope Global -Force
-Set-Alias -Name zi -Value __zoxide_zi -Option AllScope -Scope Global -Force
 
 # Help Function
 function Show-Help {
@@ -375,67 +290,101 @@ uptime - Displays the system uptime.
 
 reload-profile - Reloads the current user's PowerShell profile.
 
-unzip <file> - Extracts a zip file to the current directory.
+unzip <file> - Extracts the specified ZIP file to the current directory.
 
-hb <file> - Uploads the specified file's content to a hastebin-like service and returns the URL.
+hb <file> - Uploads a file to Hastebin and returns the URL.
 
-grep <regex> [dir] - Searches for a regex pattern in files within the specified directory or from the pipeline input.
+grep <regex> <dir> - Searches for the specified regex in the given directory.
 
-df - Displays information about volumes.
+df - Displays disk usage for each volume.
 
-sed <file> <find> <replace> - Replaces text in a file.
+sed <file> <find> <replace> - Replaces text in a specified file.
 
-which <name> - Shows the path of the command.
+which <command> - Displays the full path of the specified command.
 
 export <name> <value> - Sets an environment variable.
 
-pkill <name> - Kills processes by name.
+pkill <name> - Kills the specified process.
 
-pgrep <name> - Lists processes by name.
+pgrep <name> - Displays processes with the specified name.
 
-head <path> [n] - Displays the first n lines of a file (default 10).
+head <file> <n> - Displays the first n lines of the specified file.
 
-tail <path> [n] - Displays the last n lines of a file (default 10).
+tail <file> <n> - Displays the last n lines of the specified file.
 
 nf <name> - Creates a new file with the specified name.
 
-mkcd <dir> - Creates and changes to a new directory.
+mkcd <dir> - Creates a new directory and changes to it.
 
-docs - Changes the current directory to the user's Documents folder.
+docs - Navigates to the Documents directory.
 
-dtop - Changes the current directory to the user's Desktop folder.
+dtop - Navigates to the Desktop directory.
 
-ep - Opens the profile for editing.
+ep - Opens the profile in the configured editor.
 
-k9 <name> - Kills a process by name.
+sysinfo - Displays system information.
 
-la - Lists all files in the current directory with detailed formatting.
-
-ll - Lists all files, including hidden, in the current directory with detailed formatting.
-
-gs - Shortcut for 'git status'.
-
-ga - Shortcut for 'git add .'.
-
-gc <message> - Shortcut for 'git commit -m'.
-
-gp - Shortcut for 'git push'.
-
-g - Changes to the GitHub directory.
-
-gcom <message> - Adds all changes and commits with the specified message.
-
-lazyg <message> - Adds all changes, commits with the specified message, and pushes to the remote repository.
-
-sysinfo - Displays detailed system information.
-
-flushdns - Clears the DNS cache.
+flushdns - Flushes the DNS cache.
 
 cpy <text> - Copies the specified text to the clipboard.
 
-pst - Retrieves text from the clipboard.
+pst - Pastes the text from the clipboard.
 
-Use 'Show-Help' to display this help message.
 "@
 }
-Write-Host "Use 'Show-Help' to display help"
+
+
+# Function to add a file or folder in the current directory
+function add {
+    param($Name)
+
+    # Check if the name contains an extension
+    if ($Name -like "*.*") {
+        # Create a file
+        New-Item -ItemType File -Path (Join-Path -Path (Get-Location) -ChildPath $Name) -Force
+    } else {
+        # Create a folder
+        New-Item -ItemType Directory -Path (Join-Path -Path (Get-Location) -ChildPath $Name) -Force
+    }
+}
+
+# Function to delete a file or folder in the current directory
+function del {
+    param($Name)
+
+    # Combine path with current directory
+    $Path = Join-Path -Path (Get-Location) -ChildPath $Name
+
+    # Remove the item if it exists
+    if (Test-Path $Path) {
+        Remove-Item -Path $Path -Recurse -Force
+    } else {
+        Write-Host "Item '$Name' not found in the current directory."
+    }
+}
+
+# Function to move a file or folder to a destination
+function move {
+    param(
+        [string]$Name,
+        [string]$Destination
+    )
+
+    # Combine path with current directory
+    $Path = Join-Path -Path (Get-Location) -ChildPath $Name
+
+    # Move the item if it exists
+    if (Test-Path $Path) {
+        Move-Item -Path $Path -Destination $Destination -Force
+    } else {
+        Write-Host "Item '$Name' not found in the current directory."
+    }
+}
+
+
+
+# Load the profile once
+# Show-Help
+
+oh-my-posh init pwsh --config "$env:POSH_THEMES_PATH/stelbent-compact.minimal.omp.json" | Invoke-Expression
+
