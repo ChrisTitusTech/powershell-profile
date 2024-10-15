@@ -382,6 +382,68 @@ function move {
 }
 
 
+# Fucntion to show show hidden folders like .git
+function ls-hidden {
+    Get-ChildItem -Directory -Force | Where-Object { $_.Attributes -match 'Hidden' }
+}
+
+
+# Function to hide specific files or folders or all items in the current directory
+function hide {
+    param (
+        [string]$name = ""
+    )
+
+    if (-not [string]::IsNullOrEmpty($name)) {
+        # Hide specific file or folder
+        $itemPath = Join-Path -Path (Get-Location) -ChildPath $name
+        $item = Get-Item -Path $itemPath -ErrorAction SilentlyContinue
+        if ($item) {
+            # Apply attributes to hide
+            attrib +h +s +r +x $item.FullName
+            Write-Host "Hidden: $name"
+        } else {
+            Write-Host "Item not found: $name"
+        }
+    } else {
+        # Hide all files and folders in the current directory
+        Get-ChildItem -Force | ForEach-Object {
+            attrib +h +s +r +x $_.FullName
+        }
+        Write-Host "All items in the current directory are now hidden."
+    }
+}
+
+# Function to unhide specific files or folders or all items in the current directory
+function unhide {
+    param (
+        [string]$name = ""
+    )
+
+    if (-not [string]::IsNullOrEmpty($name)) {
+        # Unhide specific file or folder by searching for hidden items
+        $itemPath = Join-Path -Path (Get-Location) -ChildPath $name
+        $item = Get-ChildItem -Path (Get-Location) -Filter $name -Force -ErrorAction SilentlyContinue
+        if ($item) {
+            # Remove attributes to unhide
+            foreach ($i in $item) {
+                attrib -h -s -r -x $i.FullName
+                Write-Host "Unhidden: $($i.Name)"
+            }
+        } else {
+            Write-Host "Item not found: $name"
+        }
+    } else {
+        # Unhide all files and folders in the current directory
+        Get-ChildItem -Force | ForEach-Object {
+            attrib -h -s -r -x $_.FullName
+        }
+        Write-Host "All items in the current directory are now unhidden."
+    }
+}
+
+
+
 
 # Load the profile once
 # Show-Help
