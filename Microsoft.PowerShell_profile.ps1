@@ -384,7 +384,7 @@ function move {
 
 # Fucntion to show show hidden folders like .git
 function ls-hidden {
-    Get-ChildItem -Directory -Force | Where-Object { $_.Attributes -match 'Hidden' }
+    Get-ChildItem -Force | Where-Object { $_.Attributes -match 'Hidden' }
 }
 
 
