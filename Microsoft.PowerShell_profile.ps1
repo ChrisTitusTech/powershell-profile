@@ -443,6 +443,38 @@ function unhide {
 }
 
 
+# Function to suggest a Git command using GitHub Copilot
+function gh-sugg {
+    param(
+        [string]$command
+    )
+    gh copilot suggest $command
+}
+
+# Function to explain a Git command using GitHub Copilot
+function gh-expl {
+    param(
+        [string]$command
+    )
+    gh copilot explain $command
+}
+
+# Function to configure GitHub Copilot options
+function gh-conf {
+    param(
+        [string]$option,
+        [string]$value
+    )
+    gh copilot config $option $value
+}
+
+# Function to generate aliases for GitHub Copilot
+function gh-alias {
+    gh copilot alias
+}
+
+
+
 
 
 # Load the profile once
