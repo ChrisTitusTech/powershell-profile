@@ -7,7 +7,7 @@
 ############                                                                                                         ############
 ############                DO NOT MODIFY THIS FILE. THIS FILE IS HASHED AND UPDATED AUTOMATICALLY.                  ############
 ############                    ANY CHANGES MADE TO THIS FILE WILL BE OVERWRITTEN BY COMMITS TO                      ############
-############                       https://github.com/ChrisTitusTech/powershell-profile.git.                         ############
+############                       https://github.com/the-sudipta/powershell-profile.git                             ############
 ############                                                                                                         ############
 #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!#
 ############                                                                                                         ############
@@ -471,6 +471,26 @@ function gh-conf {
 # Function to generate aliases for GitHub Copilot
 function gh-alias {
     gh copilot alias
+}
+
+function Get-Installed {
+    # Lists all installed items using Winget and displays them on the console
+    winget list
+}
+
+
+function Export-Installed {
+    # Lists all installed items using Winget
+    $installedItems = winget list
+
+    # Prompts user for file name and extension
+    $fileName = Read-Host "Enter the file name with extension (e.g., All Intstalled Items.txt)"
+    
+    # Writes the list to the file
+    $installedItems | Out-File -FilePath $fileName
+    
+    # Display the file location
+    Write-Host "The list has been saved to $fileName"
 }
 
 
