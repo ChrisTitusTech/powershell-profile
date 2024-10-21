@@ -280,7 +280,12 @@ function public_ip {
 Set-Alias -Name scripts -Value OPEN_SCRIPTS
 Set-Alias -Name ci -Value code-insiders
 # Set-Alias -Name public_ip -Value public_ip
-Set-Alias -Name winup -Value winget update --all --accept-source-agreements --accept-package-agreements 
+function winget_update_accepted {
+    
+    winget update --all --accept-source-agreements --accept-package-agreements 
+    
+}
+Set-Alias -Name winup -Value winget_update_accepted
 
 
 if (Get-Command zoxide -ErrorAction SilentlyContinue) {
