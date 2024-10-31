@@ -268,69 +268,123 @@ Register-ArgumentCompleter -Native -CommandName dotnet -ScriptBlock $scriptblock
 
 # Help Function
 function Show-Help {
-    @"
-PowerShell Profile Help
-=======================
+    Write-Host "Available Commands:" -ForegroundColor Cyan
+    Write-Host "----------------------------"
 
-Update-Profile - Checks for profile updates from a remote repository and updates if necessary.
+    # Display each function with a brief description of its purpose, using different colors
+    Write-Host -NoNewline "prompt               " -ForegroundColor Yellow
+    Write-Host "- Customizes command prompt based on admin status" -ForegroundColor Gray
+    Write-Host -NoNewline "Test-CommandExists   " -ForegroundColor Yellow
+    Write-Host "- Checks if a command is available" -ForegroundColor Gray
+    Write-Host -NoNewline "Edit-Profile         " -ForegroundColor Yellow
+    Write-Host "- Opens the PowerShell profile for editing" -ForegroundColor Gray
+    Write-Host -NoNewline "touch                " -ForegroundColor Yellow
+    Write-Host "- Creates an empty file" -ForegroundColor Gray
+    Write-Host -NoNewline "ff                   " -ForegroundColor Yellow
+    Write-Host "- Finds files recursively by name" -ForegroundColor Gray
+    Write-Host -NoNewline "Get-PubIP            " -ForegroundColor Yellow
+    Write-Host "- Retrieves public IP address" -ForegroundColor Gray
+    Write-Host -NoNewline "winutil              " -ForegroundColor Yellow
+    Write-Host "- Runs Windows utilities script from Christ Titus" -ForegroundColor Gray
+    Write-Host -NoNewline "admin                " -ForegroundColor Yellow
+    Write-Host "- Runs a command with elevated rights" -ForegroundColor Gray
+    Write-Host -NoNewline "uptime               " -ForegroundColor Yellow
+    Write-Host "- Shows system uptime" -ForegroundColor Gray
+    Write-Host -NoNewline "reload-profile       " -ForegroundColor Yellow
+    Write-Host "- Reloads PowerShell profile" -ForegroundColor Gray
+    Write-Host -NoNewline "unzip                " -ForegroundColor Yellow
+    Write-Host "- Extracts a zip file" -ForegroundColor Gray
+    Write-Host -NoNewline "grep                 " -ForegroundColor Yellow
+    Write-Host "- Searches for text matching a regex" -ForegroundColor Gray
+    Write-Host -NoNewline "df                   " -ForegroundColor Yellow
+    Write-Host "- Displays free disk space" -ForegroundColor Gray
+    Write-Host -NoNewline "sed                  " -ForegroundColor Yellow
+    Write-Host "- Replaces text in a file" -ForegroundColor Gray
+    Write-Host -NoNewline "which                " -ForegroundColor Yellow
+    Write-Host "- Finds location of a command" -ForegroundColor Gray
+    Write-Host -NoNewline "export               " -ForegroundColor Yellow
+    Write-Host "- Sets environment variable" -ForegroundColor Gray
+    Write-Host -NoNewline "pkill                " -ForegroundColor Yellow
+    Write-Host "- Kills processes by name" -ForegroundColor Gray
+    Write-Host -NoNewline "pgrep                " -ForegroundColor Yellow
+    Write-Host "- Searches for processes by name" -ForegroundColor Gray
+    Write-Host -NoNewline "head                 " -ForegroundColor Yellow
+    Write-Host "- Shows the first lines of a file" -ForegroundColor Gray
+    Write-Host -NoNewline "tail                 " -ForegroundColor Yellow
+    Write-Host "- Shows the last lines of a file" -ForegroundColor Gray
+    Write-Host -NoNewline "nf                   " -ForegroundColor Yellow
+    Write-Host "- Creates a new file" -ForegroundColor Gray
+    Write-Host -NoNewline "mkcd                 " -ForegroundColor Yellow
+    Write-Host "- Creates and navigates to a directory" -ForegroundColor Gray
+    Write-Host -NoNewline "docs                 " -ForegroundColor Yellow
+    Write-Host "- Navigates to the Documents folder" -ForegroundColor Gray
+    Write-Host -NoNewline "dtop                 " -ForegroundColor Yellow
+    Write-Host "- Navigates to the Desktop folder" -ForegroundColor Gray
+    Write-Host -NoNewline "ep                   " -ForegroundColor Yellow
+    Write-Host "- Edits PowerShell profile" -ForegroundColor Gray
+    Write-Host -NoNewline "k9                   " -ForegroundColor Yellow
+    Write-Host "- Kills a process by name" -ForegroundColor Gray
+    Write-Host -NoNewline "la                   " -ForegroundColor Yellow
+    Write-Host "- Lists all files in current directory" -ForegroundColor Gray
+    Write-Host -NoNewline "ll                   " -ForegroundColor Yellow
+    Write-Host "- Lists all files with hidden ones" -ForegroundColor Gray
+    Write-Host -NoNewline "gs                   " -ForegroundColor Yellow
+    Write-Host "- Git status" -ForegroundColor Gray
+    Write-Host -NoNewline "ga                   " -ForegroundColor Yellow
+    Write-Host "- Git add all changes" -ForegroundColor Gray
+    Write-Host -NoNewline "gc                   " -ForegroundColor Yellow
+    Write-Host "- Git commit with message" -ForegroundColor Gray
+    Write-Host -NoNewline "gp                   " -ForegroundColor Yellow
+    Write-Host "- Git push" -ForegroundColor Gray
+    Write-Host -NoNewline "g                    " -ForegroundColor Yellow
+    Write-Host "- Navigates to GitHub directory" -ForegroundColor Gray
+    Write-Host -NoNewline "gcl                  " -ForegroundColor Yellow
+    Write-Host "- Git clone repository" -ForegroundColor Gray
+    Write-Host -NoNewline "gcom                 " -ForegroundColor Yellow
+    Write-Host "- Git command placeholder" -ForegroundColor Gray
+    Write-Host -NoNewline "lazyg                " -ForegroundColor Yellow
+    Write-Host "- Lazygit shortcut" -ForegroundColor Gray
+    Write-Host -NoNewline "sysinfo              " -ForegroundColor Yellow
+    Write-Host "- Shows computer information" -ForegroundColor Gray
+    Write-Host -NoNewline "flushdns             " -ForegroundColor Yellow
+    Write-Host "- Flushes DNS cache" -ForegroundColor Gray
+    Write-Host -NoNewline "cpy                  " -ForegroundColor Yellow
+    Write-Host "- Copies text to clipboard" -ForegroundColor Gray
+    Write-Host -NoNewline "pst                  " -ForegroundColor Yellow
+    Write-Host "- Pastes text from clipboard" -ForegroundColor Gray
+    Write-Host -NoNewline "add                  " -ForegroundColor Yellow
+    Write-Host "- Placeholder function for adding items" -ForegroundColor Gray
+    Write-Host -NoNewline "del                  " -ForegroundColor Yellow
+    Write-Host "- Placeholder function for deleting items" -ForegroundColor Gray
+    Write-Host -NoNewline "move                 " -ForegroundColor Yellow
+    Write-Host "- Placeholder function for moving items" -ForegroundColor Gray
+    Write-Host -NoNewline "ls-hidden            " -ForegroundColor Yellow
+    Write-Host "- Lists hidden files in current directory" -ForegroundColor Gray
+    Write-Host -NoNewline "hide                 " -ForegroundColor Yellow
+    Write-Host "- Hides files" -ForegroundColor Gray
+    Write-Host -NoNewline "unhide               " -ForegroundColor Yellow
+    Write-Host "- Unhides files" -ForegroundColor Gray
+    Write-Host -NoNewline "gh-sugg              " -ForegroundColor Yellow
+    Write-Host "- GitHub suggestion command" -ForegroundColor Gray
+    Write-Host -NoNewline "gh-expl              " -ForegroundColor Yellow
+    Write-Host "- GitHub exploration command" -ForegroundColor Gray
+    Write-Host -NoNewline "gh-conf              " -ForegroundColor Yellow
+    Write-Host "- GitHub configuration command" -ForegroundColor Gray
+    Write-Host -NoNewline "gh-alias             " -ForegroundColor Yellow
+    Write-Host "- GitHub alias command" -ForegroundColor Gray
+    Write-Host -NoNewline "Get-Installed        " -ForegroundColor Yellow
+    Write-Host "- Lists installed programs" -ForegroundColor Gray
+    Write-Host -NoNewline "Export-Installed     " -ForegroundColor Yellow
+    Write-Host "- Exports list of installed programs" -ForegroundColor Gray
+    Write-Host -NoNewline "Show-Processes       " -ForegroundColor Yellow
+    Write-Host "- Lists active processes" -ForegroundColor Gray
+    Write-Host -NoNewline "Kill-ID              " -ForegroundColor Yellow
+    Write-Host "- Kills process by ID" -ForegroundColor Gray
+    Write-Host -NoNewline "Search-Processes     " -ForegroundColor Yellow
+    Write-Host "- Searches for processes by name" -ForegroundColor Gray
 
-Update-PowerShell - Checks for the latest PowerShell release and updates if a new version is available.
-
-Edit-Profile - Opens the current user's profile for editing using the configured editor.
-
-touch <file> - Creates a new empty file.
-
-ff <name> - Finds files recursively with the specified name.
-
-Get-PubIP - Retrieves the public IP address of the machine.
-
-winutil - Runs the WinUtil script from Chris Titus Tech.
-
-uptime - Displays the system uptime.
-
-reload-profile - Reloads the current user's PowerShell profile.
-
-unzip <file> - Extracts the specified ZIP file to the current directory.
-
-hb <file> - Uploads a file to Hastebin and returns the URL.
-
-grep <regex> <dir> - Searches for the specified regex in the given directory.
-
-df - Displays disk usage for each volume.
-
-sed <file> <find> <replace> - Replaces text in a specified file.
-
-which <command> - Displays the full path of the specified command.
-
-export <name> <value> - Sets an environment variable.
-
-pkill <name> - Kills the specified process.
-
-pgrep <name> - Displays processes with the specified name.
-
-head <file> <n> - Displays the first n lines of the specified file.
-
-tail <file> <n> - Displays the last n lines of the specified file.
-
-nf <name> - Creates a new file with the specified name.
-
-mkcd <dir> - Creates a new directory and changes to it.
-
-docs - Navigates to the Documents directory.
-
-dtop - Navigates to the Desktop directory.
-
-ep - Opens the profile in the configured editor.
-
-sysinfo - Displays system information.
-
-flushdns - Flushes the DNS cache.
-
-cpy <text> - Copies the specified text to the clipboard.
-
-pst - Pastes the text from the clipboard.
-
-"@
+    Write-Host "----------------------------"
+    Write-Host "Use 'FunctionName -help' for more details on each command."
 }
 
 
@@ -382,7 +436,7 @@ function move {
 }
 
 
-# Fucntion to show show hidden folders like .git
+# Fucntion to show show hidden folders and files like .git
 function ls-hidden {
     Get-ChildItem -Force | Where-Object { $_.Attributes -match 'Hidden' }
 }
@@ -442,7 +496,6 @@ function unhide {
     }
 }
 
-
 # Function to suggest a Git command using GitHub Copilot
 function gh-sugg {
     param(
@@ -473,12 +526,14 @@ function gh-alias {
     gh copilot alias
 }
 
+
+# Function to View all the softwares installed in the machine
 function Get-Installed {
     # Lists all installed items using Winget and displays them on the console
     winget list
 }
 
-
+# Function to Export all the softwares installed in the machine
 function Export-Installed {
     # Lists all installed items using Winget
     $installedItems = winget list
@@ -494,6 +549,90 @@ function Export-Installed {
 }
 
 
+# Function to display all processes as a numbered list
+function Show-Processes {
+    $global:processList = Get-Process | Select-Object -Property Id, ProcessName
+    $i = 1
+    $processList | ForEach-Object {
+        Write-Output "$i. ProcessName: $($_.ProcessName), Id: $($_.Id)"
+        $i++
+    }
+}
+
+
+# Function to kill all processes with the same name by selecting its number from the numbered list
+function Kill-ID {
+    param (
+        [int]$processNumber
+    )
+
+    # Check if running as Administrator
+    $isAdmin = ([System.Security.Principal.WindowsPrincipal] [System.Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([System.Security.Principal.WindowsBuiltInRole] "Administrator")
+    if (-not $isAdmin) {
+        Write-Output "Please run the Terminal as Administrator to use this command."
+        return
+    }
+
+    # Validate the process number
+    if ($processNumber -le 0 -or $processNumber -gt $processList.Count) {
+        Write-Output "Invalid process number."
+        return
+    }
+
+    # Get the process name from the selected item in the list
+    $processName = $processList[$processNumber - 1].ProcessName
+    $processes = Get-Process -Name $processName -ErrorAction SilentlyContinue
+
+    # Attempt to terminate all processes with that name
+    if ($processes) {
+        foreach ($proc in $processes) {
+            try {
+                Stop-Process -Id $proc.Id -Force -ErrorAction Stop
+                Write-Output "Process with ID $($proc.Id) and Name $processName has been killed."
+            } catch {
+                Write-Output "Failed to kill process with ID $($proc.Id). Reason: $($_.Exception.Message)"
+            }
+        }
+
+        # Final check to confirm all processes are terminated
+        Start-Sleep -Seconds 1
+        if (Get-Process -Name $processName -ErrorAction SilentlyContinue) {
+            Write-Output "Some processes with the name $processName are still running. They might be restarting automatically or protected by the system."
+        } else {
+            Write-Output "All processes with the name $processName have been successfully terminated."
+        }
+    } else {
+        Write-Output "No processes found with the name $processName."
+    }
+}
+
+
+# Function to search and list all processes by name (case-insensitive)
+function Search-Processes {
+    param (
+        [string]$processName
+    )
+
+    # Ensure the process name parameter is provided
+    if (-not $processName) {
+        Write-Output "Please specify a process name to search for."
+        return
+    }
+
+    # Get all processes that match the provided name, case-insensitively
+    $matchingProcesses = Get-Process | Where-Object { $_.ProcessName -like "$processName" -or $_.ProcessName -match "^$processName$" -and $_.ProcessName -match "$processName" }
+
+    # Check if any matching processes were found
+    if ($matchingProcesses) {
+        Write-Output "Processes matching '$processName':"
+        $matchingProcesses | ForEach-Object { 
+            Write-Output "Process Name: $($_.ProcessName), Process ID: $($_.Id)" 
+        }
+    } else {
+        Write-Output "No processes found with the name '$processName'."
+    }
+}
+
 
 
 
@@ -501,4 +640,5 @@ function Export-Installed {
 # Show-Help
 
 oh-my-posh init pwsh --config "$env:POSH_THEMES_PATH/stelbent-compact.minimal.omp.json" | Invoke-Expression
+
 
