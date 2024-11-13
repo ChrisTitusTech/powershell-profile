@@ -149,7 +149,7 @@ Set-Alias -Name su -Value admin
 
 function uptime {
     try {
-        # Überprüfe die PowerShell-Version
+        # check powershell version
         if ($PSVersionTable.PSVersion.Major -eq 5) {
             $lastBoot = (Get-WmiObject win32_operatingsystem).LastBootUpTime
             $bootTime = [System.Management.ManagementDateTimeConverter]::ToDateTime($lastBoot)
@@ -158,20 +158,20 @@ function uptime {
             $bootTime = [System.DateTime]::ParseExact($lastBootStr, "dd.MM.yyyy HH:mm:ss", [System.Globalization.CultureInfo]::InvariantCulture)
         }
 
-        # Formatiere die Startzeit
+        # Format the start time
         $formattedBootTime = $bootTime.ToString("dddd, MMMM dd, yyyy HH:mm:ss", [System.Globalization.CultureInfo]::InvariantCulture)
         Write-Host "System started on: $formattedBootTime" -ForegroundColor DarkGray
 
-        # Berechne die Uptime
+        # calculate uptime
         $uptime = (Get-Date) - $bootTime
 
-        # Uptime in Tage, Stunden, Minuten und Sekunden aufteilen
+        # Uptime in days, hours, minutes, and seconds
         $days = $uptime.Days
         $hours = $uptime.Hours
         $minutes = $uptime.Minutes
         $seconds = $uptime.Seconds
 
-        # Uptime ausgeben
+        # Uptime output
         Write-Host ("Uptime: {0} days, {1} hours, {2} minutes, {3} seconds" -f $days, $hours, $minutes, $seconds) -ForegroundColor Blue
 
     } catch {
