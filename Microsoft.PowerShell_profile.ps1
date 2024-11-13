@@ -148,10 +148,34 @@ function admin {
 Set-Alias -Name su -Value admin
 
 function uptime {
-    if ($PSVersionTable.PSVersion.Major -eq 5) {
-        Get-WmiObject win32_operatingsystem | Select-Object @{Name='LastBootUpTime'; Expression={$_.ConverttoDateTime($_.lastbootuptime)}} | Format-Table -HideTableHeaders
-    } else {
-        net statistics workstation | Select-String "since" | ForEach-Object { $_.ToString().Replace('Statistics since ', '') }
+    try {
+        # Überprüfe die PowerShell-Version
+        if ($PSVersionTable.PSVersion.Major -eq 5) {
+            $lastBoot = (Get-WmiObject win32_operatingsystem).LastBootUpTime
+            $bootTime = [System.Management.ManagementDateTimeConverter]::ToDateTime($lastBoot)
+        } else {
+            $lastBootStr = net statistics workstation | Select-String "since" | ForEach-Object { $_.ToString().Replace('Statistics since ', '') }
+            $bootTime = [System.DateTime]::ParseExact($lastBootStr, "dd.MM.yyyy HH:mm:ss", [System.Globalization.CultureInfo]::InvariantCulture)
+        }
+
+        # Formatiere die Startzeit
+        $formattedBootTime = $bootTime.ToString("dddd, MMMM dd, yyyy HH:mm:ss", [System.Globalization.CultureInfo]::InvariantCulture)
+        Write-Host "System started on: $formattedBootTime" -ForegroundColor DarkGray
+
+        # Berechne die Uptime
+        $uptime = (Get-Date) - $bootTime
+
+        # Uptime in Tage, Stunden, Minuten und Sekunden aufteilen
+        $days = $uptime.Days
+        $hours = $uptime.Hours
+        $minutes = $uptime.Minutes
+        $seconds = $uptime.Seconds
+
+        # Uptime ausgeben
+        Write-Host ("Uptime: {0} days, {1} hours, {2} minutes, {3} seconds" -f $days, $hours, $minutes, $seconds) -ForegroundColor Blue
+
+    } catch {
+        Write-Error "An error occurred while retrieving system uptime."
     }
 }
 
