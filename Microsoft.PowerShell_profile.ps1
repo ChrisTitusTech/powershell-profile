@@ -170,7 +170,11 @@ function Update-PowerShell {
             Write-Host "Your PowerShell is up to date." -ForegroundColor Green
         }
     } catch {
-        Write-Error "Failed to update PowerShell. Error: $_"
+        if ($_.Exception.Response.StatusCode -eq 429) {
+            Write-Host "GitHub API rate limit exceeded. Please try again later." -ForegroundColor Red
+        } else {
+            Write-Error "Failed to update PowerShell. Error: $_"
+        }
     }
 }
 Update-PowerShell
