@@ -1,6 +1,9 @@
 ### PowerShell Profile Refactor
 ### Version 1.03 - Refactored
 
+$debug = $true
+
+
 #################################################################################################################################
 ############                                                                                                         ############
 ############                                          !!!   WARNING:   !!!                                           ############
@@ -57,7 +60,13 @@ function Update-Profile {
         Remove-Item "$env:temp/Microsoft.PowerShell_profile.ps1" -ErrorAction SilentlyContinue
     }
 }
-Update-Profile
+# skip in debug mode
+if (-not $debug) {
+    Update-Profile
+} else {
+    Write-Warning "Skipping profile update check in debug mode"
+}
+
 
 function Update-PowerShell {
     if (-not $global:canConnectToGitHub) {
@@ -87,8 +96,12 @@ function Update-PowerShell {
         Write-Error "Failed to update PowerShell. Error: $_"
     }
 }
-Update-PowerShell
-
+# skip in debug mode
+if (-not $debug) {
+    Update-PowerShell
+} else {
+    Write-Warning "Skipping PowerShell update in debug mode"
+}
 
 # Admin Check and Prompt Customization
 $isAdmin = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
