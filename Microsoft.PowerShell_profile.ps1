@@ -202,8 +202,6 @@ function uptime {
             }
 
             $bootTime = [System.DateTime]::ParseExact($lastBootStr, "$dateFormat $timeFormat", [System.Globalization.CultureInfo]::InvariantCulture)
-
-            $bootTime = [System.DateTime]::ParseExact($lastBootStr, "dd.MM.yyyy HH:mm:ss", [System.Globalization.CultureInfo]::InvariantCulture)
         }
 
         # Format the start time
