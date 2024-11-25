@@ -1,6 +1,22 @@
 ### PowerShell Profile Refactor
 ### Version 1.03 - Refactored
 
+$debug = $false
+
+if ($debug) {
+    Write-Host "#######################################" -ForegroundColor Red
+    Write-Host "#           Debug mode enabled        #" -ForegroundColor Red
+    Write-Host "#          ONLY FOR DEVELOPMENT       #" -ForegroundColor Red
+    Write-Host "#                                     #" -ForegroundColor Red
+    Write-Host "#       IF YOU ARE NOT DEVELOPING     #" -ForegroundColor Red
+    Write-Host "#       JUST RUN \`Update-Profile\`     #" -ForegroundColor Red
+    Write-Host "#        to discard all changes       #" -ForegroundColor Red
+    Write-Host "#   and update to the latest profile  #" -ForegroundColor Red
+    Write-Host "#               version               #" -ForegroundColor Red
+    Write-Host "#######################################" -ForegroundColor Red
+}
+
+
 #################################################################################################################################
 ############                                                                                                         ############
 ############                                          !!!   WARNING:   !!!                                           ############
@@ -55,6 +71,13 @@ function Update-Profile {
     }
 }
 
+# skip in debug mode
+if (-not $debug) {
+    Update-Profile
+} else {
+    Write-Warning "Skipping profile update check in debug mode"
+}
+
 function Update-PowerShell {
     try {
         Write-Host "Checking for PowerShell updates..." -ForegroundColor Cyan
@@ -78,7 +101,13 @@ function Update-PowerShell {
         Write-Error "Failed to update PowerShell. Error: $_"
     }
 }
-Update-PowerShell
+
+# skip in debug mode
+if (-not $debug) {
+    Update-PowerShell
+} else {
+    Write-Warning "Skipping PowerShell update in debug mode"
+}
 
 function Clear-Cache {
     # add clear cache logic here
@@ -169,10 +198,56 @@ function admin {
 Set-Alias -Name su -Value admin
 
 function uptime {
-    if ($PSVersionTable.PSVersion.Major -eq 5) {
-        Get-WmiObject win32_operatingsystem | Select-Object @{Name='LastBootUpTime'; Expression={$_.ConverttoDateTime($_.lastbootuptime)}} | Format-Table -HideTableHeaders
-    } else {
-        net statistics workstation | Select-String "since" | ForEach-Object { $_.ToString().Replace('Statistics since ', '') }
+    try {
+        # check powershell version
+        if ($PSVersionTable.PSVersion.Major -eq 5) {
+            $lastBoot = (Get-WmiObject win32_operatingsystem).LastBootUpTime
+            $bootTime = [System.Management.ManagementDateTimeConverter]::ToDateTime($lastBoot)
+        } else {
+            $lastBootStr = net statistics workstation | Select-String "since" | ForEach-Object { $_.ToString().Replace('Statistics since ', '') }
+            # check date format
+            if ($lastBootStr -match '^\d{2}/\d{2}/\d{4}') {
+                $dateFormat = 'dd/MM/yyyy'
+            } elseif ($lastBootStr -match '^\d{2}-\d{2}-\d{4}') {
+                $dateFormat = 'dd-MM-yyyy'
+            } elseif ($lastBootStr -match '^\d{4}/\d{2}/\d{2}') {
+                $dateFormat = 'yyyy/MM/dd'
+            } elseif ($lastBootStr -match '^\d{4}-\d{2}-\d{2}') {
+                $dateFormat = 'yyyy-MM-dd'
+            } elseif ($lastBootStr -match '^\d{2}\.\d{2}\.\d{4}') {
+                $dateFormat = 'dd.MM.yyyy'
+            }
+            
+            # check time format
+            if ($lastBootStr -match '\bAM\b' -or $lastBootStr -match '\bPM\b') {
+                $timeFormat = 'h:mm:ss tt'
+            } else {
+                $timeFormat = 'HH:mm:ss'
+            }
+
+            $bootTime = [System.DateTime]::ParseExact($lastBootStr, "$dateFormat $timeFormat", [System.Globalization.CultureInfo]::InvariantCulture)
+        }
+
+        # Format the start time
+        ### $formattedBootTime = $bootTime.ToString("dddd, MMMM dd, yyyy HH:mm:ss", [System.Globalization.CultureInfo]::InvariantCulture)
+        $formattedBootTime = $bootTime.ToString("dddd, MMMM dd, yyyy HH:mm:ss", [System.Globalization.CultureInfo]::InvariantCulture) + " [$lastBootStr]"
+        Write-Host "System started on: $formattedBootTime" -ForegroundColor DarkGray
+
+        # calculate uptime
+        $uptime = (Get-Date) - $bootTime
+
+        # Uptime in days, hours, minutes, and seconds
+        $days = $uptime.Days
+        $hours = $uptime.Hours
+        $minutes = $uptime.Minutes
+        $seconds = $uptime.Seconds
+
+        # Uptime output
+        Write-Host ("Uptime: {0} days, {1} hours, {2} minutes, {3} seconds" -f $days, $hours, $minutes, $seconds) -ForegroundColor Blue
+        
+
+    } catch {
+        Write-Error "An error occurred while retrieving system uptime."
     }
 }
 
