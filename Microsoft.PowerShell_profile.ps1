@@ -129,9 +129,12 @@ $EDITOR = if (Test-CommandExists nvim) { 'nvim' }
           else { 'notepad' }
 Set-Alias -Name vim -Value $EDITOR
 
+# Quick Access to Editing the Profile
 function Edit-Profile {
     vim $PROFILE.CurrentUserAllHosts
 }
+Set-Alias -Name ep -Value Edit-Profile
+
 function touch($file) { "" | Out-File $file -Encoding ASCII }
 function ff($name) {
     Get-ChildItem -recurse -filter "*${name}*" -ErrorAction SilentlyContinue | ForEach-Object {
@@ -257,9 +260,6 @@ function mkcd { param($dir) mkdir $dir -Force; Set-Location $dir }
 function docs { Set-Location -Path $HOME\Documents }
 
 function dtop { Set-Location -Path $HOME\Desktop }
-
-# Quick Access to Editing the Profile
-function ep { vim $PROFILE }
 
 # Simplified Process Management
 function k9 { Stop-Process -Name $args[0] }
