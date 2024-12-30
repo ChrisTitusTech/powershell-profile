@@ -1,0 +1,63 @@
+{
+  "$schema": "https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/schema.json",
+  "console_title_template": "{{.Folder}}{{if .Root}} :: root{{end}} :: {{.Shell}}",
+  "blocks": [
+    {
+      "type": "prompt",
+      "alignment": "left",
+      "segments": [
+        {
+          "template": " \uf178 ",
+          "foreground": "#29f366",
+          "type": "text",
+          "style": "plain"
+        },
+        {
+          "template": " \ue0a2 ",
+          "foreground": "#ffdf41",
+          "type": "root",
+          "style": "plain"
+        },
+        {
+          "properties": {
+            "style": "folder"
+          },
+          "leading_diamond": "\uf178   ",
+          "template": " {{ .Path }} ",
+          "foreground": "#29f381",
+          "type": "path",
+          "style": "powerline"
+        },
+        {
+          "properties": {
+            "add_icon": "\uf916 ",
+            "branch_ahead_icon": "\u2191",
+            "branch_behind_icon": "\u2193",
+            "branch_gone": "\u2262",
+            "branch_icon": "\uf113  ",
+            "branch_identical_icon": "\u2261",
+            "cherry_pick_icon": "✓ ",
+            "commit_icon": "\u25b7 ",
+            "fetch_status": true,
+            "merge_icon": "\u25f4 ",
+            "no_commits_icon": "[no commits]",
+            "rebase_icon": "\u2c62 ",
+            "tag_icon": "\u25b6 "
+          },
+          "leading_diamond": "\ue0b6",
+          "trailing_diamond": "\ue0b4",
+          "template": "{{ .UpstreamIcon }}{{ .HEAD }}{{if .BranchStatus }} {{ .BranchStatus }}{{ end }}{{ if .Working.Changed }} \uf044 {{ .Working.String }}{{ end }}{{ if and (.Working.Changed) (.Staging.Changed) }} |{{ end }}{{ if .Staging.Changed }}<#CAEBE1> \uf046 {{ .Staging.String }}</>{{ end }}{{ if gt .StashCount 0 }} \ueb4b {{ .StashCount }}{{ end }}",
+          "foreground": "black",
+          "background": "#29f366",
+          "type": "git",
+          "style": "diamond",
+          "background_templates": [
+            "{{ if or (.Working.Changed) (.Staging.Changed) }}yellow{{ end }}"
+          ]
+        }
+      ]
+    }
+  ],
+  "version": 3,
+  "final_space": true
+}
