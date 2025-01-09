@@ -810,6 +810,8 @@ Set-Alias -Name zi -Value __zoxide_zi -Option AllScope -Scope Global -Force
 # Set-PSReadLineOption -PredictionViewStyle ListView
 # Set-PSReadLineOption -EditMode Windows
 
+Invoke-Expression (&starship init powershell)
+
 function global:Show-Help {
     # Create a hashtable to group functions by category
     $groupedByCategory = @{}
