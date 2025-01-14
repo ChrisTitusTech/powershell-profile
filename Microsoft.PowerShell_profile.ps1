@@ -1,7 +1,7 @@
 ### PowerShell Profile Refactor
 ### Version 1.03 - Refactored
 
-$debug = $true
+$debug = $false
 
 if ($debug) {
     Write-Host "#######################################" -ForegroundColor Red
