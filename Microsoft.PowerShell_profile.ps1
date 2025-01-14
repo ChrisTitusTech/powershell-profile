@@ -131,12 +131,6 @@ function Test-CommandExists {
     return $exists
 }
 
-# Utility Functions
-function Test-CommandExists {
-    param($command)
-    $exists = $null -ne (Get-Command $command -ErrorAction SilentlyContinue)
-    return $exists
-}
 
 # Editor Configuration
 $EDITOR = if (Test-CommandExists code) { 'code' }
@@ -149,6 +143,7 @@ Set-Alias -Name vim -Value $EDITOR
 function Edit-Profile {
     vim $PROFILE.CurrentUserAllHosts
 }
+Set-Alias -Name ep -Value Edit-Profile
 
 function touch($file) { "" | Out-File $file -Encoding ASCII }
 function ff($name) {
@@ -160,9 +155,9 @@ function ff($name) {
 # Network Utilities
 function Get-PubIP { (Invoke-WebRequest http://ifconfig.me/ip).Content }
 
-# Open WinUtil pre-release
-function winutildev {
-	irm https://christitus.com/windev | iex
+# Open WinUtil full-release
+function winutil {
+	irm https://christitus.com/win | iex
 }
 
 # System Utilities
