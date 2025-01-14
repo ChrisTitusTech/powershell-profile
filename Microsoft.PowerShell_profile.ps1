@@ -1,7 +1,7 @@
 ### PowerShell Profile Refactor
 ### Version 1.03 - Refactored
 
-$debug = $false
+$debug = $true
 
 if ($debug) {
     Write-Host "#######################################" -ForegroundColor Red
@@ -55,6 +55,8 @@ function Update-Profile {
     }
 }
 
+winfetch
+
 # skip in debug mode
 if (-not $debug) {
     Update-Profile
@@ -64,7 +66,7 @@ if (-not $debug) {
 
 function Update-PowerShell {
     try {
-        Write-Host "Checking for PowerShell updates..." -ForegroundColor Cyan
+        #Write-Host "Checking for PowerShell updates..." -ForegroundColor Cyan
         $updateNeeded = $false
         $currentVersion = $PSVersionTable.PSVersion.ToString()
         $gitHubApiUrl = "https://api.github.com/repos/PowerShell/PowerShell/releases/latest"
@@ -75,11 +77,11 @@ function Update-PowerShell {
         }
 
         if ($updateNeeded) {
-            Write-Host "Updating PowerShell..." -ForegroundColor Yellow
+            #Write-Host "Updating PowerShell..." -ForegroundColor Yellow
             Start-Process powershell.exe -ArgumentList "-NoProfile -Command winget upgrade Microsoft.PowerShell --accept-source-agreements --accept-package-agreements" -Wait -NoNewWindow
             Write-Host "PowerShell has been updated. Please restart your shell to reflect changes" -ForegroundColor Magenta
         } else {
-            Write-Host "Your PowerShell is up to date." -ForegroundColor Green
+            #Write-Host "Your PowerShell is up to date." -ForegroundColor Green
         }
     } catch {
         Write-Error "Failed to update PowerShell. Error: $_"
