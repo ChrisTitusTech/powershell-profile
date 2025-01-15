@@ -600,4 +600,7 @@ if (Test-Path "$PSScriptRoot\CTTcustom.ps1") {
     Invoke-Expression -Command "& `"$PSScriptRoot\CTTcustom.ps1`""
 }
 
+# Set UTF-8 encoding for the console
+[console]::InputEncoding = [console]::OutputEncoding = [System.Text.UTF8Encoding]::new()
+
 Write-Host "$($PSStyle.Foreground.Yellow)Use 'Show-Help' to display help$($PSStyle.Reset)"
