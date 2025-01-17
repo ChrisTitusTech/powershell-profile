@@ -3,6 +3,12 @@
 
 $debug = $false
 
+# Define the path to the file that stores the last execution time
+$timeFilePath = "$env:USERPROFILE\Documents\PowerShell\LastExecutionTime.txt"
+
+# Define the update interval in days
+$updateInterval = 7
+
 if ($debug) {
     Write-Host "#######################################" -ForegroundColor Red
     Write-Host "#           Debug mode enabled        #" -ForegroundColor Red
@@ -72,8 +78,12 @@ function Update-Profile {
 }
 
 # skip in debug mode
-if (-not $debug) {
+if (-not $debug -and ((-not (Test-Path $timeFilePath)) -or ((Get-Date) - [datetime]::ParseExact((Get-Content -Path $timeFilePath), 'yyyy-MM-dd HH:mm:ss', $null)).TotalDays -gt $updateInterval)) {
     Update-Profile
+    $currentTime = Get-Date -Format 'yyyy-MM-dd HH:mm:ss'
+    $currentTime | Out-File -FilePath $timeFilePath
+} elseif (-not $debug) {
+        Write-Warning "Profile update skipped. Last update was within the last 7 days."
 } else {
     Write-Warning "Skipping profile update check in debug mode"
 }
