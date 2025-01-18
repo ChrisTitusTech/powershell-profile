@@ -811,6 +811,7 @@ Set-Alias -Name zi -Value __zoxide_zi -Option AllScope -Scope Global -Force
 # Set-PSReadLineOption -EditMode Windows
 
 Invoke-Expression (&starship init powershell)
+(& pixi completion --shell powershell) | Out-String | Invoke-Expression
 
 function global:Show-Help {
     # Create a hashtable to group functions by category
