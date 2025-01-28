@@ -3,6 +3,12 @@
 
 $debug = $false
 
+# Define the path to the file that stores the last execution time
+$timeFilePath = "$env:USERPROFILE\Documents\PowerShell\LastExecutionTime.txt"
+
+# Define the update interval in days, set to -1 to always check
+$updateInterval = 7
+
 if ($debug) {
     Write-Host "#######################################" -ForegroundColor Red
     Write-Host "#           Debug mode enabled        #" -ForegroundColor Red
@@ -71,9 +77,18 @@ function Update-Profile {
     }
 }
 
-# skip in debug mode
-if (-not $debug) {
+# Check if not in debug mode AND (updateInterval is -1 OR file doesn't exist OR time difference is greater than the update interval)
+if (-not $debug -and `
+    ($updateInterval -eq -1 -or `
+      -not (Test-Path $timeFilePath) -or `
+      ((Get-Date) - [datetime]::ParseExact((Get-Content -Path $timeFilePath), 'yyyy-MM-dd', $null)).TotalDays -gt $updateInterval)) {
+
     Update-Profile
+    $currentTime = Get-Date -Format 'yyyy-MM-dd'
+    $currentTime | Out-File -FilePath $timeFilePath
+
+} elseif (-not $debug) {
+    Write-Warning "Profile update skipped. Last update check was within the last $updateInterval day(s)."
 } else {
     Write-Warning "Skipping profile update check in debug mode"
 }
@@ -103,8 +118,17 @@ function Update-PowerShell {
 }
 
 # skip in debug mode
-if (-not $debug) {
+# Check if not in debug mode AND (updateInterval is -1 OR file doesn't exist OR time difference is greater than the update interval)
+if (-not $debug -and `
+    ($updateInterval -eq -1 -or `
+     -not (Test-Path $timeFilePath) -or `
+     ((Get-Date).Date - [datetime]::ParseExact((Get-Content -Path $timeFilePath), 'yyyy-MM-dd', $null).Date).TotalDays -gt $updateInterval)) {
+
     Update-PowerShell
+    $currentTime = Get-Date -Format 'yyyy-MM-dd'
+    $currentTime | Out-File -FilePath $timeFilePath
+} elseif (-not $debug) {
+    Write-Warning "PowerShell update skipped. Last update check was within the last $updateInterval day(s)."
 } else {
     Write-Warning "Skipping PowerShell update in debug mode"
 }
