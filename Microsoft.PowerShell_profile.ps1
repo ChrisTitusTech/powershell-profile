@@ -431,6 +431,53 @@ function gcom {
     git add .
     git commit -m "$args"
 }
+
+Add-Command-Description -CommandName "gclean" -Description "Deletes merged local branches, excluding main, master, dev, develop, and the current branch" -Category "Git Shortcuts"
+function gclean {
+    git branch --merged | ForEach-Object { $_.Trim() } | Where-Object { $_ -notmatch '^\*' -and $_ -notmatch '^main$|^master$|^dev$|^develop$' } | ForEach-Object { git branch -d $_ }
+}
+
+Add-Command-Description -CommandName "Git-Go" -Description "Select and checkout a Git branch interactively" -Category "Git Shortcuts" -Aliases @("gg")
+function global:Git-Go {
+  [CmdletBinding()]
+  [Alias('gg')]
+  param (
+    [parameter(Mandatory=$False, Position=0, ValueFromRemainingArguments=$True)]
+    [Object[]] $Arguments
+  )
+
+  begin {
+    # Ensure the script runs inside a Git repository
+    if (-not (Test-Path .git)) {
+        Write-Host "This is not a Git repository!" -ForegroundColor Red
+        exit
+    }
+
+    # Fetch latest updates from the remote
+    git fetch --all
+
+    # Get the list of branches and filter the selection
+    $branchCommand = & git branch --all | fzf -q ($Arguments -join ' ') | ForEach-Object { $_ -replace '^\*', '' -replace 'remotes/origin/', '' } | Sort-Object -Unique
+  }
+
+  process {
+    if ($branchCommand) {
+      $selectedBranch = $branchCommand.Trim()
+
+      # Check if it's a remote branch and checkout accordingly
+      if (git branch --list $selectedBranch) {
+        & git checkout $selectedBranch
+      } else {
+        & git checkout -b $selectedBranch origin/$selectedBranch
+      }
+
+      Write-Host "Switched to branch: $selectedBranch" -ForegroundColor Green
+    } else {
+      Write-Host "No branch selected. Exiting..." -ForegroundColor Yellow
+    }
+  }
+}
+
 Add-Command-Description -CommandName "lazyg" -Description "Adds all changes, commits with the specified message, and pushes to the remote repository" -Category "Git Shortcuts"
 function lazyg {
     git add .
