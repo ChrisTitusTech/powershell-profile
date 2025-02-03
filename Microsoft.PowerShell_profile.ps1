@@ -450,7 +450,7 @@ function global:Git-Go {
     # Ensure the script runs inside a Git repository
     if (-not (Test-Path .git)) {
         Write-Host "This is not a Git repository!" -ForegroundColor Red
-        exit
+        return
     }
 
     # Fetch latest updates from the remote
