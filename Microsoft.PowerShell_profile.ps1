@@ -382,6 +382,8 @@ function Show-Help {
     Write-Host "- Kills process by ID" -ForegroundColor Gray
     Write-Host -NoNewline "Search-Processes     " -ForegroundColor Yellow
     Write-Host "- Searches for processes by name" -ForegroundColor Gray
+    Write-Host -NoNewline "Show-Tree     " -ForegroundColor Yellow
+    Write-Host "- Display the folder and file structure from the current directory" -ForegroundColor Gray
 
     Write-Host "----------------------------"
     Write-Host "Use 'FunctionName -help' for more details on each command."
@@ -630,6 +632,32 @@ function Search-Processes {
         }
     } else {
         Write-Output "No processes found with the name '$processName'."
+    }
+}
+
+function Show-Tree {
+    param (
+        [string]$Path = (Get-Location),
+        [int]$Depth = 2,  # Default depth to avoid excessive output
+        [string]$Indent = ""
+    )
+
+    # Get directories and files
+    $items = Get-ChildItem -Path $Path | Sort-Object PSIsContainer -Descending
+
+    foreach ($item in $items) {
+        $prefix = ""
+        if ($item.PSIsContainer) {
+            $prefix = [char]::ConvertFromUtf32(0x1F4C1)  # 📁 Folder
+        } else {
+            $prefix = [char]::ConvertFromUtf32(0x1F4C4)  # 📄 File
+        }
+
+        Write-Host "$Indent|-- $prefix $($item.Name)" -ForegroundColor Cyan
+
+        if ($item.PSIsContainer -and $Depth -gt 0) {
+            Show-Tree -Path $item.FullName -Depth ($Depth - 1) -Indent ("$Indent|   ")
+        }
     }
 }
 
