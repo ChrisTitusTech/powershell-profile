@@ -1,28 +1,3 @@
-### PowerShell Profile Refactor
-### Version 1.03 - Refactored
-
-$debug = $false
-
-# Define the path to the file that stores the last execution time
-$timeFilePath = "$env:USERPROFILE\Documents\PowerShell\LastExecutionTime.txt"
-
-# Define the update interval in days, set to -1 to always check
-$updateInterval = 7
-
-if ($debug) {
-    Write-Host "#######################################" -ForegroundColor Red
-    Write-Host "#           Debug mode enabled        #" -ForegroundColor Red
-    Write-Host "#          ONLY FOR DEVELOPMENT       #" -ForegroundColor Red
-    Write-Host "#                                     #" -ForegroundColor Red
-    Write-Host "#       IF YOU ARE NOT DEVELOPING     #" -ForegroundColor Red
-    Write-Host "#       JUST RUN \`Update-Profile\`     #" -ForegroundColor Red
-    Write-Host "#        to discard all changes       #" -ForegroundColor Red
-    Write-Host "#   and update to the latest profile  #" -ForegroundColor Red
-    Write-Host "#               version               #" -ForegroundColor Red
-    Write-Host "#######################################" -ForegroundColor Red
-}
-
-
 #################################################################################################################################
 ############                                                                                                         ############
 ############                                          !!!   WARNING:   !!!                                           ############
@@ -33,10 +8,89 @@ if ($debug) {
 ############                                                                                                         ############
 #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!#
 ############                                                                                                         ############
-############                      IF YOU WANT TO MAKE CHANGES, USE THE Edit-Profile FUNCTION                         ############
-############                              AND SAVE YOUR CHANGES IN THE FILE CREATED.                                 ############
+############                      TO ADD YOUR OWN CODE OR IF YOU WANT TO OVERRIDE ANY OF THESE VARIABLES             ############
+############                      OR FUNCTIONS. USE THE Edit-Profile FUNCTION TO CREATE YOUR OWN profile.ps1 FILE.   ############
+############                      TO OVERRIDE IN YOUR NEW profile.ps1 FILE, REWRITE THE VARIABLE                     ############
+############                      OR FUNCTION, ADDING "_Override" TO THE NAME.                                       ############
+############                                                                                                         ############
+############                      THE FOLLOWING VARIABLES RESPECT _Override:                                         ############
+############                      $EDITOR_Override                                                                   ############
+############                      $debug_Override                                                                    ############
+############                      $repo_root_Override  [To point to a fork, for example]                             ############
+############                      $timeFilePath_Override                                                             ############
+############                      $updateInterval_Override                                                           ############
+############                                                                                                         ############
+############                      THE FOLLOWING FUNCTIONS RESPECT _Override:                                         ############
+############                      Debug-Message_Override                                                             ############
+############                      Update-Profile_Override                                                            ############
+############                      Update-PowerShell_Override                                                         ############
+############                      Clear-Cache_Override                                                               ############
+############                      Get-Theme_Override                                                                 ############
+############                      WinUtilDev_Override [To call a fork, for example]                                  ############
 ############                                                                                                         ############
 #################################################################################################################################
+
+### PowerShell Profile Refactor
+### Version 1.04 - Refactored
+
+if ($debug_Override){
+    # If variable debug_Override is defined in profile.ps1 file
+    # then use it instead
+    $debug = $debug_Override
+} else {
+    $debug = $false
+}
+
+# Define the path to the file that stores the last execution time
+if ($repo_root_Override){
+    # If variable $repo_root_Override is defined in profile.ps1 file
+    # then use it instead
+    $repo_root = $repo_root_Override
+} else {
+    $repo_root = "https://raw.githubusercontent.com/ChrisTitusTech"
+}
+
+# Define the path to the file that stores the last execution time
+if ($timeFilePath_Override){
+    # If variable $timeFilePath_Override is defined in profile.ps1 file
+    # then use it instead
+    $timeFilePath = $timeFilePath_Override
+} else {
+    $timeFilePath = "$env:USERPROFILE\Documents\PowerShell\LastExecutionTime.txt"
+}
+
+# Define the update interval in days, set to -1 to always check
+if ($updateInterval_Override){
+    # If variable $updateInterval_Override is defined in profile.ps1 file
+    # then use it instead
+    $updateInterval = $updateInterval_Override
+} else {
+    $updateInterval = 7
+}
+
+function Debug-Message{
+    # If function "Debug-Message_Override" is defined in profile.ps1 file
+    # then call it instead.
+    if (Get-Command -Name "Debug-Message_Override" -ErrorAction SilentlyContinue) {
+        Debug-Message_Override
+    } else {
+        Write-Host "#######################################" -ForegroundColor Red
+        Write-Host "#           Debug mode enabled        #" -ForegroundColor Red
+        Write-Host "#          ONLY FOR DEVELOPMENT       #" -ForegroundColor Red
+        Write-Host "#                                     #" -ForegroundColor Red
+        Write-Host "#       IF YOU ARE NOT DEVELOPING     #" -ForegroundColor Red
+        Write-Host "#       JUST RUN \`Update-Profile\`     #" -ForegroundColor Red
+        Write-Host "#        to discard all changes       #" -ForegroundColor Red
+        Write-Host "#   and update to the latest profile  #" -ForegroundColor Red
+        Write-Host "#               version               #" -ForegroundColor Red
+        Write-Host "#######################################" -ForegroundColor Red
+    }
+}
+
+if ($debug) {
+    DebugMessage
+}
+
 
 #opt-out of telemetry before doing anything, only if PowerShell is run as admin
 if ([bool]([System.Security.Principal.WindowsIdentity]::GetCurrent()).IsSystem) {
@@ -59,21 +113,27 @@ if (Test-Path($ChocolateyProfile)) {
 
 # Check for Profile Updates
 function Update-Profile {
-    try {
-        $url = "https://raw.githubusercontent.com/ChrisTitusTech/powershell-profile/main/Microsoft.PowerShell_profile.ps1"
-        $oldhash = Get-FileHash $PROFILE
-        Invoke-RestMethod $url -OutFile "$env:temp/Microsoft.PowerShell_profile.ps1"
-        $newhash = Get-FileHash "$env:temp/Microsoft.PowerShell_profile.ps1"
-        if ($newhash.Hash -ne $oldhash.Hash) {
-            Copy-Item -Path "$env:temp/Microsoft.PowerShell_profile.ps1" -Destination $PROFILE -Force
-            Write-Host "Profile has been updated. Please restart your shell to reflect changes" -ForegroundColor Magenta
-        } else {
-            Write-Host "Profile is up to date." -ForegroundColor Green
+    # If function "Update-Profile_Override" is defined in profile.ps1 file
+    # then call it instead.
+    if (Get-Command -Name "Update-Profile_Override" -ErrorAction SilentlyContinue) {
+        Update-Profile_Override;
+    } else {
+        try {
+            $url = "$repo_root/powershell-profile/main/Microsoft.PowerShell_profile.ps1"
+            $oldhash = Get-FileHash $PROFILE
+            Invoke-RestMethod $url -OutFile "$env:temp/Microsoft.PowerShell_profile.ps1"
+            $newhash = Get-FileHash "$env:temp/Microsoft.PowerShell_profile.ps1"
+            if ($newhash.Hash -ne $oldhash.Hash) {
+                Copy-Item -Path "$env:temp/Microsoft.PowerShell_profile.ps1" -Destination $PROFILE -Force
+                Write-Host "Profile has been updated. Please restart your shell to reflect changes" -ForegroundColor Magenta
+            } else {
+                Write-Host "Profile is up to date." -ForegroundColor Green
+            }
+        } catch {
+            Write-Error "Unable to check for `$profile updates: $_"
+        } finally {
+            Remove-Item "$env:temp/Microsoft.PowerShell_profile.ps1" -ErrorAction SilentlyContinue
         }
-    } catch {
-        Write-Error "Unable to check for `$profile updates: $_"
-    } finally {
-        Remove-Item "$env:temp/Microsoft.PowerShell_profile.ps1" -ErrorAction SilentlyContinue
     }
 }
 
@@ -94,26 +154,32 @@ if (-not $debug -and `
 }
 
 function Update-PowerShell {
-    try {
-        Write-Host "Checking for PowerShell updates..." -ForegroundColor Cyan
-        $updateNeeded = $false
-        $currentVersion = $PSVersionTable.PSVersion.ToString()
-        $gitHubApiUrl = "https://api.github.com/repos/PowerShell/PowerShell/releases/latest"
-        $latestReleaseInfo = Invoke-RestMethod -Uri $gitHubApiUrl
-        $latestVersion = $latestReleaseInfo.tag_name.Trim('v')
-        if ($currentVersion -lt $latestVersion) {
-            $updateNeeded = $true
-        }
+    # If function "Update-PowerShell_Override" is defined in profile.ps1 file
+    # then call it instead.
+    if (Get-Command -Name "Update-PowerShell_Override" -ErrorAction SilentlyContinue) {
+        Update-PowerShell_Override;
+    } else {
+        try {
+            Write-Host "Checking for PowerShell updates..." -ForegroundColor Cyan
+            $updateNeeded = $false
+            $currentVersion = $PSVersionTable.PSVersion.ToString()
+            $gitHubApiUrl = "https://api.github.com/repos/PowerShell/PowerShell/releases/latest"
+            $latestReleaseInfo = Invoke-RestMethod -Uri $gitHubApiUrl
+            $latestVersion = $latestReleaseInfo.tag_name.Trim('v')
+            if ($currentVersion -lt $latestVersion) {
+                $updateNeeded = $true
+            }
 
-        if ($updateNeeded) {
-            Write-Host "Updating PowerShell..." -ForegroundColor Yellow
-            Start-Process powershell.exe -ArgumentList "-NoProfile -Command winget upgrade Microsoft.PowerShell --accept-source-agreements --accept-package-agreements" -Wait -NoNewWindow
-            Write-Host "PowerShell has been updated. Please restart your shell to reflect changes" -ForegroundColor Magenta
-        } else {
-            Write-Host "Your PowerShell is up to date." -ForegroundColor Green
+            if ($updateNeeded) {
+                Write-Host "Updating PowerShell..." -ForegroundColor Yellow
+                Start-Process powershell.exe -ArgumentList "-NoProfile -Command winget upgrade Microsoft.PowerShell --accept-source-agreements --accept-package-agreements" -Wait -NoNewWindow
+                Write-Host "PowerShell has been updated. Please restart your shell to reflect changes" -ForegroundColor Magenta
+            } else {
+                Write-Host "Your PowerShell is up to date." -ForegroundColor Green
+            }
+        } catch {
+            Write-Error "Failed to update PowerShell. Error: $_"
         }
-    } catch {
-        Write-Error "Failed to update PowerShell. Error: $_"
     }
 }
 
@@ -134,26 +200,36 @@ if (-not $debug -and `
 }
 
 function Clear-Cache {
-    # add clear cache logic here
-    Write-Host "Clearing cache..." -ForegroundColor Cyan
+    # If function "Clear-Cache_Override" is defined in profile.ps1 file
+    # then call it instead.
+    # -----------------------------------------------------------------
+    # If you do override this function, you should should probably duplicate
+    # the following calls in your override function, just don't call this
+    # function from your override function, otherwise you'll be in an infinate loop.
+    if (Get-Command -Name "Clear-Cache_Override" -ErrorAction SilentlyContinue) {
+        Clear-Cache_Override
+    } else {
+        # add clear cache logic here
+        Write-Host "Clearing cache..." -ForegroundColor Cyan
 
-    # Clear Windows Prefetch
-    Write-Host "Clearing Windows Prefetch..." -ForegroundColor Yellow
-    Remove-Item -Path "$env:SystemRoot\Prefetch\*" -Force -ErrorAction SilentlyContinue
+        # Clear Windows Prefetch
+        Write-Host "Clearing Windows Prefetch..." -ForegroundColor Yellow
+        Remove-Item -Path "$env:SystemRoot\Prefetch\*" -Force -ErrorAction SilentlyContinue
 
-    # Clear Windows Temp
-    Write-Host "Clearing Windows Temp..." -ForegroundColor Yellow
-    Remove-Item -Path "$env:SystemRoot\Temp\*" -Recurse -Force -ErrorAction SilentlyContinue
+        # Clear Windows Temp
+        Write-Host "Clearing Windows Temp..." -ForegroundColor Yellow
+        Remove-Item -Path "$env:SystemRoot\Temp\*" -Recurse -Force -ErrorAction SilentlyContinue
 
-    # Clear User Temp
-    Write-Host "Clearing User Temp..." -ForegroundColor Yellow
-    Remove-Item -Path "$env:TEMP\*" -Recurse -Force -ErrorAction SilentlyContinue
+        # Clear User Temp
+        Write-Host "Clearing User Temp..." -ForegroundColor Yellow
+        Remove-Item -Path "$env:TEMP\*" -Recurse -Force -ErrorAction SilentlyContinue
 
-    # Clear Internet Explorer Cache
-    Write-Host "Clearing Internet Explorer Cache..." -ForegroundColor Yellow
-    Remove-Item -Path "$env:LOCALAPPDATA\Microsoft\Windows\INetCache\*" -Recurse -Force -ErrorAction SilentlyContinue
+        # Clear Internet Explorer Cache
+        Write-Host "Clearing Internet Explorer Cache..." -ForegroundColor Yellow
+        Remove-Item -Path "$env:LOCALAPPDATA\Microsoft\Windows\INetCache\*" -Recurse -Force -ErrorAction SilentlyContinue
 
-    Write-Host "Cache clearing completed." -ForegroundColor Green
+        Write-Host "Cache clearing completed." -ForegroundColor Green
+    }
 }
 
 # Admin Check and Prompt Customization
@@ -172,14 +248,18 @@ function Test-CommandExists {
 }
 
 # Editor Configuration
-$EDITOR = if (Test-CommandExists nvim) { 'nvim' }
-          elseif (Test-CommandExists pvim) { 'pvim' }
-          elseif (Test-CommandExists vim) { 'vim' }
-          elseif (Test-CommandExists vi) { 'vi' }
-          elseif (Test-CommandExists code) { 'code' }
-          elseif (Test-CommandExists notepad++) { 'notepad++' }
-          elseif (Test-CommandExists sublime_text) { 'sublime_text' }
-          else { 'notepad' }
+if ($EDITOR_Override){
+    $EDITOR = $EDITOR_Override
+} else {
+    $EDITOR = if (Test-CommandExists nvim) { 'nvim' }
+              elseif (Test-CommandExists pvim) { 'pvim' }
+              elseif (Test-CommandExists vim) { 'vim' }
+              elseif (Test-CommandExists vi) { 'vi' }
+              elseif (Test-CommandExists code) { 'code' }
+              elseif (Test-CommandExists notepad++) { 'notepad++' }
+              elseif (Test-CommandExists sublime_text) { 'sublime_text' }
+              else { 'notepad' }
+}
 Set-Alias -Name vim -Value $EDITOR
 
 # Quick Access to Editing the Profile
@@ -200,12 +280,18 @@ function Get-PubIP { (Invoke-WebRequest http://ifconfig.me/ip).Content }
 
 # Open WinUtil full-release
 function winutil {
-	irm https://christitus.com/win | iex
+    irm https://christitus.com/win | iex
 }
 
-# Open WinUtil pre-release
+# Open WinUtil dev-release
 function winutildev {
-	irm https://christitus.com/windev | iex
+	# If function "WinUtilDev_Override" is defined in profile.ps1 file
+    # then call it instead.
+    if (Get-Command -Name "WinUtilDev_Override" -ErrorAction SilentlyContinue) {
+        WinUtilDev_Override
+    } else {
+        irm https://christitus.com/windev | iex
+    }
 }
 
 # System Utilities
@@ -521,15 +607,21 @@ Register-ArgumentCompleter -Native -CommandName dotnet -ScriptBlock $scriptblock
 
 # Get theme from profile.ps1 or use a default theme
 function Get-Theme {
-    if (Test-Path -Path $PROFILE.CurrentUserAllHosts -PathType leaf) {
-        $existingTheme = Select-String -Raw -Path $PROFILE.CurrentUserAllHosts -Pattern "oh-my-posh init pwsh --config"
-        if ($null -ne $existingTheme) {
-            Invoke-Expression $existingTheme
-            return
-        }
-        oh-my-posh init pwsh --config https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/cobalt2.omp.json | Invoke-Expression
+    # If function "Get-Theme_Override" is defined in profile.ps1 file
+    # then call it instead.
+    if (Get-Command -Name "Get-Theme_Override" -ErrorAction SilentlyContinue) {
+        Get-Theme_Override
     } else {
-        oh-my-posh init pwsh --config https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/cobalt2.omp.json | Invoke-Expression
+        if (Test-Path -Path $PROFILE.CurrentUserAllHosts -PathType leaf) {
+            $existingTheme = Select-String -Raw -Path $PROFILE.CurrentUserAllHosts -Pattern "oh-my-posh init pwsh --config"
+            if ($null -ne $existingTheme) {
+                Invoke-Expression $existingTheme
+                return
+            }
+            oh-my-posh init pwsh --config https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/cobalt2.omp.json | Invoke-Expression
+        } else {
+            oh-my-posh init pwsh --config https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/cobalt2.omp.json | Invoke-Expression
+        }
     }
 }
 
@@ -556,86 +648,53 @@ function Show-Help {
     $helpText = @"
 $($PSStyle.Foreground.Cyan)PowerShell Profile Help$($PSStyle.Reset)
 $($PSStyle.Foreground.Yellow)=======================$($PSStyle.Reset)
-
 $($PSStyle.Foreground.Green)Update-Profile$($PSStyle.Reset) - Checks for profile updates from a remote repository and updates if necessary.
-
 $($PSStyle.Foreground.Green)Update-PowerShell$($PSStyle.Reset) - Checks for the latest PowerShell release and updates if a new version is available.
-
 $($PSStyle.Foreground.Green)Edit-Profile$($PSStyle.Reset) - Opens the current user's profile for editing using the configured editor.
 
-$($PSStyle.Foreground.Green)touch$($PSStyle.Reset) <file> - Creates a new empty file.
-
-$($PSStyle.Foreground.Green)ff$($PSStyle.Reset) <name> - Finds files recursively with the specified name.
-
-$($PSStyle.Foreground.Green)Get-PubIP$($PSStyle.Reset) - Retrieves the public IP address of the machine.
-
-$($PSStyle.Foreground.Green)winutil$($PSStyle.Reset) - Runs the latest WinUtil full-release script from Chris Titus Tech.
-
-$($PSStyle.Foreground.Green)winutildev$($PSStyle.Reset) - Runs the latest WinUtil pre-release script from Chris Titus Tech.
-
-$($PSStyle.Foreground.Green)uptime$($PSStyle.Reset) - Displays the system uptime.
-
-$($PSStyle.Foreground.Green)reload-profile$($PSStyle.Reset) - Reloads the current user's PowerShell profile.
-
-$($PSStyle.Foreground.Green)unzip$($PSStyle.Reset) <file> - Extracts a zip file to the current directory.
-
-$($PSStyle.Foreground.Green)hb$($PSStyle.Reset) <file> - Uploads the specified file's content to a hastebin-like service and returns the URL.
-
-$($PSStyle.Foreground.Green)grep$($PSStyle.Reset) <regex> [dir] - Searches for a regex pattern in files within the specified directory or from the pipeline input.
-
-$($PSStyle.Foreground.Green)df$($PSStyle.Reset) - Displays information about volumes.
-
-$($PSStyle.Foreground.Green)sed$($PSStyle.Reset) <file> <find> <replace> - Replaces text in a file.
-
-$($PSStyle.Foreground.Green)which$($PSStyle.Reset) <name> - Shows the path of the command.
-
-$($PSStyle.Foreground.Green)export$($PSStyle.Reset) <name> <value> - Sets an environment variable.
-
-$($PSStyle.Foreground.Green)pkill$($PSStyle.Reset) <name> - Kills processes by name.
-
-$($PSStyle.Foreground.Green)pgrep$($PSStyle.Reset) <name> - Lists processes by name.
-
-$($PSStyle.Foreground.Green)head$($PSStyle.Reset) <path> [n] - Displays the first n lines of a file (default 10).
-
-$($PSStyle.Foreground.Green)tail$($PSStyle.Reset) <path> [n] - Displays the last n lines of a file (default 10).
-
-$($PSStyle.Foreground.Green)nf$($PSStyle.Reset) <name> - Creates a new file with the specified name.
-
-$($PSStyle.Foreground.Green)mkcd$($PSStyle.Reset) <dir> - Creates and changes to a new directory.
-
-$($PSStyle.Foreground.Green)docs$($PSStyle.Reset) - Changes the current directory to the user's Documents folder.
-
-$($PSStyle.Foreground.Green)dtop$($PSStyle.Reset) - Changes the current directory to the user's Desktop folder.
-
-$($PSStyle.Foreground.Green)ep$($PSStyle.Reset) - Opens the profile for editing.
-
-$($PSStyle.Foreground.Green)k9$($PSStyle.Reset) <name> - Kills a process by name.
-
-$($PSStyle.Foreground.Green)la$($PSStyle.Reset) - Lists all files in the current directory with detailed formatting.
-
-$($PSStyle.Foreground.Green)ll$($PSStyle.Reset) - Lists all files, including hidden, in the current directory with detailed formatting.
-
-$($PSStyle.Foreground.Green)gs$($PSStyle.Reset) - Shortcut for 'git status'.
-
-$($PSStyle.Foreground.Green)ga$($PSStyle.Reset) - Shortcut for 'git add .'.
-
-$($PSStyle.Foreground.Green)gc$($PSStyle.Reset) <message> - Shortcut for 'git commit -m'.
-
-$($PSStyle.Foreground.Green)gp$($PSStyle.Reset) - Shortcut for 'git push'.
-
+$($PSStyle.Foreground.Cyan)Git Shortcuts$($PSStyle.Reset)
+$($PSStyle.Foreground.Yellow)=======================$($PSStyle.Reset)
 $($PSStyle.Foreground.Green)g$($PSStyle.Reset) - Changes to the GitHub directory.
-
+$($PSStyle.Foreground.Green)ga$($PSStyle.Reset) - Shortcut for 'git add .'.
+$($PSStyle.Foreground.Green)gc$($PSStyle.Reset) <message> - Shortcut for 'git commit -m'.
 $($PSStyle.Foreground.Green)gcom$($PSStyle.Reset) <message> - Adds all changes and commits with the specified message.
-
+$($PSStyle.Foreground.Green)gp$($PSStyle.Reset) - Shortcut for 'git push'.
+$($PSStyle.Foreground.Green)gs$($PSStyle.Reset) - Shortcut for 'git status'.
 $($PSStyle.Foreground.Green)lazyg$($PSStyle.Reset) <message> - Adds all changes, commits with the specified message, and pushes to the remote repository.
 
-$($PSStyle.Foreground.Green)sysinfo$($PSStyle.Reset) - Displays detailed system information.
-
-$($PSStyle.Foreground.Green)flushdns$($PSStyle.Reset) - Clears the DNS cache.
-
+$($PSStyle.Foreground.Cyan)Shortcuts$($PSStyle.Reset)
+$($PSStyle.Foreground.Yellow)=======================$($PSStyle.Reset)
 $($PSStyle.Foreground.Green)cpy$($PSStyle.Reset) <text> - Copies the specified text to the clipboard.
-
+$($PSStyle.Foreground.Green)df$($PSStyle.Reset) - Displays information about volumes.
+$($PSStyle.Foreground.Green)docs$($PSStyle.Reset) - Changes the current directory to the user's Documents folder.
+$($PSStyle.Foreground.Green)dtop$($PSStyle.Reset) - Changes the current directory to the user's Desktop folder.
+$($PSStyle.Foreground.Green)ep$($PSStyle.Reset) - Opens the profile for editing.
+$($PSStyle.Foreground.Green)export$($PSStyle.Reset) <name> <value> - Sets an environment variable.
+$($PSStyle.Foreground.Green)ff$($PSStyle.Reset) <name> - Finds files recursively with the specified name.
+$($PSStyle.Foreground.Green)flushdns$($PSStyle.Reset) - Clears the DNS cache.
+$($PSStyle.Foreground.Green)Get-PubIP$($PSStyle.Reset) - Retrieves the public IP address of the machine.
+$($PSStyle.Foreground.Green)grep$($PSStyle.Reset) <regex> [dir] - Searches for a regex pattern in files within the specified directory or from the pipeline input.
+$($PSStyle.Foreground.Green)hb$($PSStyle.Reset) <file> - Uploads the specified file's content to a hastebin-like service and returns the URL.
+$($PSStyle.Foreground.Green)head$($PSStyle.Reset) <path> [n] - Displays the first n lines of a file (default 10).
+$($PSStyle.Foreground.Green)k9$($PSStyle.Reset) <name> - Kills a process by name.
+$($PSStyle.Foreground.Green)la$($PSStyle.Reset) - Lists all files in the current directory with detailed formatting.
+$($PSStyle.Foreground.Green)ll$($PSStyle.Reset) - Lists all files, including hidden, in the current directory with detailed formatting.
+$($PSStyle.Foreground.Green)mkcd$($PSStyle.Reset) <dir> - Creates and changes to a new directory.
+$($PSStyle.Foreground.Green)nf$($PSStyle.Reset) <name> - Creates a new file with the specified name.
+$($PSStyle.Foreground.Green)pgrep$($PSStyle.Reset) <name> - Lists processes by name.
+$($PSStyle.Foreground.Green)pkill$($PSStyle.Reset) <name> - Kills processes by name.
 $($PSStyle.Foreground.Green)pst$($PSStyle.Reset) - Retrieves text from the clipboard.
+$($PSStyle.Foreground.Green)reload-profile$($PSStyle.Reset) - Reloads the current user's PowerShell profile.
+$($PSStyle.Foreground.Green)sed$($PSStyle.Reset) <file> <find> <replace> - Replaces text in a file.
+$($PSStyle.Foreground.Green)sysinfo$($PSStyle.Reset) - Displays detailed system information.
+$($PSStyle.Foreground.Green)tail$($PSStyle.Reset) <path> [n] - Displays the last n lines of a file (default 10).
+$($PSStyle.Foreground.Green)touch$($PSStyle.Reset) <file> - Creates a new empty file.
+$($PSStyle.Foreground.Green)unzip$($PSStyle.Reset) <file> - Extracts a zip file to the current directory.
+$($PSStyle.Foreground.Green)uptime$($PSStyle.Reset) - Displays the system uptime.
+$($PSStyle.Foreground.Green)which$($PSStyle.Reset) <name> - Shows the path of the command.
+$($PSStyle.Foreground.Green)winutil$($PSStyle.Reset) - Runs the latest WinUtil full-release script from Chris Titus Tech.
+$($PSStyle.Foreground.Green)winutildev$($PSStyle.Reset) - Runs the latest WinUtil pre-release script from Chris Titus Tech.
+$($PSStyle.Foreground.Yellow)=======================$($PSStyle.Reset)
 
 Use '$($PSStyle.Foreground.Magenta)Show-Help$($PSStyle.Reset)' to display this help message.
 "@
