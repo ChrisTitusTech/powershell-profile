@@ -88,7 +88,7 @@ function Debug-Message{
 }
 
 if ($debug) {
-    DebugMessage
+    Debug-Message
 }
 
 
