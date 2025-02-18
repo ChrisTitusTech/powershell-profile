@@ -27,7 +27,7 @@
 ############                      Clear-Cache_Override                                                               ############
 ############                      Get-Theme_Override                                                                 ############
 ############                      WinUtilDev_Override [To call a fork, for example]                                  ############
-############                                                                                                         ############
+############                      Set-PredictionSource                                                               ############
 #################################################################################################################################
 
 ### PowerShell Profile Refactor
@@ -573,9 +573,18 @@ Set-PSReadLineOption -AddToHistoryHandler {
     return ($null -eq $hasSensitive)
 }
 
-# Improved prediction settings
-Set-PSReadLineOption -PredictionSource HistoryAndPlugin
-Set-PSReadLineOption -MaximumHistoryCount 10000
+function Set-PredictionSource {
+    # If function "Set-PredictionSource_Override" is defined in profile.ps1 file
+    # then call it instead.
+    if (Get-Command -Name "Set-PredictionSource_Override" -ErrorAction SilentlyContinue) {
+        Set-PredictionSource_Override;
+    } else {
+	# Improved prediction settings
+	Set-PSReadLineOption -PredictionSource HistoryAndPlugin
+	Set-PSReadLineOption -MaximumHistoryCount 10000
+    }
+}
+Set-PredictionSource
 
 # Custom completion for common commands
 $scriptblock = {
