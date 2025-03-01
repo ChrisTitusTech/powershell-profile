@@ -661,6 +661,24 @@ function Show-Tree {
     }
 }
 
+function write-file {
+    param(
+        [string]$FileName
+    )
+    
+    # Resolve full path of the file
+    $FullPath = Resolve-Path -Path $FileName -ErrorAction SilentlyContinue
+    
+    if ($FullPath) {
+        # Path to Sublime Text executable
+        $SublimePath = "E:\Yaarian\Download_Software_Installation_Folder\Sublime Text 3\Sublime Text\sublime_text.exe"
+        
+        # Open the file in Sublime Text
+        Start-Process -FilePath $SublimePath -ArgumentList $FullPath
+    } else {
+        Write-Host "File not found: $FileName" -ForegroundColor Red
+    }
+}
 
 
 
