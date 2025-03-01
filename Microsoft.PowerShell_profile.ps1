@@ -77,22 +77,6 @@ function Update-Profile {
     }
 }
 
-# Check if not in debug mode AND (updateInterval is -1 OR file doesn't exist OR time difference is greater than the update interval)
-if (-not $debug -and `
-    ($updateInterval -eq -1 -or `
-      -not (Test-Path $timeFilePath) -or `
-      ((Get-Date) - [datetime]::ParseExact((Get-Content -Path $timeFilePath), 'yyyy-MM-dd', $null)).TotalDays -gt $updateInterval)) {
-
-    Update-Profile
-    $currentTime = Get-Date -Format 'yyyy-MM-dd'
-    $currentTime | Out-File -FilePath $timeFilePath
-
-} elseif (-not $debug) {
-    Write-Warning "Profile update skipped. Last update check was within the last $updateInterval day(s)."
-} else {
-    Write-Warning "Skipping profile update check in debug mode"
-}
-
 function Update-PowerShell {
     try {
         Write-Host "Checking for PowerShell updates..." -ForegroundColor Cyan
@@ -117,20 +101,22 @@ function Update-PowerShell {
     }
 }
 
-# skip in debug mode
+$updateDate = [datetime]::ParseExact((Get-Content -Path $timeFilePath), 'yyyy-MM-dd', $null)
+$currentDate = (Get-Date)
 # Check if not in debug mode AND (updateInterval is -1 OR file doesn't exist OR time difference is greater than the update interval)
 if (-not $debug -and `
     ($updateInterval -eq -1 -or `
-     -not (Test-Path $timeFilePath) -or `
-     ((Get-Date).Date - [datetime]::ParseExact((Get-Content -Path $timeFilePath), 'yyyy-MM-dd', $null).Date).TotalDays -gt $updateInterval)) {
+      -not (Test-Path $timeFilePath) -or `
+      ($currentDate.Date - $updateDate.Date).TotalDays -gt $updateInterval)) {
 
+    Update-Profile
     Update-PowerShell
-    $currentTime = Get-Date -Format 'yyyy-MM-dd'
-    $currentTime | Out-File -FilePath $timeFilePath
+    $currentDate.ToString('yyyy-MM-dd') | Out-File -FilePath $timeFilePath
+
 } elseif (-not $debug) {
-    Write-Warning "PowerShell update skipped. Last update check was within the last $updateInterval day(s)."
+    Write-Warning "Profile and Powershell update skipped. Next update check at $($updateDate.AddDays($updateInterval).ToString('yyyy-MM-dd'))."
 } else {
-    Write-Warning "Skipping PowerShell update in debug mode"
+    Write-Warning "Skipping profile and Powershell update check in debug mode"
 }
 
 function Clear-Cache {
