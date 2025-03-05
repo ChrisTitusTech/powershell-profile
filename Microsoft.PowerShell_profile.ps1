@@ -4,7 +4,12 @@
 $debug = $false
 
 # Define the path to the file that stores the last execution time
-$timeFilePath = "$env:USERPROFILE\Documents\PowerShell\LastExecutionTime.txt"
+if (([Environment]::GetFolderPath("MyDocuments"))) {
+    $timeFilePath = "$([Environment]::GetFolderPath("MyDocuments"))\PowerShell\LastExecutionTime.txt"
+}
+else {
+    $timeFilePath = "$env:USERPROFILE\Documents\PowerShell\LastExecutionTime.txt"
+}
 
 # Define the update interval in days, set to -1 to always check
 $updateInterval = 7
@@ -67,12 +72,15 @@ function Update-Profile {
         if ($newhash.Hash -ne $oldhash.Hash) {
             Copy-Item -Path "$env:temp/Microsoft.PowerShell_profile.ps1" -Destination $PROFILE -Force
             Write-Host "Profile has been updated. Please restart your shell to reflect changes" -ForegroundColor Magenta
-        } else {
+        }
+        else {
             Write-Host "Profile is up to date." -ForegroundColor Green
         }
-    } catch {
+    }
+    catch {
         Write-Error "Unable to check for `$profile updates: $_"
-    } finally {
+    }
+    finally {
         Remove-Item "$env:temp/Microsoft.PowerShell_profile.ps1" -ErrorAction SilentlyContinue
     }
 }
@@ -80,16 +88,18 @@ function Update-Profile {
 # Check if not in debug mode AND (updateInterval is -1 OR file doesn't exist OR time difference is greater than the update interval)
 if (-not $debug -and `
     ($updateInterval -eq -1 -or `
-      -not (Test-Path $timeFilePath) -or `
-      ((Get-Date) - [datetime]::ParseExact((Get-Content -Path $timeFilePath), 'yyyy-MM-dd', $null)).TotalDays -gt $updateInterval)) {
+            -not (Test-Path $timeFilePath) -or `
+        ((Get-Date) - [datetime]::ParseExact((Get-Content -Path $timeFilePath), 'yyyy-MM-dd', $null)).TotalDays -gt $updateInterval)) {
 
     Update-Profile
     $currentTime = Get-Date -Format 'yyyy-MM-dd'
     $currentTime | Out-File -FilePath $timeFilePath
 
-} elseif (-not $debug) {
+}
+elseif (-not $debug) {
     Write-Warning "Profile update skipped. Last update check was within the last $updateInterval day(s)."
-} else {
+}
+else {
     Write-Warning "Skipping profile update check in debug mode"
 }
 
@@ -109,10 +119,12 @@ function Update-PowerShell {
             Write-Host "Updating PowerShell..." -ForegroundColor Yellow
             Start-Process powershell.exe -ArgumentList "-NoProfile -Command winget upgrade Microsoft.PowerShell --accept-source-agreements --accept-package-agreements" -Wait -NoNewWindow
             Write-Host "PowerShell has been updated. Please restart your shell to reflect changes" -ForegroundColor Magenta
-        } else {
+        }
+        else {
             Write-Host "Your PowerShell is up to date." -ForegroundColor Green
         }
-    } catch {
+    }
+    catch {
         Write-Error "Failed to update PowerShell. Error: $_"
     }
 }
@@ -121,15 +133,17 @@ function Update-PowerShell {
 # Check if not in debug mode AND (updateInterval is -1 OR file doesn't exist OR time difference is greater than the update interval)
 if (-not $debug -and `
     ($updateInterval -eq -1 -or `
-     -not (Test-Path $timeFilePath) -or `
-     ((Get-Date).Date - [datetime]::ParseExact((Get-Content -Path $timeFilePath), 'yyyy-MM-dd', $null).Date).TotalDays -gt $updateInterval)) {
+            -not (Test-Path $timeFilePath) -or `
+        ((Get-Date).Date - [datetime]::ParseExact((Get-Content -Path $timeFilePath), 'yyyy-MM-dd', $null).Date).TotalDays -gt $updateInterval)) {
 
     Update-PowerShell
     $currentTime = Get-Date -Format 'yyyy-MM-dd'
     $currentTime | Out-File -FilePath $timeFilePath
-} elseif (-not $debug) {
+}
+elseif (-not $debug) {
     Write-Warning "PowerShell update skipped. Last update check was within the last $updateInterval day(s)."
-} else {
+}
+else {
     Write-Warning "Skipping PowerShell update in debug mode"
 }
 
@@ -173,13 +187,13 @@ function Test-CommandExists {
 
 # Editor Configuration
 $EDITOR = if (Test-CommandExists nvim) { 'nvim' }
-          elseif (Test-CommandExists pvim) { 'pvim' }
-          elseif (Test-CommandExists vim) { 'vim' }
-          elseif (Test-CommandExists vi) { 'vi' }
-          elseif (Test-CommandExists code) { 'code' }
-          elseif (Test-CommandExists notepad++) { 'notepad++' }
-          elseif (Test-CommandExists sublime_text) { 'sublime_text' }
-          else { 'notepad' }
+elseif (Test-CommandExists pvim) { 'pvim' }
+elseif (Test-CommandExists vim) { 'vim' }
+elseif (Test-CommandExists vi) { 'vi' }
+elseif (Test-CommandExists code) { 'code' }
+elseif (Test-CommandExists notepad++) { 'notepad++' }
+elseif (Test-CommandExists sublime_text) { 'sublime_text' }
+else { 'notepad' }
 Set-Alias -Name vim -Value $EDITOR
 
 # Quick Access to Editing the Profile
@@ -200,12 +214,12 @@ function Get-PubIP { (Invoke-WebRequest http://ifconfig.me/ip).Content }
 
 # Open WinUtil full-release
 function winutil {
-	irm https://christitus.com/win | iex
+    irm https://christitus.com/win | iex
 }
 
 # Open WinUtil pre-release
 function winutildev {
-	irm https://christitus.com/windev | iex
+    irm https://christitus.com/windev | iex
 }
 
 # System Utilities
@@ -213,7 +227,8 @@ function admin {
     if ($args.Count -gt 0) {
         $argList = $args -join ' '
         Start-Process wt -Verb runAs -ArgumentList "pwsh.exe -NoExit -Command $argList"
-    } else {
+    }
+    else {
         Start-Process wt -Verb runAs
     }
 }
@@ -227,25 +242,31 @@ function uptime {
         if ($PSVersionTable.PSVersion.Major -eq 5) {
             $lastBoot = (Get-WmiObject win32_operatingsystem).LastBootUpTime
             $bootTime = [System.Management.ManagementDateTimeConverter]::ToDateTime($lastBoot)
-        } else {
+        }
+        else {
             $lastBootStr = net statistics workstation | Select-String "since" | ForEach-Object { $_.ToString().Replace('Statistics since ', '') }
             # check date format
             if ($lastBootStr -match '^\d{2}/\d{2}/\d{4}') {
                 $dateFormat = 'dd/MM/yyyy'
-            } elseif ($lastBootStr -match '^\d{2}-\d{2}-\d{4}') {
+            }
+            elseif ($lastBootStr -match '^\d{2}-\d{2}-\d{4}') {
                 $dateFormat = 'dd-MM-yyyy'
-            } elseif ($lastBootStr -match '^\d{4}/\d{2}/\d{2}') {
+            }
+            elseif ($lastBootStr -match '^\d{4}/\d{2}/\d{2}') {
                 $dateFormat = 'yyyy/MM/dd'
-            } elseif ($lastBootStr -match '^\d{4}-\d{2}-\d{2}') {
+            }
+            elseif ($lastBootStr -match '^\d{4}-\d{2}-\d{2}') {
                 $dateFormat = 'yyyy-MM-dd'
-            } elseif ($lastBootStr -match '^\d{2}\.\d{2}\.\d{4}') {
+            }
+            elseif ($lastBootStr -match '^\d{2}\.\d{2}\.\d{4}') {
                 $dateFormat = 'dd.MM.yyyy'
             }
             
             # check time format
             if ($lastBootStr -match '\bAM\b' -or $lastBootStr -match '\bPM\b') {
                 $timeFormat = 'h:mm:ss tt'
-            } else {
+            }
+            else {
                 $timeFormat = 'HH:mm:ss'
             }
 
@@ -270,7 +291,8 @@ function uptime {
         Write-Host ("Uptime: {0} days, {1} hours, {2} minutes, {3} seconds" -f $days, $hours, $minutes, $seconds) -ForegroundColor Blue
         
 
-    } catch {
+    }
+    catch {
         Write-Error "An error occurred while retrieving system uptime."
     }
 }
@@ -294,7 +316,8 @@ function hb {
     
     if (Test-Path $FilePath) {
         $Content = Get-Content $FilePath -Raw
-    } else {
+    }
+    else {
         Write-Error "File path does not exist."
         return
     }
@@ -304,9 +327,10 @@ function hb {
         $response = Invoke-RestMethod -Uri $uri -Method Post -Body $Content -ErrorAction Stop
         $hasteKey = $response.key
         $url = "http://bin.christitus.com/$hasteKey"
-	Set-Clipboard $url
+        Set-Clipboard $url
         Write-Output $url
-    } catch {
+    }
+    catch {
         Write-Error "Failed to upload the document. Error: $_"
     }
 }
@@ -343,13 +367,13 @@ function pgrep($name) {
 }
 
 function head {
-  param($Path, $n = 10)
-  Get-Content $Path -Head $n
+    param($Path, $n = 10)
+    Get-Content $Path -Head $n
 }
 
 function tail {
-  param($Path, $n = 10, [switch]$f = $false)
-  Get-Content $Path -Tail $n -Wait:$f
+    param($Path, $n = 10, [switch]$f = $false)
+    Get-Content $Path -Tail $n -Wait:$f
 }
 
 # Quick File Creation
@@ -365,9 +389,10 @@ function trash($path) {
         $item = Get-Item $fullPath
 
         if ($item.PSIsContainer) {
-          # Handle directory
+            # Handle directory
             $parentPath = $item.Parent.FullName
-        } else {
+        }
+        else {
             # Handle file
             $parentPath = $item.DirectoryName
         }
@@ -378,10 +403,12 @@ function trash($path) {
         if ($item) {
             $shellItem.InvokeVerb('delete')
             Write-Host "Item '$fullPath' has been moved to the Recycle Bin."
-        } else {
+        }
+        else {
             Write-Host "Error: Could not find the item '$fullPath' to trash."
         }
-    } else {
+    }
+    else {
         Write-Host "Error: Item '$fullPath' does not exist."
     }
 }
@@ -390,12 +417,12 @@ function trash($path) {
 
 # Navigation Shortcuts
 function docs { 
-    $docs = if(([Environment]::GetFolderPath("MyDocuments"))) {([Environment]::GetFolderPath("MyDocuments"))} else {$HOME + "\Documents"}
+    $docs = if (([Environment]::GetFolderPath("MyDocuments"))) { ([Environment]::GetFolderPath("MyDocuments")) } else { $HOME + "\Documents" }
     Set-Location -Path $docs
 }
     
 function dtop { 
-    $dtop = if ([Environment]::GetFolderPath("Desktop")) {[Environment]::GetFolderPath("Desktop")} else {$HOME + "\Documents"}
+    $dtop = if ([Environment]::GetFolderPath("Desktop")) { [Environment]::GetFolderPath("Desktop") } else { $HOME + "\Documents" }
     Set-Location -Path $dtop
 }
 
@@ -434,8 +461,8 @@ function sysinfo { Get-ComputerInfo }
 
 # Networking Utilities
 function flushdns {
-	Clear-DnsClientCache
-	Write-Host "DNS has been flushed"
+    Clear-DnsClientCache
+    Write-Host "DNS has been flushed"
 }
 
 # Clipboard Utilities
@@ -446,24 +473,24 @@ function pst { Get-Clipboard }
 # Enhanced PowerShell Experience
 # Enhanced PSReadLine Configuration
 $PSReadLineOptions = @{
-    EditMode = 'Windows'
-    HistoryNoDuplicates = $true
+    EditMode                      = 'Windows'
+    HistoryNoDuplicates           = $true
     HistorySearchCursorMovesToEnd = $true
-    Colors = @{
-        Command = '#87CEEB'  # SkyBlue (pastel)
+    Colors                        = @{
+        Command   = '#87CEEB'  # SkyBlue (pastel)
         Parameter = '#98FB98'  # PaleGreen (pastel)
-        Operator = '#FFB6C1'  # LightPink (pastel)
-        Variable = '#DDA0DD'  # Plum (pastel)
-        String = '#FFDAB9'  # PeachPuff (pastel)
-        Number = '#B0E0E6'  # PowderBlue (pastel)
-        Type = '#F0E68C'  # Khaki (pastel)
-        Comment = '#D3D3D3'  # LightGray (pastel)
-        Keyword = '#8367c7'  # Violet (pastel)
-        Error = '#FF6347'  # Tomato (keeping it close to red for visibility)
+        Operator  = '#FFB6C1'  # LightPink (pastel)
+        Variable  = '#DDA0DD'  # Plum (pastel)
+        String    = '#FFDAB9'  # PeachPuff (pastel)
+        Number    = '#B0E0E6'  # PowderBlue (pastel)
+        Type      = '#F0E68C'  # Khaki (pastel)
+        Comment   = '#D3D3D3'  # LightGray (pastel)
+        Keyword   = '#8367c7'  # Violet (pastel)
+        Error     = '#FF6347'  # Tomato (keeping it close to red for visibility)
     }
-    PredictionSource = 'History'
-    PredictionViewStyle = 'ListView'
-    BellStyle = 'None'
+    PredictionSource              = 'History'
+    PredictionViewStyle           = 'ListView'
+    BellStyle                     = 'None'
 }
 Set-PSReadLineOption @PSReadLineOptions
 
@@ -495,8 +522,8 @@ Set-PSReadLineOption -MaximumHistoryCount 10000
 $scriptblock = {
     param($wordToComplete, $commandAst, $cursorPosition)
     $customCompletions = @{
-        'git' = @('status', 'add', 'commit', 'push', 'pull', 'clone', 'checkout')
-        'npm' = @('install', 'start', 'run', 'test', 'build')
+        'git'  = @('status', 'add', 'commit', 'push', 'pull', 'clone', 'checkout')
+        'npm'  = @('install', 'start', 'run', 'test', 'build')
         'deno' = @('run', 'compile', 'bundle', 'test', 'lint', 'fmt', 'cache', 'info', 'doc', 'upgrade')
     }
     
@@ -512,21 +539,23 @@ Register-ArgumentCompleter -Native -CommandName git, npm, deno -ScriptBlock $scr
 $scriptblock = {
     param($wordToComplete, $commandAst, $cursorPosition)
     dotnet complete --position $cursorPosition $commandAst.ToString() |
-        ForEach-Object {
-            [System.Management.Automation.CompletionResult]::new($_, $_, 'ParameterValue', $_)
-        }
+    ForEach-Object {
+        [System.Management.Automation.CompletionResult]::new($_, $_, 'ParameterValue', $_)
+    }
 }
 Register-ArgumentCompleter -Native -CommandName dotnet -ScriptBlock $scriptblock
 
 if (Get-Command zoxide -ErrorAction SilentlyContinue) {
     Invoke-Expression (& { (zoxide init --cmd cd powershell | Out-String) })
-} else {
+}
+else {
     Write-Host "zoxide command not found. Attempting to install via winget..."
     try {
         winget install -e --id ajeetdsouza.zoxide
         Write-Host "zoxide installed successfully. Initializing..."
         Invoke-Expression (& { (zoxide init powershell | Out-String) })
-    } catch {
+    }
+    catch {
         Write-Error "Failed to install zoxide. Error: $_"
     }
 }
