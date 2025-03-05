@@ -96,9 +96,6 @@ if (-not $debug -and `
     $currentTime | Out-File -FilePath $timeFilePath
 
 }
-elseif (-not $debug) {
-    Write-Warning "Profile update skipped. Last update check was within the last $updateInterval day(s)."
-}
 else {
     Write-Warning "Skipping profile update check in debug mode"
 }
@@ -139,9 +136,6 @@ if (-not $debug -and `
     Update-PowerShell
     $currentTime = Get-Date -Format 'yyyy-MM-dd'
     $currentTime | Out-File -FilePath $timeFilePath
-}
-elseif (-not $debug) {
-    Write-Warning "PowerShell update skipped. Last update check was within the last $updateInterval day(s)."
 }
 else {
     Write-Warning "Skipping PowerShell update in debug mode"
