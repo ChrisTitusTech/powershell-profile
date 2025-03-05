@@ -477,6 +477,48 @@ $PSReadLineOptions = @{
 }
 Set-PSReadLineOption @PSReadLineOptions
 
+function Convert-PrefixToSubnetMask {
+    param ([int]$prefixLength)
+    $binaryMask = ('1' * $prefixLength).PadRight(32, '0')
+    $subnetMask = [string]::Join('.', ($binaryMask -split '(.{8})' | Where-Object { $_ -ne '' } | ForEach-Object { [convert]::ToInt32($_, 2) }))
+    return $subnetMask
+}
+
+function ip {
+    
+    $adapters = @()
+
+    $ipv4Config = Get-NetIPConfiguration | Where-Object { $null -ne $_.IPv4Address }
+
+    Foreach ($adapter in $ipv4config) {
+        
+        If ($Adapter.InterfaceAlias -eq "vEthernet (Default Switch)") {
+            continue
+        }
+        If ($adapter.NetAdapter.Status -ne "Up") {
+            $adapters += [PSCustomObject]@{
+                Adapter     = $Adapter.InterfaceAlias
+                Description = $Adapter.InterfaceDescription
+                Status      = $Adapter.NetAdapter.Status
+            }
+        }
+        else {
+
+            $adapters += [PSCustomObject]@{
+                Adapter      = $Adapter.InterfaceAlias
+                Description  = $Adapter.InterfaceDescription
+                IPv4Address  = $Adapter.IPv4Address.IPAddress
+                SubnetMask   = Convert-PrefixToSubnetMask ($Adapter.IPv4Address.prefixLength)
+                Gateway      = $Adapter.IPv4DefaultGateway.NextHop
+                DnsServers   = $Adapter.DnsServer.ServerAddresses
+                PrefixLength = $Adapter.IPv4Address.PrefixLength
+            }
+        }
+    }
+    return $adapters
+}
+
+
 # Custom key handlers
 Set-PSReadLineKeyHandler -Key UpArrow -Function HistorySearchBackward
 Set-PSReadLineKeyHandler -Key DownArrow -Function HistorySearchForward
