@@ -384,6 +384,16 @@ function Show-Help {
     Write-Host "- Searches for processes by name" -ForegroundColor Gray
     Write-Host -NoNewline "Show-Tree     " -ForegroundColor Yellow
     Write-Host "- Display the folder and file structure from the current directory" -ForegroundColor Gray
+    Write-Host -NoNewline "write-file     " -ForegroundColor Yellow
+    Write-Host "- Opens the file with Sublime Text" -ForegroundColor Gray
+    Write-Host -NoNewline "git-push     " -ForegroundColor Yellow
+    Write-Host "- A github shortcuut commands that automates sending the code to a specific branch with custom commits and types" -ForegroundColor Gray
+    Write-Host -NoNewline "create-branch     " -ForegroundColor Yellow
+    Write-Host "- Creates a new git branch (local and remote) and switch to that" -ForegroundColor Gray
+    Write-Host -NoNewline "delete-branch     " -ForegroundColor Yellow
+    Write-Host "- Deletes a git branch (local and remote). Can't delete current branch(local and remote)" -ForegroundColor Gray
+    Write-Host -NoNewline "git-merge-owner     " -ForegroundColor Yellow
+    Write-Host "- Creates a pull request and merge automatically if you are the git repo-owner" -ForegroundColor Gray
 
     Write-Host "----------------------------"
     Write-Host "Use 'FunctionName -help' for more details on each command."
@@ -679,6 +689,187 @@ function write-file {
         Write-Host "File not found: $FileName" -ForegroundColor Red
     }
 }
+
+
+function git-push {
+    # Define the commit types with serial numbers and Unicode escape sequences for emojis
+    $commitTypes = @{
+        0 = @{name = "unknown"; icon = [char]::ConvertFromUtf32(0x2753)}      # Unknown ❓
+        1 = @{name = "feat"; icon = [char]::ConvertFromUtf32(0x2728)}         # Feature ✨
+        2 = @{name = "fix"; icon = [char]::ConvertFromUtf32(0x1F41B)}         # Bug Fix 🐛
+        3 = @{name = "chore"; icon = [char]::ConvertFromUtf32(0x1F4DD)}       # Chore 📝
+        4 = @{name = "refactor"; icon = [char]::ConvertFromUtf32(0x1F527)}    # Refactor 🔧
+        5 = @{name = "perf"; icon = [char]::ConvertFromUtf32(0x1F680)}        # Performance 🚀
+        6 = @{name = "sec"; icon = [char]::ConvertFromUtf32(0x1F512)}         # Security 🔒
+        7 = @{name = "build"; icon = [char]::ConvertFromUtf32(0x1F4E6)}       # Build 📦
+        8 = @{name = "ci"; icon = [char]::ConvertFromUtf32(0x1F3D7)}          # CI 🏗️
+        9 = @{name = "style"; icon = [char]::ConvertFromUtf32(0x1F484)}       # Style 💄
+        10 = @{name = "test"; icon = [char]::ConvertFromUtf32(0x1F477)}       # Test 👷
+        11 = @{name = "ui"; icon = [char]::ConvertFromUtf32(0x1F3A8)}         # UI 🎨
+        12 = @{name = "config"; icon = [char]::ConvertFromUtf32(0x1F6E0)}     # Config 🛠️
+        13 = @{name = "docs"; icon = [char]::ConvertFromUtf32(0x1F4D6)}       # Docs 📖
+        14 = @{name = "remove"; icon = [char]::ConvertFromUtf32(0x1F4A5)}     # Remove 💥
+        15 = @{name = "init"; icon = [char]::ConvertFromUtf32(0x1F389)}       # Initialization 🎉
+        16 = @{name = "wip"; icon = [char]::ConvertFromUtf32(0x1F6A7)}        # Work In Progress 🚧
+        17 = @{name = "new"; icon = [char]::ConvertFromUtf32(0x1F195)}        # New 🆕
+        18 = @{name = "tools"; icon = [char]::ConvertFromUtf32(0x1F6E0)}      # Tools 🛠️
+        19 = @{name = "breaking"; icon = [char]::ConvertFromUtf32(0x1F4A5)}   # Breaking Change 💥
+        20 = @{name = "i18n"; icon = [char]::ConvertFromUtf32(0x1F310)}       # Internationalization 🌐
+        21 = @{name = "cleanup"; icon = [char]::ConvertFromUtf32(0x1F5D1)}    # Cleanup 🗑️
+        22 = @{name = "audit"; icon = [char]::ConvertFromUtf32(0x1F50D)}      # Audit 🔍
+    }
+
+    # Display commit types with serial numbers
+    Write-Host "Available commit types:"
+    $commitTypes.Keys | ForEach-Object {
+        Write-Host "$($_): $($commitTypes[$_].icon) $($commitTypes[$_].name)"
+    }
+
+    # Ask the user to select a commit type by number (default: 0 for "unknown" type)
+    $commitTypeIndex = Read-Host "Select a commit type number (default: 0 for 'unknown')"
+    if (-not $commitTypeIndex -or -not $commitTypes.ContainsKey([int]$commitTypeIndex)) {
+        Write-Host "Invalid selection. Defaulting to 'unknown'."
+        $commitTypeIndex = 0
+    }
+
+    # Get the selected commit type and icon
+    $selectedCommit = $commitTypes[[int]$commitTypeIndex]
+    $commitTypeName = $selectedCommit.name
+    $icon = $selectedCommit.icon
+
+    # Prompt for title and description
+    $title = Read-Host "Enter the commit title (default: 'Default commit title')"
+    if (-not $title) { $title = "Default commit title" }
+
+    $description = Read-Host "Enter the commit description (default: 'Default commit description')"
+    if (-not $description) { $description = "Default commit description" }
+
+    # Get current branch
+    $branchName = git branch --show-current
+    if (-not $branchName) { $branchName = "main" }  # Fallback to 'main' if branch detection fails
+
+    # Properly format the commit message using `${}` to avoid syntax errors
+    $commitMessage = "${icon} ${commitTypeName}: ${title}"
+
+    # Execute git commands
+    git add .
+    git commit -m "$commitMessage" -m "$description"
+    git push origin $branchName
+}
+
+
+function create-branch {
+    # Ask for the branch name
+    $branchName = Read-Host "Enter the new branch name"
+
+    if (-not $branchName) {
+        Write-Host "Branch name cannot be empty!" -ForegroundColor Red
+        return
+    }
+
+    # Create and switch to the new branch
+    git checkout -b $branchName
+    Write-Host "Created and switched to branch: $branchName"
+
+    # Push the new branch to the remote repository
+    $pushConfirm = Read-Host "Do you want to push the branch to remote? (yes/no)"
+    if ($pushConfirm -eq "yes") {
+        git push --set-upstream origin $branchName
+        Write-Host "Branch '$branchName' pushed to remote."
+    }
+}
+
+
+function delete-branch {
+    # Get the list of local branches
+    $localBranches = git branch --list | ForEach-Object { $_.Trim() }
+
+    # Display the list of local branches with numbers, highlighting the current branch
+    Write-Host "Available local branches:"
+    $i = 1
+    $localBranches | ForEach-Object {
+        if ($_ -like "*") {
+            Write-Host "$i. $_ (current branch)"
+        } else {
+            Write-Host "$i. $_"
+        }
+        $i++
+    }
+
+    # Ask the user to select a branch by number
+    $branchIndex = Read-Host "Enter the branch number to delete"
+    $selectedBranch = $localBranches[$branchIndex - 1]
+
+    if (-not $selectedBranch) {
+        Write-Host "Invalid branch number!" -ForegroundColor Red
+        return
+    }
+
+    # Ask if the user wants to delete the local branch
+    $deleteLocal = Read-Host "Do you want to delete the local branch '$selectedBranch'? (yes/no)"
+    if ($deleteLocal -eq "yes") {
+        git branch -d $selectedBranch
+        Write-Host "Local branch '$selectedBranch' deleted."
+    }
+
+    # Ask if the user wants to delete the remote branch
+    $deleteRemote = Read-Host "Do you want to delete the remote branch '$selectedBranch'? (yes/no)"
+    if ($deleteRemote -eq "yes") {
+        git push origin --delete $selectedBranch
+        Write-Host "Remote branch '$selectedBranch' deleted."
+    }
+}
+
+
+function git-merge-owner {
+    # Get the current branch name before doing anything
+    $initialBranch = git branch --show-current
+
+    if (-not $initialBranch) {
+        Write-Host "Could not determine the current branch. Make sure you are inside a Git repository." -ForegroundColor Red
+        return
+    }
+
+    if ($initialBranch -eq "main") {
+        Write-Host "You are already on the 'main' branch. Switch to another branch before merging." -ForegroundColor Yellow
+        return
+    }
+
+    # Confirm before proceeding
+    $confirm = Read-Host "Create and merge a pull request from '$initialBranch' to 'main'? (yes/no)"
+    if ($confirm -ne "yes") {
+        Write-Host "Operation canceled."
+        return
+    }
+
+    # Push the current branch to the remote repository
+    git push origin $initialBranch
+    Write-Host "Pushed branch '$initialBranch' to remote."
+
+    # Create a pull request using GitHub CLI
+    gh pr create --base main --head $initialBranch --title "Merge $initialBranch into main" --body "Merging $initialBranch into main"
+
+    # Wait for user confirmation before merging
+    $mergeConfirm = Read-Host "Do you want to merge this pull request now? (yes/no)"
+    if ($mergeConfirm -ne "yes") {
+        Write-Host "Pull request created but not merged."
+        return
+    }
+
+    # Merge the pull request
+    gh pr merge --auto --squash
+    Write-Host "Pull request merged successfully."
+
+    # Switch to main and pull the latest changes
+    git checkout main
+    git pull origin main
+    Write-Host "Switched to 'main' and updated with latest changes."
+
+    # Switch back to the original branch
+    git checkout $initialBranch
+    Write-Host "Switched back to '$initialBranch'."
+}
+
 
 
 
