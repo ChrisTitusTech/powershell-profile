@@ -720,10 +720,15 @@ function git-push {
     }
 
     Write-Host "Available Commit Types:" -ForegroundColor Cyan
-    $commitTypes.GetEnumerator() | Sort-Object Name | ForEach-Object {
+    $commitTypes.GetEnumerator() | Sort-Object Key | ForEach-Object {
+        Write-Host " [$($_.Key)]" -ForegroundColor Blue -NoNewline
         Write-Host " $($_.Value.icon) $($_.Value.name) - " -ForegroundColor Yellow -NoNewline
         Write-Host "$($_.Value.desc)" -ForegroundColor White
     }
+
+
+    Write-Host "`n -------------------------------------------------------------------"
+
 
     # Ask the user to select a commit type by number (default: 0 for "unknown" type)
     $commitTypeIndex = Read-Host "Select a commit type number (default: 0 for 'unknown')"
@@ -756,6 +761,7 @@ function git-push {
     git commit -m "$commitMessage" -m "$description"
     git push origin $branchName
 }
+
 
 
 function create-branch {
