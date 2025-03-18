@@ -694,35 +694,35 @@ function write-file {
 function git-push {
     # Define the commit types with serial numbers and Unicode escape sequences for emojis
     $commitTypes = @{
-        0 = @{name = "unknown"; icon = [char]::ConvertFromUtf32(0x2753)}      # Unknown ❓
-        1 = @{name = "feat"; icon = [char]::ConvertFromUtf32(0x2728)}         # Feature ✨
-        2 = @{name = "fix"; icon = [char]::ConvertFromUtf32(0x1F41B)}         # Bug Fix 🐛
-        3 = @{name = "chore"; icon = [char]::ConvertFromUtf32(0x1F4DD)}       # Chore 📝
-        4 = @{name = "refactor"; icon = [char]::ConvertFromUtf32(0x1F527)}    # Refactor 🔧
-        5 = @{name = "perf"; icon = [char]::ConvertFromUtf32(0x1F680)}        # Performance 🚀
-        6 = @{name = "sec"; icon = [char]::ConvertFromUtf32(0x1F512)}         # Security 🔒
-        7 = @{name = "build"; icon = [char]::ConvertFromUtf32(0x1F4E6)}       # Build 📦
-        8 = @{name = "ci"; icon = [char]::ConvertFromUtf32(0x1F3D7)}          # CI 🏗️
-        9 = @{name = "style"; icon = [char]::ConvertFromUtf32(0x1F484)}       # Style 💄
-        10 = @{name = "test"; icon = [char]::ConvertFromUtf32(0x1F477)}       # Test 👷
-        11 = @{name = "ui"; icon = [char]::ConvertFromUtf32(0x1F3A8)}         # UI 🎨
-        12 = @{name = "config"; icon = [char]::ConvertFromUtf32(0x1F6E0)}     # Config 🛠️
-        13 = @{name = "docs"; icon = [char]::ConvertFromUtf32(0x1F4D6)}       # Docs 📖
-        14 = @{name = "remove"; icon = [char]::ConvertFromUtf32(0x1F4A5)}     # Remove 💥
-        15 = @{name = "init"; icon = [char]::ConvertFromUtf32(0x1F389)}       # Initialization 🎉
-        16 = @{name = "wip"; icon = [char]::ConvertFromUtf32(0x1F6A7)}        # Work In Progress 🚧
-        17 = @{name = "new"; icon = [char]::ConvertFromUtf32(0x1F195)}        # New 🆕
-        18 = @{name = "tools"; icon = [char]::ConvertFromUtf32(0x1F6E0)}      # Tools 🛠️
-        19 = @{name = "breaking"; icon = [char]::ConvertFromUtf32(0x1F4A5)}   # Breaking Change 💥
-        20 = @{name = "i18n"; icon = [char]::ConvertFromUtf32(0x1F310)}       # Internationalization 🌐
-        21 = @{name = "cleanup"; icon = [char]::ConvertFromUtf32(0x1F5D1)}    # Cleanup 🗑️
-        22 = @{name = "audit"; icon = [char]::ConvertFromUtf32(0x1F50D)}      # Audit 🔍
+        0 = @{name = "unknown"; icon = [char]::ConvertFromUtf32(0x2753); desc = "A commit with an unspecified or unclear change."}
+        1 = @{name = "feat"; icon = [char]::ConvertFromUtf32(0x2728); desc = "Introduces a new feature or functionality."}
+        2 = @{name = "fix"; icon = [char]::ConvertFromUtf32(0x1F41B); desc = "Fixes a bug or an issue in the code."}
+        3 = @{name = "chore"; icon = [char]::ConvertFromUtf32(0x1F4DD); desc = "General maintenance tasks or updates that don’t affect functionality."}
+        4 = @{name = "refactor"; icon = [char]::ConvertFromUtf32(0x1F527); desc = "Changes code structure without altering functionality."}
+        5 = @{name = "perf"; icon = [char]::ConvertFromUtf32(0x1F680); desc = "Improves the performance of the code."}
+        6 = @{name = "sec"; icon = [char]::ConvertFromUtf32(0x1F512); desc = "Introduces security improvements or fixes vulnerabilities."}
+        7 = @{name = "build"; icon = [char]::ConvertFromUtf32(0x1F4E6); desc = "Changes related to the build process or tooling."}
+        8 = @{name = "ci"; icon = [char]::ConvertFromUtf32(0x1F3D7); desc = "Updates related to CI/CD setups."}
+        9 = @{name = "style"; icon = [char]::ConvertFromUtf32(0x1F484); desc = "Code style changes that do not affect functionality."}
+        10 = @{name = "test"; icon = [char]::ConvertFromUtf32(0x1F477); desc = "Adds or modifies tests, or related testing infrastructure."}
+        11 = @{name = "ui"; icon = [char]::ConvertFromUtf32(0x1F3A8); desc = "Changes related to the user interface (UI)."}
+        12 = @{name = "config"; icon = [char]::ConvertFromUtf32(0x1F6E0); desc = "Changes related to configuration files or settings."}
+        13 = @{name = "docs"; icon = [char]::ConvertFromUtf32(0x1F4D6); desc = "Adds or updates project documentation."}
+        14 = @{name = "remove"; icon = [char]::ConvertFromUtf32(0x1F4A5); desc = "Removes code or files."}
+        15 = @{name = "init"; icon = [char]::ConvertFromUtf32(0x1F389); desc = "Project initialization."}
+        16 = @{name = "wip"; icon = [char]::ConvertFromUtf32(0x1F6A7); desc = "Work that is still in progress."}
+        17 = @{name = "new"; icon = [char]::ConvertFromUtf32(0x1F195); desc = "Indicates the addition of something entirely new."}
+        18 = @{name = "tools"; icon = [char]::ConvertFromUtf32(0x1F6E0); desc = "Updates related to development tools."}
+        19 = @{name = "breaking"; icon = [char]::ConvertFromUtf32(0x1F4A5); desc = "Introduces a change that breaks backward compatibility."}
+        20 = @{name = "i18n"; icon = [char]::ConvertFromUtf32(0x1F310); desc = "Changes related to making the project multilingual."}
+        21 = @{name = "cleanup"; icon = [char]::ConvertFromUtf32(0x1F5D1); desc = "Refactors or cleans up the codebase."}
+        22 = @{name = "audit"; icon = [char]::ConvertFromUtf32(0x1F50D); desc = "Conducting an audit of the code or dependencies."}
     }
 
-    # Display commit types with serial numbers
-    Write-Host "Available commit types:"
-    $commitTypes.Keys | ForEach-Object {
-        Write-Host "$($_): $($commitTypes[$_].icon) $($commitTypes[$_].name)"
+    Write-Host "Available Commit Types:" -ForegroundColor Cyan
+    $commitTypes.GetEnumerator() | Sort-Object Name | ForEach-Object {
+        Write-Host " $($_.Value.icon) $($_.Value.name) - " -ForegroundColor Yellow -NoNewline
+        Write-Host "$($_.Value.desc)" -ForegroundColor White
     }
 
     # Ask the user to select a commit type by number (default: 0 for "unknown" type)
