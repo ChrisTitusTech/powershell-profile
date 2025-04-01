@@ -394,6 +394,8 @@ function Show-Help {
     Write-Host "- Deletes a git branch (local and remote). Can't delete current branch(local and remote)" -ForegroundColor Gray
     Write-Host -NoNewline "git-merge-owner     " -ForegroundColor Yellow
     Write-Host "- Creates a pull request and merge automatically if you are the git repo-owner" -ForegroundColor Gray
+    Write-Host -NoNewline "youtube     " -ForegroundColor Yellow
+    Write-Host "- Download single Youtube video through video URL" -ForegroundColor Gray
 
     Write-Host "----------------------------"
     Write-Host "Use 'FunctionName -help' for more details on each command."
@@ -691,6 +693,7 @@ function write-file {
 }
 
 
+
 function git-push {
     # Define the commit types with serial numbers and Unicode escape sequences for emojis
     $commitTypes = @{
@@ -763,7 +766,6 @@ function git-push {
 }
 
 
-
 function create-branch {
     # Ask for the branch name
     $branchName = Read-Host "Enter the new branch name"
@@ -827,6 +829,8 @@ function delete-branch {
 }
 
 
+
+
 function git-merge-owner {
     # Get the current branch name before doing anything
     $initialBranch = git branch --show-current
@@ -878,10 +882,105 @@ function git-merge-owner {
 
 
 
+function youtube {
+    # Check if yt-dlp is installed
+    $ytDlpPath = Get-Command yt-dlp -ErrorAction SilentlyContinue
+    if (-not $ytDlpPath) {
+        $installChoice = Read-Host "yt-dlp not found! Do you want to install it? (Y/N)"
+        if ($installChoice -match "^[Yy]$") {
+            Write-Host "Installing yt-dlp..." -ForegroundColor Yellow
+            $ytDlpExePath = "$env:USERPROFILE\yt-dlp.exe"
+            Invoke-WebRequest -Uri "https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp.exe" -OutFile $ytDlpExePath
+            [System.Environment]::SetEnvironmentVariable("PATH", "$env:USERPROFILE;$env:PATH", [System.EnvironmentVariableTarget]::User)
+            Write-Host "yt-dlp installed successfully! Please restart your terminal." -ForegroundColor Green
+            return
+        } else {
+            Write-Host "yt-dlp is required for this function. Exiting..." -ForegroundColor Red
+            return
+        }
+    }
+
+    # Check if ffmpeg is installed
+    $ffmpegPath = Get-Command ffmpeg -ErrorAction SilentlyContinue
+    if (-not $ffmpegPath) {
+        $installChoice = Read-Host "ffmpeg not found! Do you want to install it? (Y/N)"
+        if ($installChoice -match "^[Yy]$") {
+            Write-Host "Installing ffmpeg..." -ForegroundColor Yellow
+            try {
+                winget install -e --id Gyan.FFmpeg --accept-source-agreements --accept-package-agreements
+                Write-Host "ffmpeg installed successfully! Please restart your terminal for changes to take effect." -ForegroundColor Green
+                return
+            } catch {
+                Write-Host "ffmpeg installation encountered an error. Please install manually from https://ffmpeg.org/download.html" -ForegroundColor Red
+                return
+            }
+        } else {
+            Write-Host "ffmpeg is recommended for best quality. Continuing without it..." -ForegroundColor Yellow
+        }
+    }
+
+    # Prompt for YouTube video URL
+    $videoURL = Read-Host "Enter the YouTube video URL"
+    if (-not $videoURL) {
+        Write-Host "No URL provided. Exiting..." -ForegroundColor Red
+        return
+    }
+
+    # Fetch available formats using yt-dlp in JSON format
+    $formats = yt-dlp -j $videoURL | ConvertFrom-Json
+    if (-not $formats) {
+        Write-Host "Failed to fetch available formats. Exiting..." -ForegroundColor Red
+        return
+    }
+
+    # Extract available formats safely
+    $availableFormats = $formats.formats | ForEach-Object {
+        [PSCustomObject]@{
+            Format     = $_.format_id
+            Extension  = $_.ext
+            Resolution = $_.resolution -as [string]
+            FileSize   = if ($_.filesize -ne $null) { "{0:N2} MB" -f ($_.filesize / 1MB) } else { "N/A" }
+        }
+    }
+
+    # Determine column widths dynamically
+    $maxFormatLength = ($availableFormats | ForEach-Object { $_.Format.Length } | Measure-Object -Maximum).Maximum
+    $maxExtLength = ($availableFormats | ForEach-Object { $_.Extension.Length } | Measure-Object -Maximum).Maximum
+    $maxResolutionLength = ($availableFormats | ForEach-Object { $_.Resolution.Length } | Measure-Object -Maximum).Maximum
+    $maxFileSizeLength = ($availableFormats | ForEach-Object { $_.FileSize.Length } | Measure-Object -Maximum).Maximum
+
+    # Display the formats in a properly formatted table
+    Write-Host "`nAvailable Formats:" -ForegroundColor Cyan
+    Write-Host "-------------------------------------------------------------------"
+    Write-Host ("{0,-5} {1,-$($maxFormatLength)} {2,-$($maxExtLength)} {3,-$($maxResolutionLength)} {4,-$($maxFileSizeLength)}" -f "SL", "Format", "Type", "Resolution", "File Size")
+    Write-Host "-------------------------------------------------------------------"
+
+    $i = 1
+    foreach ($format in $availableFormats) {
+        Write-Host ("{0,-5} {1,-$($maxFormatLength)} {2,-$($maxExtLength)} {3,-$($maxResolutionLength)} {4,-$($maxFileSizeLength)}" -f $i, $format.Format, $format.Extension, $format.Resolution, $format.FileSize)
+        $i++
+    }
+
+    # Ask user to select format
+    $formatNumber = Read-Host "`nEnter the serial number of the format you want to download"
+    if (-not ($formatNumber -match "^[0-9]+$") -or [int]$formatNumber -lt 1 -or [int]$formatNumber -gt $availableFormats.Count) {
+        Write-Host "Invalid selection. Exiting..." -ForegroundColor Red
+        return
+    }
+
+    # Get the selected format ID
+    $formatSelection = $availableFormats[[int]$formatNumber - 1].Format
+    Write-Host "Downloading video in selected format..." -ForegroundColor Green
+
+    # Download the video
+    yt-dlp -f $formatSelection $videoURL
+    Write-Host "`nDownload complete!" -ForegroundColor Green
+}
+
+
 
 # Load the profile once
 # Show-Help
 
 oh-my-posh init pwsh --config "$env:POSH_THEMES_PATH/stelbent-compact.minimal.omp.json" | Invoke-Expression
-
 
