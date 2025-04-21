@@ -16,6 +16,11 @@
 ############                                                                                                         ############
 #################################################################################################################################
 
+$ompPath = "$env:LOCALAPPDATA\Programs\oh-my-posh\bin"
+if (-not ($env:PATH -split ";" | Where-Object { $_ -eq $ompPath })) {
+    $env:PATH += ";$ompPath"
+}
+
 oh-my-posh init pwsh --config "$env:POSH_THEMES_PATH/stelbent-compact.minimal.omp.json" | Invoke-Expression
 
 Import-Module -Name Terminal-Icons
