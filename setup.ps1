@@ -7,7 +7,7 @@ if (-NOT ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdenti
 # Function to test internet connectivity
 function Test-InternetConnection {
     try {
-        $testConnection = Test-Connection -ComputerName www.google.com -Count 1 -ErrorAction Stop
+        Test-Connection -ComputerName www.google.com -Count 1 -ErrorAction Stop | Out-Null
         return $true
     }
     catch {
