@@ -529,9 +529,6 @@ if (Get-Command zoxide -ErrorAction SilentlyContinue) {
     }
 }
 
-Set-Alias -Name z -Value __zoxide_z -Option AllScope -Scope Global -Force
-Set-Alias -Name zi -Value __zoxide_zi -Option AllScope -Scope Global -Force
-
 # Help Function
 function Show-Help {
     $helpText = @"
