@@ -285,8 +285,8 @@ function hb {
         $response = Invoke-RestMethod -Uri $uri -Method Post -Body $Content -ErrorAction Stop
         $hasteKey = $response.key
         $url = "http://bin.christitus.com/$hasteKey"
-	Set-Clipboard $url
-        Write-Output $url
+	    Set-Clipboard $url
+        Write-Output "$url copied to clipboard."
     } catch {
         Write-Error "Failed to upload the document. Error: $_"
     }
