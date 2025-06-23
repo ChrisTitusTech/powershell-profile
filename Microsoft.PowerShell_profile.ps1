@@ -394,7 +394,9 @@ function ga { git add . }
 
 function gc { param($m) git commit -m "$m" }
 
-function gp { git push }
+function gpush { git push }
+
+function gpull { git pull }
 
 function g { __zoxide_z github }
 
