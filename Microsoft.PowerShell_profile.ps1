@@ -15,7 +15,7 @@ if ($debug) {
     Write-Host "#          ONLY FOR DEVELOPMENT       #" -ForegroundColor Red
     Write-Host "#                                     #" -ForegroundColor Red
     Write-Host "#       IF YOU ARE NOT DEVELOPING     #" -ForegroundColor Red
-    Write-Host "#       JUST RUN \`Update-Profile\`     #" -ForegroundColor Red
+    Write-Host "#       JUST RUN \`Update-Profile\`   #" -ForegroundColor Red
     Write-Host "#        to discard all changes       #" -ForegroundColor Red
     Write-Host "#   and update to the latest profile  #" -ForegroundColor Red
     Write-Host "#               version               #" -ForegroundColor Red
@@ -285,8 +285,8 @@ function hb {
         $response = Invoke-RestMethod -Uri $uri -Method Post -Body $Content -ErrorAction Stop
         $hasteKey = $response.key
         $url = "http://bin.christitus.com/$hasteKey"
-	Set-Clipboard $url
-        Write-Output $url
+	    Set-Clipboard $url
+        Write-Output "$url copied to clipboard."
     } catch {
         Write-Error "Failed to upload the document. Error: $_"
     }
@@ -530,9 +530,6 @@ if (Get-Command zoxide -ErrorAction SilentlyContinue) {
         Write-Error "Failed to install zoxide. Error: $_"
     }
 }
-
-Set-Alias -Name z -Value __zoxide_z -Option AllScope -Scope Global -Force
-Set-Alias -Name zi -Value __zoxide_zi -Option AllScope -Scope Global -Force
 
 # Help Function
 function Show-Help {
