@@ -101,6 +101,41 @@ else {
     }
 }
 
+# Function to download Oh My Posh theme locally
+function Install-OhMyPoshTheme {
+    param (
+        [string]$ThemeName = "cobalt2",
+        [string]$ThemeUrl = "https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/cobalt2.omp.json"
+    )
+
+    try {
+        # Detect Version of PowerShell & Create Profile directories if they do not exist.
+        $profilePath = ""
+        if ($PSVersionTable.PSEdition -eq "Core") {
+            $profilePath = "$env:userprofile\Documents\Powershell"
+        }
+        elseif ($PSVersionTable.PSEdition -eq "Desktop") {
+            $profilePath = "$env:userprofile\Documents\WindowsPowerShell"
+        }
+
+        if (!(Test-Path -Path $profilePath)) {
+            New-Item -Path $profilePath -ItemType "directory" -Force
+        }
+
+        $themeFilePath = Join-Path $profilePath "$ThemeName.omp.json"
+
+        # Download the theme file
+        Invoke-RestMethod -Uri $ThemeUrl -OutFile $themeFilePath
+        Write-Host "Oh My Posh theme '$ThemeName' has been downloaded to [$themeFilePath]"
+
+        return $themeFilePath
+    }
+    catch {
+        Write-Error "Failed to download Oh My Posh theme. Error: $_"
+        return $null
+    }
+}
+
 # OMP Install
 try {
     winget install -e --accept-source-agreements --accept-package-agreements JanDeDobbeleer.OhMyPosh
@@ -109,11 +144,14 @@ catch {
     Write-Error "Failed to install Oh My Posh. Error: $_"
 }
 
+# Download Oh My Posh theme locally
+$themeInstalled = Install-OhMyPoshTheme -ThemeName "cobalt2"
+
 # Font Install
 Install-NerdFonts -FontName "CascadiaCode" -FontDisplayName "CaskaydiaCove NF"
 
 # Final check and message to the user
-if ((Test-Path -Path $PROFILE) -and (winget list --name "OhMyPosh" -e) -and ($fontFamilies -contains "CaskaydiaCove NF")) {
+if ((Test-Path -Path $PROFILE) -and (winget list --name "OhMyPosh" -e) -and ($fontFamilies -contains "CaskaydiaCove NF") -and $themeInstalled) {
     Write-Host "Setup completed successfully. Please restart your PowerShell session to apply changes."
 } else {
     Write-Warning "Setup completed with errors. Please check the error messages above."

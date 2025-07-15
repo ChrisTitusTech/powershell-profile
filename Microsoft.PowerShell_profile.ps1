@@ -319,7 +319,7 @@ function uptime {
         # find date/time format
         $dateFormat = [System.Globalization.CultureInfo]::CurrentCulture.DateTimeFormat.ShortDatePattern
         $timeFormat = [System.Globalization.CultureInfo]::CurrentCulture.DateTimeFormat.LongTimePattern
-		
+
         # check powershell version
         if ($PSVersionTable.PSVersion.Major -eq 5) {
             $lastBoot = (Get-WmiObject win32_operatingsystem).LastBootUpTime
@@ -329,7 +329,7 @@ function uptime {
             $lastBoot = $bootTime.ToString("$dateFormat $timeFormat")
         } else {
             # the Get-Uptime cmdlet was introduced in PowerShell 6.0
-            $lastBoot = (Get-Uptime -Since).ToString("$dateFormat $timeFormat")			
+            $lastBoot = (Get-Uptime -Since).ToString("$dateFormat $timeFormat")
             $bootTime = [System.DateTime]::ParseExact($lastBoot, "$dateFormat $timeFormat", [System.Globalization.CultureInfo]::InvariantCulture)
         }
 
@@ -368,16 +368,16 @@ function hb {
         Write-Error "No file path specified."
         return
     }
-    
+
     $FilePath = $args[0]
-    
+
     if (Test-Path $FilePath) {
         $Content = Get-Content $FilePath -Raw
     } else {
         Write-Error "File path does not exist."
         return
     }
-    
+
     $uri = "http://bin.christitus.com/documents"
     try {
         $response = Invoke-RestMethod -Uri $uri -Method Post -Body $Content -ErrorAction Stop
@@ -468,12 +468,12 @@ function trash($path) {
 ### Quality of Life Aliases
 
 # Navigation Shortcuts
-function docs { 
+function docs {
     $docs = if(([Environment]::GetFolderPath("MyDocuments"))) {([Environment]::GetFolderPath("MyDocuments"))} else {$HOME + "\Documents"}
     Set-Location -Path $docs
 }
-    
-function dtop { 
+
+function dtop {
     $dtop = if ([Environment]::GetFolderPath("Desktop")) {[Environment]::GetFolderPath("Desktop")} else {$HOME + "\Documents"}
     Set-Location -Path $dtop
 }
@@ -589,7 +589,7 @@ $scriptblock = {
         'npm' = @('install', 'start', 'run', 'test', 'build')
         'deno' = @('run', 'compile', 'bundle', 'test', 'lint', 'fmt', 'cache', 'info', 'doc', 'upgrade')
     }
-    
+
     $command = $commandAst.CommandElements[0].Value
     if ($customCompletions.ContainsKey($command)) {
         $customCompletions[$command] | Where-Object { $_ -like "$wordToComplete*" } | ForEach-Object {
@@ -608,10 +608,27 @@ $scriptblock = {
 }
 Register-ArgumentCompleter -Native -CommandName dotnet -ScriptBlock $scriptblock
 
-if (Get-Command -Name "Get-Theme_Override" -ErrorAction SilentlyContinue){
+if (Get-Command -Name "Get-Theme_Override" -ErrorAction SilentlyContinue) {
     Get-Theme_Override;
 } else {
-    oh-my-posh init pwsh --config https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/cobalt2.omp.json | Invoke-Expression
+    # Oh My Posh initialization with local theme fallback and auto-download
+    $localThemePath = "$env:userprofile\Documents\PowerShell\cobalt2.omp.json"
+    if (-not (Test-Path $localThemePath)) {
+        # Try to download the theme file to the detected local path
+        $themeUrl = "https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/cobalt2.omp.json"
+        try {
+            Invoke-RestMethod -Uri $themeUrl -OutFile $localThemePath
+            Write-Host "Downloaded missing Oh My Posh theme to $localThemePath"
+        } catch {
+            Write-Warning "Failed to download theme file. Falling back to remote theme. Error: $_"
+        }
+    }
+    if (Test-Path $localThemePath) {
+        oh-my-posh init pwsh --config $localThemePath | Invoke-Expression
+    } else {
+        # Fallback to remote theme if local file doesn't exist
+        oh-my-posh init pwsh --config https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/cobalt2.omp.json | Invoke-Expression
+    }
 }
 
 if (Get-Command zoxide -ErrorAction SilentlyContinue) {
