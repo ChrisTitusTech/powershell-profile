@@ -1,3 +1,14 @@
+### PowerShell Profile Refactor
+### Version 1.03 - Refactored
+
+$debug = $false
+
+# Define the path to the file that stores the last execution time
+$timeFilePath = [Environment]::GetFolderPath("MyDocuments") + "\PowerShell\LastExecutionTime.txt"
+
+# Define the update interval in days, set to -1 to always check
+$updateInterval = 7
+
 #################################################################################################################################
 ############                                                                                                         ############
 ############                                          !!!   WARNING:   !!!                                           ############
@@ -147,9 +158,7 @@ if (-not $debug -and `
     $currentTime = Get-Date -Format 'yyyy-MM-dd'
     $currentTime | Out-File -FilePath $timeFilePath
 
-} elseif (-not $debug) {
-    Write-Warning "Profile update skipped. Last update check was within the last $updateInterval day(s)."
-} else {
+} elseif ($debug) {
     Write-Warning "Skipping profile update check in debug mode"
 }
 
@@ -193,9 +202,7 @@ if (-not $debug -and `
     Update-PowerShell
     $currentTime = Get-Date -Format 'yyyy-MM-dd'
     $currentTime | Out-File -FilePath $timeFilePath
-} elseif (-not $debug) {
-    Write-Warning "PowerShell update skipped. Last update check was within the last $updateInterval day(s)."
-} else {
+} elseif ($debug) {
     Write-Warning "Skipping PowerShell update in debug mode"
 }
 
@@ -309,38 +316,24 @@ Set-Alias -Name su -Value admin
 
 function uptime {
     try {
+        # find date/time format
+        $dateFormat = [System.Globalization.CultureInfo]::CurrentCulture.DateTimeFormat.ShortDatePattern
+        $timeFormat = [System.Globalization.CultureInfo]::CurrentCulture.DateTimeFormat.LongTimePattern
+		
         # check powershell version
         if ($PSVersionTable.PSVersion.Major -eq 5) {
             $lastBoot = (Get-WmiObject win32_operatingsystem).LastBootUpTime
             $bootTime = [System.Management.ManagementDateTimeConverter]::ToDateTime($lastBoot)
-        } else {
-            $lastBootStr = net statistics workstation | Select-String "since" | ForEach-Object { $_.ToString().Replace('Statistics since ', '') }
-            # check date format
-            if ($lastBootStr -match '^\d{2}/\d{2}/\d{4}') {
-                $dateFormat = 'dd/MM/yyyy'
-            } elseif ($lastBootStr -match '^\d{2}-\d{2}-\d{4}') {
-                $dateFormat = 'dd-MM-yyyy'
-            } elseif ($lastBootStr -match '^\d{4}/\d{2}/\d{2}') {
-                $dateFormat = 'yyyy/MM/dd'
-            } elseif ($lastBootStr -match '^\d{4}-\d{2}-\d{2}') {
-                $dateFormat = 'yyyy-MM-dd'
-            } elseif ($lastBootStr -match '^\d{2}\.\d{2}\.\d{4}') {
-                $dateFormat = 'dd.MM.yyyy'
-            }
-            
-            # check time format
-            if ($lastBootStr -match '\bAM\b' -or $lastBootStr -match '\bPM\b') {
-                $timeFormat = 'h:mm:ss tt'
-            } else {
-                $timeFormat = 'HH:mm:ss'
-            }
 
-            $bootTime = [System.DateTime]::ParseExact($lastBootStr, "$dateFormat $timeFormat", [System.Globalization.CultureInfo]::InvariantCulture)
+            # reformat lastBoot
+            $lastBoot = $bootTime.ToString("$dateFormat $timeFormat")
+        } else {
+            $lastBoot = net statistics workstation | Select-String "since" | ForEach-Object { $_.ToString().Replace('Statistics since ', '') }
+            $bootTime = [System.DateTime]::ParseExact($lastBoot, "$dateFormat $timeFormat", [System.Globalization.CultureInfo]::InvariantCulture)
         }
 
         # Format the start time
-        ### $formattedBootTime = $bootTime.ToString("dddd, MMMM dd, yyyy HH:mm:ss", [System.Globalization.CultureInfo]::InvariantCulture)
-        $formattedBootTime = $bootTime.ToString("dddd, MMMM dd, yyyy HH:mm:ss", [System.Globalization.CultureInfo]::InvariantCulture) + " [$lastBootStr]"
+        $formattedBootTime = $bootTime.ToString("dddd, MMMM dd, yyyy HH:mm:ss", [System.Globalization.CultureInfo]::InvariantCulture) + " [$lastBoot]"
         Write-Host "System started on: $formattedBootTime" -ForegroundColor DarkGray
 
         # calculate uptime
@@ -354,7 +347,6 @@ function uptime {
 
         # Uptime output
         Write-Host ("Uptime: {0} days, {1} hours, {2} minutes, {3} seconds" -f $days, $hours, $minutes, $seconds) -ForegroundColor Blue
-        
 
     } catch {
         Write-Error "An error occurred while retrieving system uptime."
@@ -390,8 +382,8 @@ function hb {
         $response = Invoke-RestMethod -Uri $uri -Method Post -Body $Content -ErrorAction Stop
         $hasteKey = $response.key
         $url = "http://bin.christitus.com/$hasteKey"
-	Set-Clipboard $url
-        Write-Output $url
+	    Set-Clipboard $url
+        Write-Output "$url copied to clipboard."
     } catch {
         Write-Error "Failed to upload the document. Error: $_"
     }
@@ -489,8 +481,8 @@ function dtop {
 function k9 { Stop-Process -Name $args[0] }
 
 # Enhanced Listing
-function la { Get-ChildItem -Path . -Force | Format-Table -AutoSize }
-function ll { Get-ChildItem -Path . -Force -Hidden | Format-Table -AutoSize }
+function la { Get-ChildItem | Format-Table -AutoSize }
+function ll { Get-ChildItem -Force | Format-Table -AutoSize }
 
 # Git Shortcuts
 function gs { git status }
@@ -499,7 +491,9 @@ function ga { git add . }
 
 function gc { param($m) git commit -m "$m" }
 
-function gp { git push }
+function gpush { git push }
+
+function gpull { git pull }
 
 function g { __zoxide_z github }
 
@@ -613,29 +607,8 @@ $scriptblock = {
 }
 Register-ArgumentCompleter -Native -CommandName dotnet -ScriptBlock $scriptblock
 
+oh-my-posh init pwsh --config https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/cobalt2.omp.json | Invoke-Expression
 
-# Get theme from profile.ps1 or use a default theme
-function Get-Theme {
-    # If function "Get-Theme_Override" is defined in profile.ps1 file
-    # then call it instead.
-    if (Get-Command -Name "Get-Theme_Override" -ErrorAction SilentlyContinue) {
-        Get-Theme_Override
-    } else {
-        if (Test-Path -Path $PROFILE.CurrentUserAllHosts -PathType leaf) {
-            $existingTheme = Select-String -Raw -Path $PROFILE.CurrentUserAllHosts -Pattern "oh-my-posh init pwsh --config"
-            if ($null -ne $existingTheme) {
-                Invoke-Expression $existingTheme
-                return
-            }
-            oh-my-posh init pwsh --config https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/cobalt2.omp.json | Invoke-Expression
-        } else {
-            oh-my-posh init pwsh --config https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/cobalt2.omp.json | Invoke-Expression
-        }
-    }
-}
-
-## Final Line to set prompt
-Get-Theme
 if (Get-Command zoxide -ErrorAction SilentlyContinue) {
     Invoke-Expression (& { (zoxide init --cmd cd powershell | Out-String) })
 } else {
@@ -648,9 +621,6 @@ if (Get-Command zoxide -ErrorAction SilentlyContinue) {
         Write-Error "Failed to install zoxide. Error: $_"
     }
 }
-
-Set-Alias -Name z -Value __zoxide_z -Option AllScope -Scope Global -Force
-Set-Alias -Name zi -Value __zoxide_zi -Option AllScope -Scope Global -Force
 
 # Help Function
 function Show-Help {
