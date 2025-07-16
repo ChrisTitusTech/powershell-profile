@@ -58,6 +58,18 @@ function Install-NerdFonts {
     }
 }
 
+# Helper function for cross-edition compatibility
+function Get-ProfileDir {
+    if ($PSVersionTable.PSEdition -eq "Core") {
+        return "$env:userprofile\Documents\PowerShell"
+    } elseif ($PSVersionTable.PSEdition -eq "Desktop") {
+        return "$env:userprofile\Documents\WindowsPowerShell"
+    } else {
+        Write-Error "Unsupported PowerShell edition: $($PSVersionTable.PSEdition)"
+        break
+    }
+}
+
 # Check for internet connectivity before proceeding
 if (-not (Test-InternetConnection)) {
     break
@@ -66,19 +78,10 @@ if (-not (Test-InternetConnection)) {
 # Profile creation or update
 if (!(Test-Path -Path $PROFILE -PathType Leaf)) {
     try {
-        # Detect Version of PowerShell & Create Profile directories if they do not exist.
-        $profilePath = ""
-        if ($PSVersionTable.PSEdition -eq "Core") {
-            $profilePath = "$env:userprofile\Documents\Powershell"
-        }
-        elseif ($PSVersionTable.PSEdition -eq "Desktop") {
-            $profilePath = "$env:userprofile\Documents\WindowsPowerShell"
-        }
-
+        $profilePath = Get-ProfileDir
         if (!(Test-Path -Path $profilePath)) {
-            New-Item -Path $profilePath -ItemType "directory"
+            New-Item -Path $profilePath -ItemType "directory" -Force
         }
-
         Invoke-RestMethod https://github.com/ChrisTitusTech/powershell-profile/raw/main/Microsoft.PowerShell_profile.ps1 -OutFile $PROFILE
         Write-Host "The profile @ [$PROFILE] has been created."
         Write-Host "If you want to make any personal changes or customizations, please do so at [$profilePath\Profile.ps1] as there is an updater in the installed profile which uses the hash to update the profile and will lead to loss of changes"
@@ -107,27 +110,14 @@ function Install-OhMyPoshTheme {
         [string]$ThemeName = "cobalt2",
         [string]$ThemeUrl = "https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/cobalt2.omp.json"
     )
-
+    $profilePath = Get-ProfileDir
+    if (!(Test-Path -Path $profilePath)) {
+        New-Item -Path $profilePath -ItemType "directory"
+    }
+    $themeFilePath = Join-Path $profilePath "$ThemeName.omp.json"
     try {
-        # Detect Version of PowerShell & Create Profile directories if they do not exist.
-        $profilePath = ""
-        if ($PSVersionTable.PSEdition -eq "Core") {
-            $profilePath = "$env:userprofile\Documents\Powershell"
-        }
-        elseif ($PSVersionTable.PSEdition -eq "Desktop") {
-            $profilePath = "$env:userprofile\Documents\WindowsPowerShell"
-        }
-
-        if (!(Test-Path -Path $profilePath)) {
-            New-Item -Path $profilePath -ItemType "directory" -Force
-        }
-
-        $themeFilePath = Join-Path $profilePath "$ThemeName.omp.json"
-
-        # Download the theme file
         Invoke-RestMethod -Uri $ThemeUrl -OutFile $themeFilePath
         Write-Host "Oh My Posh theme '$ThemeName' has been downloaded to [$themeFilePath]"
-
         return $themeFilePath
     }
     catch {
