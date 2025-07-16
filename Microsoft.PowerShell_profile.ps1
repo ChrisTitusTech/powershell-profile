@@ -1,5 +1,5 @@
 ### PowerShell Profile Refactor
-### Version 1.03 - Refactored
+### Version 1.04 - Refactored
 
 $debug = $false
 
@@ -34,9 +34,6 @@ $debug = $false
 ############                      WinUtilDev_Override [To call a fork, for example]                                  ############
 ############                      Set-PredictionSource                                                               ############
 #################################################################################################################################
-
-### PowerShell Profile Refactor
-### Version 1.04 - Refactored
 
 if ($debug_Override){
     # If variable debug_Override is defined in profile.ps1 file
@@ -110,7 +107,7 @@ if ($debug) {
 }
 
 
-#opt-out of telemetry before doing anything, only if PowerShell is run as admin
+# Opt-out of telemetry before doing anything, only if PowerShell is run as admin
 if ([bool]([System.Security.Principal.WindowsIdentity]::GetCurrent()).IsSystem) {
     [System.Environment]::SetEnvironmentVariable('POWERSHELL_TELEMETRY_OPTOUT', 'true', [System.EnvironmentVariableTarget]::Machine)
 }
@@ -145,7 +142,7 @@ function Update-Profile {
     # If function "Update-Profile_Override" is defined in profile.ps1 file
     # then call it instead.
     if (Get-Command -Name "Update-Profile_Override" -ErrorAction SilentlyContinue) {
-        Update-Profile_Override;
+        Update-Profile_Override
     } else {
         try {
             $url = "$repo_root/powershell-profile/main/Microsoft.PowerShell_profile.ps1"
@@ -184,7 +181,7 @@ function Update-PowerShell {
     # If function "Update-PowerShell_Override" is defined in profile.ps1 file
     # then call it instead.
     if (Get-Command -Name "Update-PowerShell_Override" -ErrorAction SilentlyContinue) {
-        Update-PowerShell_Override;
+        Update-PowerShell_Override
     } else {
         try {
             Write-Host "Checking for PowerShell updates..." -ForegroundColor Cyan
@@ -293,6 +290,13 @@ function Edit-Profile {
 }
 Set-Alias -Name ep -Value Edit-Profile
 
+function Invoke-Profile {
+    if ($PSVersionTable.PSEdition -eq "Desktop") {
+        Write-Host "Note: Some Oh My Posh/PSReadLine errors are expected in PowerShell 5. The profile still works fine." -ForegroundColor Yellow
+    }
+    & $PROFILE
+}
+
 function touch($file) { "" | Out-File $file -Encoding ASCII }
 function ff($name) {
     Get-ChildItem -recurse -filter "*${name}*" -ErrorAction SilentlyContinue | ForEach-Object {
@@ -301,21 +305,21 @@ function ff($name) {
 }
 
 # Network Utilities
-function Get-PubIP { (Invoke-WebRequest http://ifconfig.me/ip).Content }
+function pubip { (Invoke-WebRequest http://ifconfig.me/ip).Content }
 
 # Open WinUtil full-release
 function winutil {
-    irm https://christitus.com/win | iex
+    Invoke-Expression (Invoke-RestMethod https://christitus.com/win)
 }
 
 # Open WinUtil dev-release
 function winutildev {
-	# If function "WinUtilDev_Override" is defined in profile.ps1 file
+    # If function "WinUtilDev_Override" is defined in profile.ps1 file
     # then call it instead.
     if (Get-Command -Name "WinUtilDev_Override" -ErrorAction SilentlyContinue) {
         WinUtilDev_Override
     } else {
-        irm https://christitus.com/windev | iex
+        Invoke-Expression (Invoke-RestMethod https://christitus.com/windev)
     }
 }
 
@@ -370,10 +374,6 @@ function uptime {
     } catch {
         Write-Error "An error occurred while retrieving system uptime."
     }
-}
-
-function reload-profile {
-    & $profile
 }
 
 function unzip ($file) {
@@ -602,7 +602,8 @@ Set-PSReadLineOption -AddToHistoryHandler {
 
 # Fix Set-PredictionSource for Desktop
 function Set-PredictionSource {
-    # If "Set-PredictionSource_Override" is defined in profile.ps1 file, call it instead.
+    # If "Set-PredictionSource_Override" is defined in profile.ps1 file
+    # then call it instead.
     if (Get-Command -Name "Set-PredictionSource_Override" -ErrorAction SilentlyContinue) {
         Set-PredictionSource_Override
     } elseif ($PSVersionTable.PSEdition -eq "Core") {
@@ -643,8 +644,10 @@ $scriptblock = {
 }
 Register-ArgumentCompleter -Native -CommandName dotnet -ScriptBlock $scriptblock
 
+# If function "Get-Theme_Override" is defined in profile.ps1 file
+# then call it instead.
 if (Get-Command -Name "Get-Theme_Override" -ErrorAction SilentlyContinue) {
-    Get-Theme_Override;
+    Get-Theme_Override
 } else {
     # Oh My Posh initialization with local theme fallback and auto-download
     $localThemePath = Join-Path (Get-ProfileDir) "cobalt2.omp.json"
@@ -687,6 +690,7 @@ $($PSStyle.Foreground.Yellow)=======================$($PSStyle.Reset)
 $($PSStyle.Foreground.Green)Update-Profile$($PSStyle.Reset) - Checks for profile updates from a remote repository and updates if necessary.
 $($PSStyle.Foreground.Green)Update-PowerShell$($PSStyle.Reset) - Checks for the latest PowerShell release and updates if a new version is available.
 $($PSStyle.Foreground.Green)Edit-Profile$($PSStyle.Reset) - Opens the current user's profile for editing using the configured editor.
+$($PSStyle.Foreground.Green)Invoke-Profile$($PSStyle.Reset) - Runs the current user's profile to reload settings.
 
 $($PSStyle.Foreground.Cyan)Git Shortcuts$($PSStyle.Reset)
 $($PSStyle.Foreground.Yellow)=======================$($PSStyle.Reset)
@@ -708,7 +712,7 @@ $($PSStyle.Foreground.Green)ep$($PSStyle.Reset) - Opens the profile for editing.
 $($PSStyle.Foreground.Green)export$($PSStyle.Reset) <name> <value> - Sets an environment variable.
 $($PSStyle.Foreground.Green)ff$($PSStyle.Reset) <name> - Finds files recursively with the specified name.
 $($PSStyle.Foreground.Green)flushdns$($PSStyle.Reset) - Clears the DNS cache.
-$($PSStyle.Foreground.Green)Get-PubIP$($PSStyle.Reset) - Retrieves the public IP address of the machine.
+$($PSStyle.Foreground.Green)pubip$($PSStyle.Reset) - Retrieves the public IP address of the machine.
 $($PSStyle.Foreground.Green)grep$($PSStyle.Reset) <regex> [dir] - Searches for a regex pattern in files within the specified directory or from the pipeline input.
 $($PSStyle.Foreground.Green)hb$($PSStyle.Reset) <file> - Uploads the specified file's content to a hastebin-like service and returns the URL.
 $($PSStyle.Foreground.Green)head$($PSStyle.Reset) <path> [n] - Displays the first n lines of a file (default 10).
@@ -731,7 +735,6 @@ $($PSStyle.Foreground.Green)sysinfo$($PSStyle.Reset) - Displays detailed system 
 $($PSStyle.Foreground.Green)flushdns$($PSStyle.Reset) - Clears the DNS cache.
 $($PSStyle.Foreground.Green)cpy$($PSStyle.Reset) <text> - Copies the specified text to the clipboard.
 $($PSStyle.Foreground.Green)pst$($PSStyle.Reset) - Retrieves text from the clipboard.
-$($PSStyle.Foreground.Green)reload-profile$($PSStyle.Reset) - Reloads the current user's PowerShell profile.
 $($PSStyle.Foreground.Green)sed$($PSStyle.Reset) <file> <find> <replace> - Replaces text in a file.
 $($PSStyle.Foreground.Green)sysinfo$($PSStyle.Reset) - Displays detailed system information.
 $($PSStyle.Foreground.Green)tail$($PSStyle.Reset) <path> [n] - Displays the last n lines of a file (default 10).
