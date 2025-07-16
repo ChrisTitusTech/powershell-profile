@@ -3,12 +3,6 @@
 
 $debug = $false
 
-# Define the path to the file that stores the last execution time
-$timeFilePath = [Environment]::GetFolderPath("MyDocuments") + "\PowerShell\LastExecutionTime.txt"
-
-# Define the update interval in days, set to -1 to always check
-$updateInterval = 7
-
 #################################################################################################################################
 ############                                                                                                         ############
 ############                                          !!!   WARNING:   !!!                                           ############
@@ -61,13 +55,26 @@ if ($repo_root_Override){
     $repo_root = "https://raw.githubusercontent.com/ChrisTitusTech"
 }
 
+# Helper function for cross-edition compatibility
+function Get-ProfileDir {
+    if ($PSVersionTable.PSEdition -eq "Core") {
+        return "$env:userprofile\Documents\PowerShell"
+    } elseif ($PSVersionTable.PSEdition -eq "Desktop") {
+        return "$env:userprofile\Documents\WindowsPowerShell"
+    } else {
+        Write-Error "Unsupported PowerShell edition: $($PSVersionTable.PSEdition)"
+        return $null
+    }
+}
+
 # Define the path to the file that stores the last execution time
 if ($timeFilePath_Override){
     # If variable $timeFilePath_Override is defined in profile.ps1 file
     # then use it instead
     $timeFilePath = $timeFilePath_Override
 } else {
-    $timeFilePath = "$env:USERPROFILE\Documents\PowerShell\LastExecutionTime.txt"
+    $profileDir = Get-ProfileDir
+    $timeFilePath = "$profileDir\LastExecutionTime.txt"
 }
 
 # Define the update interval in days, set to -1 to always check
@@ -108,8 +115,19 @@ if ([bool]([System.Security.Principal.WindowsIdentity]::GetCurrent()).IsSystem) 
     [System.Environment]::SetEnvironmentVariable('POWERSHELL_TELEMETRY_OPTOUT', 'true', [System.EnvironmentVariableTarget]::Machine)
 }
 
-# Initial GitHub.com connectivity check with 1 second timeout
-$global:canConnectToGitHub = Test-Connection github.com -Count 1 -Quiet -TimeoutSeconds 1
+# Initial GitHub.com connectivity check
+function Test-GitHubConnection {
+    if ($PSVersionTable.PSEdition -eq "Core") {
+        # If PowerShell Core, use a 1 second timeout
+        return Test-Connection github.com -Count 1 -Quiet -TimeoutSeconds 1
+    } else {
+        # For PowerShell Desktop, use .NET Ping class with timeout
+        $ping = New-Object System.Net.NetworkInformation.Ping
+        $result = $ping.Send("github.com", 1000)  # 1 second timeout
+        return ($result.Status -eq "Success")
+    }
+}
+$global:canConnectToGitHub = Test-GitHubConnection
 
 # Import Modules and External Profiles
 # Ensure Terminal-Icons module is installed before importing
@@ -524,6 +542,20 @@ function cpy { Set-Clipboard $args[0] }
 
 function pst { Get-Clipboard }
 
+# Set-PSReadLineOption Compatibility for PowerShell Desktop
+function Set-PSReadLineOptionsCompat {
+    param([hashtable]$Options)
+    if ($PSVersionTable.PSEdition -eq "Core") {
+        Set-PSReadLineOption @Options
+    } else {
+        # Remove unsupported keys for Desktop and silence errors
+        $SafeOptions = $Options.Clone()
+        $SafeOptions.Remove('PredictionSource')
+        $SafeOptions.Remove('PredictionViewStyle')
+        Set-PSReadLineOption @SafeOptions
+    }
+}
+
 # Enhanced PowerShell Experience
 # Enhanced PSReadLine Configuration
 $PSReadLineOptions = @{
@@ -546,7 +578,7 @@ $PSReadLineOptions = @{
     PredictionViewStyle = 'ListView'
     BellStyle = 'None'
 }
-Set-PSReadLineOption @PSReadLineOptions
+Set-PSReadLineOptionsCompat -Options $PSReadLineOptions
 
 # Custom key handlers
 Set-PSReadLineKeyHandler -Key UpArrow -Function HistorySearchBackward
@@ -568,15 +600,18 @@ Set-PSReadLineOption -AddToHistoryHandler {
     return ($null -eq $hasSensitive)
 }
 
+# Fix Set-PredictionSource for Desktop
 function Set-PredictionSource {
-    # If function "Set-PredictionSource_Override" is defined in profile.ps1 file
-    # then call it instead.
+    # If "Set-PredictionSource_Override" is defined in profile.ps1 file, call it instead.
     if (Get-Command -Name "Set-PredictionSource_Override" -ErrorAction SilentlyContinue) {
-        Set-PredictionSource_Override;
+        Set-PredictionSource_Override
+    } elseif ($PSVersionTable.PSEdition -eq "Core") {
+        # Improved prediction settings
+        Set-PSReadLineOption -PredictionSource HistoryAndPlugin
+        Set-PSReadLineOption -MaximumHistoryCount 10000
     } else {
-	# Improved prediction settings
-	Set-PSReadLineOption -PredictionSource HistoryAndPlugin
-	Set-PSReadLineOption -MaximumHistoryCount 10000
+        # Desktop version - use History only
+        Set-PSReadLineOption -MaximumHistoryCount 10000
     }
 }
 Set-PredictionSource
@@ -612,7 +647,7 @@ if (Get-Command -Name "Get-Theme_Override" -ErrorAction SilentlyContinue) {
     Get-Theme_Override;
 } else {
     # Oh My Posh initialization with local theme fallback and auto-download
-    $localThemePath = "$env:userprofile\Documents\PowerShell\cobalt2.omp.json"
+    $localThemePath = Join-Path (Get-ProfileDir) "cobalt2.omp.json"
     if (-not (Test-Path $localThemePath)) {
         # Try to download the theme file to the detected local path
         $themeUrl = "https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/cobalt2.omp.json"
