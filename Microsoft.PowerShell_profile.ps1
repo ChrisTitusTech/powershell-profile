@@ -1,14 +1,3 @@
-### PowerShell Profile Refactor
-### Version 1.03 - Refactored
-
-$debug = $false
-
-# Define the path to the file that stores the last execution time
-$timeFilePath = [Environment]::GetFolderPath("MyDocuments") + "\PowerShell\LastExecutionTime.txt"
-
-# Define the update interval in days, set to -1 to always check
-$updateInterval = 7
-
 #################################################################################################################################
 ############                                                                                                         ############
 ############                                          !!!   WARNING:   !!!                                           ############
@@ -67,7 +56,7 @@ if ($timeFilePath_Override){
     # then use it instead
     $timeFilePath = $timeFilePath_Override
 } else {
-    $timeFilePath = "$env:USERPROFILE\Documents\PowerShell\LastExecutionTime.txt"
+    $timeFilePath = [Environment]::GetFolderPath("MyDocuments") + "\PowerShell\LastExecutionTime.txt"
 }
 
 # Define the update interval in days, set to -1 to always check
