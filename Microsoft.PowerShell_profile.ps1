@@ -676,7 +676,6 @@ $($PSStyle.Foreground.Green)g$($PSStyle.Reset) - Changes to the GitHub directory
 $($PSStyle.Foreground.Green)gcom$($PSStyle.Reset) <message> - Adds all changes and commits with the specified message.
 $($PSStyle.Foreground.Green)lazyg$($PSStyle.Reset) <message> - Adds all changes, commits with the specified message, and pushes to the remote repository.
 $($PSStyle.Foreground.Green)sysinfo$($PSStyle.Reset) - Displays detailed system information.
-$($PSStyle.Foreground.Green)flushdns$($PSStyle.Reset) - Clears the DNS cache.
 $($PSStyle.Foreground.Green)cpy$($PSStyle.Reset) <text> - Copies the specified text to the clipboard.
 $($PSStyle.Foreground.Green)pst$($PSStyle.Reset) - Retrieves text from the clipboard.
 $($PSStyle.Foreground.Green)reload-profile$($PSStyle.Reset) - Reloads the current user's PowerShell profile.
