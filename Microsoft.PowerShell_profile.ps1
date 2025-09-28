@@ -490,7 +490,7 @@ function gs { git status }
 
 function ga { git add . }
 
-function gc { param($m) git commit -m "$m" }
+function gcom { param($m) git commit -m "$m" }
 
 function gpush { git push }
 
@@ -500,10 +500,6 @@ function g { __zoxide_z github }
 
 function gcl { git clone "$args" }
 
-function gcom {
-    git add .
-    git commit -m "$args"
-}
 function lazyg {
     git add .
     git commit -m "$args"
@@ -639,12 +635,13 @@ $($PSStyle.Foreground.Green)Edit-Profile$($PSStyle.Reset) - Opens the current us
 $($PSStyle.Foreground.Cyan)Git Shortcuts$($PSStyle.Reset)
 $($PSStyle.Foreground.Yellow)=======================$($PSStyle.Reset)
 $($PSStyle.Foreground.Green)g$($PSStyle.Reset) - Changes to the GitHub directory.
-$($PSStyle.Foreground.Green)ga$($PSStyle.Reset) - Shortcut for 'git add .'.
-$($PSStyle.Foreground.Green)gc$($PSStyle.Reset) <message> - Shortcut for 'git commit -m'.
-$($PSStyle.Foreground.Green)gcom$($PSStyle.Reset) <message> - Adds all changes and commits with the specified message.
-$($PSStyle.Foreground.Green)gp$($PSStyle.Reset) - Shortcut for 'git push'.
 $($PSStyle.Foreground.Green)gs$($PSStyle.Reset) - Shortcut for 'git status'.
+$($PSStyle.Foreground.Green)ga$($PSStyle.Reset) - Shortcut for 'git add .'.
+$($PSStyle.Foreground.Green)gcom$($PSStyle.Reset) <message> - Shortcut for 'git commit -m' with the specified message.
+$($PSStyle.Foreground.Green)gpush$($PSStyle.Reset) - Shortcut for 'git push'.
+$($PSStyle.Foreground.Green)gpull$($PSStyle.Reset) - Shortcut for 'git pull'.
 $($PSStyle.Foreground.Green)lazyg$($PSStyle.Reset) <message> - Adds all changes, commits with the specified message, and pushes to the remote repository.
+$($PSStyle.Foreground.Green)gcl$($PSStyle.Reset) <repo_url> - Shortcut for 'git clone <repo_url>'.
 
 $($PSStyle.Foreground.Cyan)Shortcuts$($PSStyle.Reset)
 $($PSStyle.Foreground.Yellow)=======================$($PSStyle.Reset)
@@ -667,14 +664,6 @@ $($PSStyle.Foreground.Green)mkcd$($PSStyle.Reset) <dir> - Creates and changes to
 $($PSStyle.Foreground.Green)nf$($PSStyle.Reset) <name> - Creates a new file with the specified name.
 $($PSStyle.Foreground.Green)pgrep$($PSStyle.Reset) <name> - Lists processes by name.
 $($PSStyle.Foreground.Green)pkill$($PSStyle.Reset) <name> - Kills processes by name.
-$($PSStyle.Foreground.Green)gs$($PSStyle.Reset) - Shortcut for 'git status'.
-$($PSStyle.Foreground.Green)ga$($PSStyle.Reset) - Shortcut for 'git add .'.
-$($PSStyle.Foreground.Green)gc$($PSStyle.Reset) <message> - Shortcut for 'git commit -m'.
-$($PSStyle.Foreground.Green)gpush$($PSStyle.Reset) - Shortcut for 'git push'.
-$($PSStyle.Foreground.Green)gpull$($PSStyle.Reset) - Shortcut for 'git pull'.
-$($PSStyle.Foreground.Green)g$($PSStyle.Reset) - Changes to the GitHub directory.
-$($PSStyle.Foreground.Green)gcom$($PSStyle.Reset) <message> - Adds all changes and commits with the specified message.
-$($PSStyle.Foreground.Green)lazyg$($PSStyle.Reset) <message> - Adds all changes, commits with the specified message, and pushes to the remote repository.
 $($PSStyle.Foreground.Green)sysinfo$($PSStyle.Reset) - Displays detailed system information.
 $($PSStyle.Foreground.Green)flushdns$($PSStyle.Reset) - Clears the DNS cache.
 $($PSStyle.Foreground.Green)cpy$($PSStyle.Reset) <text> - Copies the specified text to the clipboard.
