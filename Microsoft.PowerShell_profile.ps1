@@ -474,8 +474,13 @@ function docs {
 }
     
 function dtop { 
-    $dtop = if ([Environment]::GetFolderPath("Desktop")) {[Environment]::GetFolderPath("Desktop")} else {$HOME + "\Documents"}
+    $dtop = if ([Environment]::GetFolderPath("Desktop")) {[Environment]::GetFolderPath("Desktop")} else {$HOME + "\Desktop"}
     Set-Location -Path $dtop
+}
+
+function dload {
+    $downloads = if ([Environment]::GetFolderPath("Downloads")) {[Environment]::GetFolderPath("Downloads")} else {$HOME + "\Downloads"}
+    Set-Location -Path $downloads
 }
 
 # Simplified Process Management
@@ -645,10 +650,10 @@ $($PSStyle.Foreground.Green)gcl$($PSStyle.Reset) <repo_url> - Shortcut for 'git 
 
 $($PSStyle.Foreground.Cyan)Shortcuts$($PSStyle.Reset)
 $($PSStyle.Foreground.Yellow)=======================$($PSStyle.Reset)
-$($PSStyle.Foreground.Green)cpy$($PSStyle.Reset) <text> - Copies the specified text to the clipboard.
 $($PSStyle.Foreground.Green)df$($PSStyle.Reset) - Displays information about volumes.
 $($PSStyle.Foreground.Green)docs$($PSStyle.Reset) - Changes the current directory to the user's Documents folder.
 $($PSStyle.Foreground.Green)dtop$($PSStyle.Reset) - Changes the current directory to the user's Desktop folder.
+$($PSStyle.Foreground.Green)dload$($PSStyle.Reset) - Changes the current directory to the user's Downloads folder.
 $($PSStyle.Foreground.Green)ep$($PSStyle.Reset) - Opens the profile for editing.
 $($PSStyle.Foreground.Green)export$($PSStyle.Reset) <name> <value> - Sets an environment variable.
 $($PSStyle.Foreground.Green)ff$($PSStyle.Reset) <name> - Finds files recursively with the specified name.
@@ -676,8 +681,15 @@ $($PSStyle.Foreground.Green)touch$($PSStyle.Reset) <file> - Creates a new empty 
 $($PSStyle.Foreground.Green)unzip$($PSStyle.Reset) <file> - Extracts a zip file to the current directory.
 $($PSStyle.Foreground.Green)uptime$($PSStyle.Reset) - Displays the system uptime.
 $($PSStyle.Foreground.Green)which$($PSStyle.Reset) <name> - Shows the path of the command.
+$($PSStyle.Foreground.Green)trash$($PSStyle.Reset) <path> - Move file/folder to Recycle Bin.
 $($PSStyle.Foreground.Green)winutil$($PSStyle.Reset) - Runs the latest WinUtil full-release script from Chris Titus Tech.
 $($PSStyle.Foreground.Green)winutildev$($PSStyle.Reset) - Runs the latest WinUtil pre-release script from Chris Titus Tech.
+$($PSStyle.Foreground.Yellow)=======================$($PSStyle.Reset)
+
+$($PSStyle.Foreground.Cyan)Admin Shortcuts$($PSStyle.Reset)
+$($PSStyle.Foreground.Yellow)=======================$($PSStyle.Reset)
+$($PSStyle.Foreground.Green)admin$($PSStyle.Reset) <cmd> - Open admin shell or run command as admin.
+$($PSStyle.Foreground.Green)su$($PSStyle.Reset) <cmd> - Alias for admin.
 $($PSStyle.Foreground.Yellow)=======================$($PSStyle.Reset)
 
 Use '$($PSStyle.Foreground.Magenta)Show-Help$($PSStyle.Reset)' to display this help message.
