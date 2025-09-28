@@ -108,8 +108,15 @@ if ([bool]([System.Security.Principal.WindowsIdentity]::GetCurrent()).IsSystem) 
     [System.Environment]::SetEnvironmentVariable('POWERSHELL_TELEMETRY_OPTOUT', 'true', [System.EnvironmentVariableTarget]::Machine)
 }
 
-# Initial GitHub.com connectivity check with 1 second timeout
-$global:canConnectToGitHub = Test-Connection github.com -Count 1 -Quiet -TimeoutSeconds 1
+# # Initial GitHub.com connectivity check with 1 second timeout
+# $global:canConnectToGitHub = Test-Connection github.com -Count 1 -Quiet -TimeoutSeconds 1
+
+# Function to test GitHub connectivity
+# Only check GitHub connection when needed using Test-GitHubConnection
+function Test-GitHubConnection {
+    $canConnectToGitHub = Test-Connection github.com -Count 1 -Quiet -TimeoutSeconds 1
+    return $canConnectToGitHub
+}
 
 # Import Modules and External Profiles
 # Ensure Terminal-Icons module is installed before importing
@@ -129,6 +136,10 @@ function Update-Profile {
     if (Get-Command -Name "Update-Profile_Override" -ErrorAction SilentlyContinue) {
         Update-Profile_Override;
     } else {
+        if (-not (Test-GitHubConnection)) {
+            Write-Warning "Cannot connect to GitHub. Skipping profile update."
+            return
+        }
         try {
             $url = "$repo_root/powershell-profile/main/Microsoft.PowerShell_profile.ps1"
             $oldhash = Get-FileHash $PROFILE
@@ -168,6 +179,10 @@ function Update-PowerShell {
     if (Get-Command -Name "Update-PowerShell_Override" -ErrorAction SilentlyContinue) {
         Update-PowerShell_Override;
     } else {
+        if (-not (Test-GitHubConnection)) {
+            Write-Warning "Cannot connect to GitHub. Skipping PowerShell update."
+            return
+        }
         try {
             Write-Host "Checking for PowerShell updates..." -ForegroundColor Cyan
             $updateNeeded = $false
@@ -612,7 +627,11 @@ Register-ArgumentCompleter -Native -CommandName dotnet -ScriptBlock $scriptblock
 if (Get-Command -Name "Get-Theme_Override" -ErrorAction SilentlyContinue){
     Get-Theme_Override;
 } else {
-    oh-my-posh init pwsh --config https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/cobalt2.omp.json | Invoke-Expression
+    if (Test-GitHubConnection) {
+        oh-my-posh init pwsh --config https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/cobalt2.omp.json | Invoke-Expression
+    } else {
+        Write-Warning "Cannot connect to GitHub. Skipping oh-my-posh theme initialization."
+    }
 }
 
 if (Get-Command zoxide -ErrorAction SilentlyContinue) {
