@@ -108,8 +108,15 @@ if ([bool]([System.Security.Principal.WindowsIdentity]::GetCurrent()).IsSystem) 
     [System.Environment]::SetEnvironmentVariable('POWERSHELL_TELEMETRY_OPTOUT', 'true', [System.EnvironmentVariableTarget]::Machine)
 }
 
-# Initial GitHub.com connectivity check with 1 second timeout
-$global:canConnectToGitHub = Test-Connection github.com -Count 1 -Quiet -TimeoutSeconds 1
+# # Initial GitHub.com connectivity check with 1 second timeout
+# $global:canConnectToGitHub = Test-Connection github.com -Count 1 -Quiet -TimeoutSeconds 1
+
+# Function to test GitHub connectivity
+# Only check GitHub connection when needed using Test-GitHubConnection
+function Test-GitHubConnection {
+    $canConnectToGitHub = Test-Connection github.com -Count 1 -Quiet -TimeoutSeconds 1
+    return $canConnectToGitHub
+}
 
 # Import Modules and External Profiles
 # Ensure Terminal-Icons module is installed before importing
@@ -129,6 +136,10 @@ function Update-Profile {
     if (Get-Command -Name "Update-Profile_Override" -ErrorAction SilentlyContinue) {
         Update-Profile_Override;
     } else {
+        if (-not (Test-GitHubConnection)) {
+            Write-Warning "Cannot connect to GitHub. Skipping profile update."
+            return
+        }
         try {
             $url = "$repo_root/powershell-profile/main/Microsoft.PowerShell_profile.ps1"
             $oldhash = Get-FileHash $PROFILE
@@ -168,6 +179,10 @@ function Update-PowerShell {
     if (Get-Command -Name "Update-PowerShell_Override" -ErrorAction SilentlyContinue) {
         Update-PowerShell_Override;
     } else {
+        if (-not (Test-GitHubConnection)) {
+            Write-Warning "Cannot connect to GitHub. Skipping PowerShell update."
+            return
+        }
         try {
             Write-Host "Checking for PowerShell updates..." -ForegroundColor Cyan
             $updateNeeded = $false
@@ -474,8 +489,13 @@ function docs {
 }
     
 function dtop { 
-    $dtop = if ([Environment]::GetFolderPath("Desktop")) {[Environment]::GetFolderPath("Desktop")} else {$HOME + "\Documents"}
+    $dtop = if ([Environment]::GetFolderPath("Desktop")) {[Environment]::GetFolderPath("Desktop")} else {$HOME + "\Desktop"}
     Set-Location -Path $dtop
+}
+
+function dload {
+    $downloads = if ([Environment]::GetFolderPath("Downloads")) {[Environment]::GetFolderPath("Downloads")} else {$HOME + "\Downloads"}
+    Set-Location -Path $downloads
 }
 
 # Simplified Process Management
@@ -490,7 +510,7 @@ function gs { git status }
 
 function ga { git add . }
 
-function gc { param($m) git commit -m "$m" }
+function gcom { param($m) git commit -m "$m" }
 
 function gpush { git push }
 
@@ -500,10 +520,6 @@ function g { __zoxide_z github }
 
 function gcl { git clone "$args" }
 
-function gcom {
-    git add .
-    git commit -m "$args"
-}
 function lazyg {
     git add .
     git commit -m "$args"
@@ -611,7 +627,11 @@ Register-ArgumentCompleter -Native -CommandName dotnet -ScriptBlock $scriptblock
 if (Get-Command -Name "Get-Theme_Override" -ErrorAction SilentlyContinue){
     Get-Theme_Override;
 } else {
-    oh-my-posh init pwsh --config https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/cobalt2.omp.json | Invoke-Expression
+    if (Test-GitHubConnection) {
+        oh-my-posh init pwsh --config https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/cobalt2.omp.json | Invoke-Expression
+    } else {
+        Write-Warning "Cannot connect to GitHub. Skipping oh-my-posh theme initialization."
+    }
 }
 
 if (Get-Command zoxide -ErrorAction SilentlyContinue) {
@@ -639,19 +659,20 @@ $($PSStyle.Foreground.Green)Edit-Profile$($PSStyle.Reset) - Opens the current us
 $($PSStyle.Foreground.Cyan)Git Shortcuts$($PSStyle.Reset)
 $($PSStyle.Foreground.Yellow)=======================$($PSStyle.Reset)
 $($PSStyle.Foreground.Green)g$($PSStyle.Reset) - Changes to the GitHub directory.
-$($PSStyle.Foreground.Green)ga$($PSStyle.Reset) - Shortcut for 'git add .'.
-$($PSStyle.Foreground.Green)gc$($PSStyle.Reset) <message> - Shortcut for 'git commit -m'.
-$($PSStyle.Foreground.Green)gcom$($PSStyle.Reset) <message> - Adds all changes and commits with the specified message.
-$($PSStyle.Foreground.Green)gp$($PSStyle.Reset) - Shortcut for 'git push'.
 $($PSStyle.Foreground.Green)gs$($PSStyle.Reset) - Shortcut for 'git status'.
+$($PSStyle.Foreground.Green)ga$($PSStyle.Reset) - Shortcut for 'git add .'.
+$($PSStyle.Foreground.Green)gcom$($PSStyle.Reset) <message> - Shortcut for 'git commit -m' with the specified message.
+$($PSStyle.Foreground.Green)gpush$($PSStyle.Reset) - Shortcut for 'git push'.
+$($PSStyle.Foreground.Green)gpull$($PSStyle.Reset) - Shortcut for 'git pull'.
 $($PSStyle.Foreground.Green)lazyg$($PSStyle.Reset) <message> - Adds all changes, commits with the specified message, and pushes to the remote repository.
+$($PSStyle.Foreground.Green)gcl$($PSStyle.Reset) <repo_url> - Shortcut for 'git clone <repo_url>'.
 
 $($PSStyle.Foreground.Cyan)Shortcuts$($PSStyle.Reset)
 $($PSStyle.Foreground.Yellow)=======================$($PSStyle.Reset)
-$($PSStyle.Foreground.Green)cpy$($PSStyle.Reset) <text> - Copies the specified text to the clipboard.
 $($PSStyle.Foreground.Green)df$($PSStyle.Reset) - Displays information about volumes.
 $($PSStyle.Foreground.Green)docs$($PSStyle.Reset) - Changes the current directory to the user's Documents folder.
 $($PSStyle.Foreground.Green)dtop$($PSStyle.Reset) - Changes the current directory to the user's Desktop folder.
+$($PSStyle.Foreground.Green)dload$($PSStyle.Reset) - Changes the current directory to the user's Downloads folder.
 $($PSStyle.Foreground.Green)ep$($PSStyle.Reset) - Opens the profile for editing.
 $($PSStyle.Foreground.Green)export$($PSStyle.Reset) <name> <value> - Sets an environment variable.
 $($PSStyle.Foreground.Green)ff$($PSStyle.Reset) <name> - Finds files recursively with the specified name.
@@ -667,14 +688,6 @@ $($PSStyle.Foreground.Green)mkcd$($PSStyle.Reset) <dir> - Creates and changes to
 $($PSStyle.Foreground.Green)nf$($PSStyle.Reset) <name> - Creates a new file with the specified name.
 $($PSStyle.Foreground.Green)pgrep$($PSStyle.Reset) <name> - Lists processes by name.
 $($PSStyle.Foreground.Green)pkill$($PSStyle.Reset) <name> - Kills processes by name.
-$($PSStyle.Foreground.Green)gs$($PSStyle.Reset) - Shortcut for 'git status'.
-$($PSStyle.Foreground.Green)ga$($PSStyle.Reset) - Shortcut for 'git add .'.
-$($PSStyle.Foreground.Green)gc$($PSStyle.Reset) <message> - Shortcut for 'git commit -m'.
-$($PSStyle.Foreground.Green)gpush$($PSStyle.Reset) - Shortcut for 'git push'.
-$($PSStyle.Foreground.Green)gpull$($PSStyle.Reset) - Shortcut for 'git pull'.
-$($PSStyle.Foreground.Green)g$($PSStyle.Reset) - Changes to the GitHub directory.
-$($PSStyle.Foreground.Green)gcom$($PSStyle.Reset) <message> - Adds all changes and commits with the specified message.
-$($PSStyle.Foreground.Green)lazyg$($PSStyle.Reset) <message> - Adds all changes, commits with the specified message, and pushes to the remote repository.
 $($PSStyle.Foreground.Green)sysinfo$($PSStyle.Reset) - Displays detailed system information.
 $($PSStyle.Foreground.Green)flushdns$($PSStyle.Reset) - Clears the DNS cache.
 $($PSStyle.Foreground.Green)cpy$($PSStyle.Reset) <text> - Copies the specified text to the clipboard.
@@ -687,8 +700,15 @@ $($PSStyle.Foreground.Green)touch$($PSStyle.Reset) <file> - Creates a new empty 
 $($PSStyle.Foreground.Green)unzip$($PSStyle.Reset) <file> - Extracts a zip file to the current directory.
 $($PSStyle.Foreground.Green)uptime$($PSStyle.Reset) - Displays the system uptime.
 $($PSStyle.Foreground.Green)which$($PSStyle.Reset) <name> - Shows the path of the command.
+$($PSStyle.Foreground.Green)trash$($PSStyle.Reset) <path> - Move file/folder to Recycle Bin.
 $($PSStyle.Foreground.Green)winutil$($PSStyle.Reset) - Runs the latest WinUtil full-release script from Chris Titus Tech.
 $($PSStyle.Foreground.Green)winutildev$($PSStyle.Reset) - Runs the latest WinUtil pre-release script from Chris Titus Tech.
+$($PSStyle.Foreground.Yellow)=======================$($PSStyle.Reset)
+
+$($PSStyle.Foreground.Cyan)Admin Shortcuts$($PSStyle.Reset)
+$($PSStyle.Foreground.Yellow)=======================$($PSStyle.Reset)
+$($PSStyle.Foreground.Green)admin$($PSStyle.Reset) <cmd> - Open admin shell or run command as admin.
+$($PSStyle.Foreground.Green)su$($PSStyle.Reset) <cmd> - Alias for admin.
 $($PSStyle.Foreground.Yellow)=======================$($PSStyle.Reset)
 
 Use '$($PSStyle.Foreground.Magenta)Show-Help$($PSStyle.Reset)' to display this help message.
