@@ -16,12 +16,12 @@
 ############                                                                                                         ############
 #################################################################################################################################
 
-$ompPath = "$env:LOCALAPPDATA\Programs\oh-my-posh\bin"
+$ompPath = "$env:LOCALAPPDATA\Microsoft\WindowsApps"
 if (-not ($env:PATH -split ";" | Where-Object { $_ -eq $ompPath })) {
     $env:PATH += ";$ompPath"
 }
 
-oh-my-posh init pwsh --config "$env:POSH_THEMES_PATH/stelbent-compact.minimal.omp.json" | Invoke-Expression
+oh-my-posh init pwsh --config "$env:C:\Users\Sudipta\Documents\PowerShell\themes/stelbent-compact.minimal.omp.json" | Invoke-Expression
 
 Import-Module -Name Terminal-Icons
 
@@ -665,9 +665,9 @@ function Show-Tree {
     foreach ($item in $items) {
         $prefix = ""
         if ($item.PSIsContainer) {
-            $prefix = [char]::ConvertFromUtf32(0x1F4C1)  # 📁 Folder
+            $prefix = [char]::ConvertFromUtf32(0x1F4C1)  # ðŸ“ Folder
         } else {
-            $prefix = [char]::ConvertFromUtf32(0x1F4C4)  # 📄 File
+            $prefix = [char]::ConvertFromUtf32(0x1F4C4)  # ðŸ“„ File
         }
 
         Write-Host "$Indent|-- $prefix $($item.Name)" -ForegroundColor Cyan
@@ -705,7 +705,7 @@ function git-push {
         0 = @{name = "unknown"; icon = [char]::ConvertFromUtf32(0x2753); desc = "A commit with an unspecified or unclear change."}
         1 = @{name = "feat"; icon = [char]::ConvertFromUtf32(0x2728); desc = "Introduces a new feature or functionality."}
         2 = @{name = "fix"; icon = [char]::ConvertFromUtf32(0x1F41B); desc = "Fixes a bug or an issue in the code."}
-        3 = @{name = "chore"; icon = [char]::ConvertFromUtf32(0x1F4DD); desc = "General maintenance tasks or updates that don’t affect functionality."}
+        3 = @{name = "chore"; icon = [char]::ConvertFromUtf32(0x1F4DD); desc = "General maintenance tasks or updates that don't affect functionality."}
         4 = @{name = "refactor"; icon = [char]::ConvertFromUtf32(0x1F527); desc = "Changes code structure without altering functionality."}
         5 = @{name = "perf"; icon = [char]::ConvertFromUtf32(0x1F680); desc = "Improves the performance of the code."}
         6 = @{name = "sec"; icon = [char]::ConvertFromUtf32(0x1F512); desc = "Introduces security improvements or fixes vulnerabilities."}
@@ -734,9 +734,7 @@ function git-push {
         Write-Host "$($_.Value.desc)" -ForegroundColor White
     }
 
-
     Write-Host "`n -------------------------------------------------------------------"
-
 
     # Ask the user to select a commit type by number (default: 0 for "unknown" type)
     $commitTypeIndex = Read-Host "Select a commit type number (default: 0 for 'unknown')"
@@ -750,24 +748,88 @@ function git-push {
     $commitTypeName = $selectedCommit.name
     $icon = $selectedCommit.icon
 
-    # Prompt for title and description
+    # Prompt for title
     $title = Read-Host "Enter the commit title (default: 'Default commit title')"
     if (-not $title) { $title = "Default commit title" }
 
-    $description = Read-Host "Enter the commit description (default: 'Default commit description')"
-    if (-not $description) { $description = "Default commit description" }
+    # ====== PROPER MULTI-LINE USING TEMP FILE ======
+    Write-Host "`nMulti-line description input:" -ForegroundColor Yellow
+    Write-Host "1. A temp file will open in Notepad" -ForegroundColor Gray
+    Write-Host "2. Write/paste your multi-line description" -ForegroundColor Gray
+    Write-Host "3. Save (Ctrl+S) and close Notepad to continue" -ForegroundColor Gray
+    Write-Host "4. Or just close without saving to use default" -ForegroundColor Gray
+    
+    # Create temporary file
+    $tempFile = [System.IO.Path]::GetTempFileName() + ".txt"
+    $initialContent = @"
+# Write your commit description below this line
+# Everything you write here will be used as the commit description
+# Save this file (Ctrl+S) and close Notepad to continue
+# Or close without saving to use default description
+
+"@
+    Set-Content -Path $tempFile -Value $initialContent
+
+    # Open in Notepad
+    Write-Host "`nOpening Notepad..." -ForegroundColor Cyan
+    Start-Process notepad -ArgumentList $tempFile -Wait
+
+    # Read back the content
+    $description = "Default commit description"
+    if (Test-Path $tempFile) {
+        $content = Get-Content $tempFile -Raw
+        
+        # Clean up comments and empty lines
+        $cleanedLines = $content -split "`n" | Where-Object { 
+            $line = $_.Trim()
+            $line -ne "" -and $line -notlike "#*" -and $line -notlike "Write your commit description*" -and $line -notlike "Everything you write here*" -and $line -notlike "Save this file*" -and $line -notlike "Or close without saving*"
+        }
+        
+        $description = $cleanedLines -join "`n"
+        $description = $description.Trim()
+        
+        # Remove temp file
+        Remove-Item $tempFile -ErrorAction SilentlyContinue
+        
+        if (-not $description) { 
+            $description = "Default commit description" 
+        }
+    }
+
+    # Display preview
+    Write-Host "`n" + "="*50 -ForegroundColor Green
+    Write-Host "COMMIT PREVIEW" -ForegroundColor Green
+    Write-Host "="*50 -ForegroundColor Green
+    Write-Host "Title: $icon ${commitTypeName}: $title" -ForegroundColor White
+    Write-Host "Description:" -ForegroundColor White
+    if ($description -eq "Default commit description") {
+        Write-Host $description -ForegroundColor DarkGray
+    } else {
+        Write-Host $description -ForegroundColor Gray
+    }
+    Write-Host ""
+
+    # Confirm before proceeding
+    $confirm = Read-Host "Proceed with commit and push? (y/N)"
+    if ($confirm -notmatch '^[Yy](es)?$') {
+        Write-Host "Operation cancelled." -ForegroundColor Red
+        return
+    }
 
     # Get current branch
     $branchName = git branch --show-current
     if (-not $branchName) { $branchName = "main" }  # Fallback to 'main' if branch detection fails
 
-    # Properly format the commit message using `${}` to avoid syntax errors
-    $commitMessage = "${icon} ${commitTypeName}: ${title}"
+    # Properly format the commit message
+    $commitMessage = "$icon ${commitTypeName}: $title"
 
     # Execute git commands
+    Write-Host "`nExecuting git commands..." -ForegroundColor Cyan
     git add .
     git commit -m "$commitMessage" -m "$description"
     git push origin $branchName
+    
+    Write-Host "`n✅ Successfully pushed to $branchName!" -ForegroundColor Green
 }
 
 
@@ -987,5 +1049,4 @@ function youtube {
 # Load the profile once
 # Show-Help
 
-oh-my-posh init pwsh --config "$env:POSH_THEMES_PATH/stelbent-compact.minimal.omp.json" | Invoke-Expression
-
+oh-my-posh init pwsh --config "$env:LOCALAPPDATA\Programs\oh-my-posh\themes\stelbent-compact.minimal.omp.json" | Invoke-Expression
