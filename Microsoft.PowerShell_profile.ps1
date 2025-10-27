@@ -542,11 +542,17 @@ $PSReadLineOptions = @{
         Keyword = '#8367c7'  # Violet (pastel)
         Error = '#FF6347'  # Tomato (keeping it close to red for visibility)
     }
-    PredictionSource = 'History'
-    PredictionViewStyle = 'ListView'
     BellStyle = 'None'
 }
 Set-PSReadLineOption @PSReadLineOptions
+
+# Try to enable prediction features if supported
+try {
+    Set-PSReadLineOption -PredictionSource History -ErrorAction Stop
+    Set-PSReadLineOption -PredictionViewStyle ListView -ErrorAction Stop
+} catch {
+    # Silently continue if prediction features are not supported
+}
 
 # Custom key handlers
 Set-PSReadLineKeyHandler -Key UpArrow -Function HistorySearchBackward
@@ -575,7 +581,11 @@ function Set-PredictionSource {
         Set-PredictionSource_Override;
     } else {
 	# Improved prediction settings
-	Set-PSReadLineOption -PredictionSource HistoryAndPlugin
+	try {
+	    Set-PSReadLineOption -PredictionSource HistoryAndPlugin -ErrorAction Stop
+	} catch {
+	    # Silently continue if prediction features are not supported
+	}
 	Set-PSReadLineOption -MaximumHistoryCount 10000
     }
 }
