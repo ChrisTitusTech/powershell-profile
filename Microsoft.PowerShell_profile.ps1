@@ -431,6 +431,66 @@ function tail {
   Get-Content $Path -Tail $n -Wait:$f
 }
 
+function ss {
+    param([string]$Target)
+
+    $pnpDevices = Get-CimInstance -ClassName Win32_PnPEntity | Where-Object { $_.Name -match '\(COM\d+\)' }
+    $portList = foreach ($dev in $pnpDevices) {
+        if ($dev.Name -match '\((COM\d+)\)') {
+            [PSCustomObject]@{
+                PortName    = $Matches[1]
+                Description = $dev.Name
+            }
+        }
+    }
+
+    if ([string]::IsNullOrWhiteSpace($Target)) {
+        Write-Host "Available COM ports:" -ForegroundColor Yellow
+        if ($portList) {
+            $portList | Format-Table -AutoSize -HideTableHeaders
+        } else {
+            Write-Host "  (No active ports found)" -ForegroundColor DarkGray
+        }
+        return
+    }
+
+    if ($Target -match "^\d+$" -or $Target -match "^COM\d+$") {
+        if ($Target -match "^\d+$") {
+            $Target = "COM$Target"
+        }
+
+        $found = $portList | Where-Object { $_.PortName -eq $Target }
+
+        if ($found) {
+            $realPort = "\\.\$Target"
+            Write-Host "Connecting to $realPort" -ForegroundColor Cyan
+            Write-Host "Device: $($found.Description)" -ForegroundColor DarkGray
+            plink -serial $realPort -sercfg 115200,8,n,1,N
+        } else {
+            Write-Host "Port '$Target' was not found." -ForegroundColor Red
+            Write-Host ""
+            Write-Host "Ports detected:" -ForegroundColor Yellow
+            if ($portList) {
+                foreach ($p in $portList) {
+                    Write-Host "  $($p.PortName) " -NoNewline -ForegroundColor Green
+                    Write-Host "-> $($p.Description)" -ForegroundColor Gray
+                }
+            } else {
+                $netPorts = [System.IO.Ports.SerialPort]::GetPortNames()
+                if ($netPorts) {
+                    Write-Host "  No PnP information, but .NET sees the following ports:" -ForegroundColor Magenta
+                    $netPorts | ForEach-Object { Write-Host "  $_" -ForegroundColor Magenta }
+                } else {
+                    Write-Host "  (No ports detected)" -ForegroundColor DarkGray
+                }
+            }
+        }
+    } else {
+        Write-Host "Opening plink session '$Target'..." -ForegroundColor Green
+        plink $Target
+    }
+}
+
 # Quick File Creation
 function nf { param($name) New-Item -ItemType "file" -Path . -Name $name }
 
@@ -681,6 +741,7 @@ $($PSStyle.Foreground.Green)cpy$($PSStyle.Reset) <text> - Copies the specified t
 $($PSStyle.Foreground.Green)pst$($PSStyle.Reset) - Retrieves text from the clipboard.
 $($PSStyle.Foreground.Green)reload-profile$($PSStyle.Reset) - Reloads the current user's PowerShell profile.
 $($PSStyle.Foreground.Green)sed$($PSStyle.Reset) <file> <find> <replace> - Replaces text in a file.
+$($PSStyle.Foreground.Green)ss$($PSStyle.Reset) <target> - Lists COM ports or opens a plink serial/session connection.
 $($PSStyle.Foreground.Green)sysinfo$($PSStyle.Reset) - Displays detailed system information.
 $($PSStyle.Foreground.Green)tail$($PSStyle.Reset) <path> [n] - Displays the last n lines of a file (default 10).
 $($PSStyle.Foreground.Green)touch$($PSStyle.Reset) <file> - Creates a new empty file.

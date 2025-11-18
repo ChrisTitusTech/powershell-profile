@@ -65,3 +65,15 @@ Clear-Cache_Override
 Get-Theme_Override
 WinUtilDev_Override [To call a fork, for example]
 </pre>
+
+## 🔌 Serial helper (`ss`)
+
+The `ss` shortcut helps when jumping between multiple serial adapters or saved `plink` sessions:
+
+```
+ss                # list detected COM ports
+ss 10             # connect to COM10 (alias for COM ports by number)
+ss session-name   # open a saved plink session
+```
+
+When a COM port is selected the profile opens `plink` with `115200,8,n,1` defaults. If no Plug-and-Play metadata is available the helper falls back to `.NET`'s `SerialPort` list so you always see what Windows currently exposes.
