@@ -45,7 +45,7 @@ PS> oh-my-posh font install
 
 **Do not make any changes to the `Microsoft.PowerShell_profile.ps1` file**, since it's hashed and automatically overwritten by any commits to this repository.
 
-After the profile is installed and active, run the `Edit-Profile` function to create a separate profile file [`profile.ps1`] for your current user. Add any custom code, and/or override VARIABLES/FUNCTIONS in `Microsoft.PowerShell_profile.ps1` by adding any of the following Variable or Function names:
+After the profile is installed and active, run the `Edit-Profile` function to create a separate profile file [`profile.ps1`] for your current user. (When you install this fork via `setup.ps1` for the first time, a template `Profile.ps1` is created automatically that already contains `$repo_root_Override = "https://raw.githubusercontent.com/hatifi1"` and commented examples for the other overrides—edit that file anytime.) Add any custom code, and/or override VARIABLES/FUNCTIONS in `Microsoft.PowerShell_profile.ps1` by adding any of the following Variable or Function names:
 
 THE FOLLOWING VARIABLES RESPECT _Override:
 <pre>

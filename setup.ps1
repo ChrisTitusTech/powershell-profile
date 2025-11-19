@@ -101,6 +101,31 @@ else {
     }
 }
 
+# Ensure a per-user customization file exists with sensible defaults
+try {
+    $userProfilePath = Join-Path (Split-Path $PROFILE) "Profile.ps1"
+    if (-not (Test-Path -Path $userProfilePath -PathType Leaf)) {
+        $profileTemplate = @'
+# Personal overrides for Pretty PowerShell
+# This file is loaded after Microsoft.PowerShell_profile.ps1.
+# Keep your customizations here so updates do not overwrite them.
+
+$repo_root_Override = "https://raw.githubusercontent.com/hatifi1"
+
+# Uncomment any of the overrides below as needed:
+# $EDITOR_Override = "code"
+# $debug_Override = $false
+# $timeFilePath_Override = "$env:USERPROFILE\Documents\PowerShell\LastExecutionTime.txt"
+# $updateInterval_Override = 7
+'@
+        $profileTemplate | Out-File -FilePath $userProfilePath -Encoding utf8 -Force
+        Write-Host "📝 Created default Profile.ps1 at [$userProfilePath]" -ForegroundColor Cyan
+    }
+}
+catch {
+    Write-Warning "Unable to create Profile.ps1 template: $_"
+}
+
 # OMP Install
 try {
     winget install -e --accept-source-agreements --accept-package-agreements JanDeDobbeleer.OhMyPosh
