@@ -167,3 +167,17 @@ try {
 catch {
     Write-Error "Failed to install zoxide. Error: $_"
 }
+
+# Run Update-Profile automatically so overrides from this fork apply immediately
+try {
+    if (Test-Path -Path $PROFILE) {
+        . $PROFILE
+        if (Get-Command -Name Update-Profile -ErrorAction SilentlyContinue) {
+            Update-Profile
+            Write-Host "🔄 Update-Profile executed to sync with the latest forked profile."
+        }
+    }
+}
+catch {
+    Write-Warning "Unable to run Update-Profile automatically: $_"
+}
