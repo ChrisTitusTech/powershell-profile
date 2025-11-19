@@ -68,12 +68,12 @@ WinUtilDev_Override [To call a fork, for example]
 
 ## 🔌 Serial helper (`ss`)
 
-The `ss` shortcut helps when jumping between multiple serial adapters or saved `plink` sessions:
+The `ss` shortcut helps when jumping between multiple serial adapters or saved `tio` sessions:
 
 ```
 ss                # list detected COM ports
 ss 10             # connect to COM10 (alias for COM ports by number)
-ss session-name   # open a saved plink session
+ss session-name   # open a saved tio session
 ```
 
-When a COM port is selected the profile opens `plink` with `115200,8,n,1` defaults. If no Plug-and-Play metadata is available the helper falls back to `.NET`'s `SerialPort` list so you always see what Windows currently exposes.
+When a COM port is selected the profile launches `tio.exe` at `115200,8,n,1`. Ensure `tio` is installed and available on `PATH` (e.g., via the Windows package). If no Plug-and-Play metadata is available the helper falls back to `.NET`'s `SerialPort` list so you always see what Windows currently exposes.
