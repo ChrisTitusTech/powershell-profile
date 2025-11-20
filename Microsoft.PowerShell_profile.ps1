@@ -432,7 +432,8 @@ function tail {
 }
 
 function ss {
-    param([string]$Target)
+    $Target = if ($args.Count -gt 0) { $args[0] } else { $null }
+    $tioArgs = if ($args.Count -gt 1) { $args[1..($args.Count - 1)] } else { @() }
 
     $pnpDevices = Get-CimInstance -ClassName Win32_PnPEntity | Where-Object { $_.Name -match '\(COM\d+\)' }
     $portList = foreach ($dev in $pnpDevices) {
@@ -465,7 +466,7 @@ function ss {
             $realPort = "\\.\$Target"
             Write-Host "Connecting to $realPort via tio" -ForegroundColor Cyan
             Write-Host "Device: $($found.Description)" -ForegroundColor DarkGray
-            tio.exe -b 115200 $realPort
+            tio.exe -b 115200 $realPort @tioArgs
         } else {
             Write-Host "Port '$Target' was not found." -ForegroundColor Red
             Write-Host ""
@@ -487,7 +488,7 @@ function ss {
         }
     } else {
         Write-Host "Opening tio session '$Target'..." -ForegroundColor Green
-        tio.exe $Target
+        tio.exe $Target @tioArgs
     }
 }
 
