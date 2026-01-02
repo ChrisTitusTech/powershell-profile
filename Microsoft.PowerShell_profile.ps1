@@ -139,7 +139,7 @@ if (Test-Path($ChocolateyProfile)) {
 
 # Safely read and parse the last execution date once to avoid exceptions when the file is missing or empty
 $lastExecRaw = if (Test-Path $timeFilePath) { (Get-Content -Path $timeFilePath -Raw).Trim() } else { $null }
-[datetime]$lastExec = $null
+[Nullable[datetime]]$lastExec = $null
 if (-not [string]::IsNullOrWhiteSpace($lastExecRaw)) {
     [datetime]$parsed = [datetime]::MinValue
     if ([datetime]::TryParseExact($lastExecRaw, 'yyyy-MM-dd', $null, [System.Globalization.DateTimeStyles]::None, [ref]$parsed)) {
