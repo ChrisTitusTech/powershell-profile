@@ -67,7 +67,7 @@ if ($timeFilePath_Override){
     # then use it instead
     $timeFilePath = $timeFilePath_Override
 } else {
-    $timeFilePath = "$env:USERPROFILE\Documents\PowerShell\LastExecutionTime.txt"
+    $timeFilePath = [Environment]::GetFolderPath("MyDocuments") + "\PowerShell\LastExecutionTime.txt"
 }
 
 # Define the update interval in days, set to -1 to always check
