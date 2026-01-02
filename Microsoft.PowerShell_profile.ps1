@@ -55,9 +55,9 @@ if ($repo_root_Override){
 # Helper function for cross-edition compatibility
 function Get-ProfileDir {
     if ($PSVersionTable.PSEdition -eq "Core") {
-        return "$env:userprofile\Documents\PowerShell"
+        return [Environment]::GetFolderPath("MyDocuments") + "\PowerShell"
     } elseif ($PSVersionTable.PSEdition -eq "Desktop") {
-        return "$env:userprofile\Documents\WindowsPowerShell"
+        return [Environment]::GetFolderPath("MyDocuments") + "\WindowsPowerShell"
     } else {
         Write-Error "Unsupported PowerShell edition: $($PSVersionTable.PSEdition)"
         return $null
