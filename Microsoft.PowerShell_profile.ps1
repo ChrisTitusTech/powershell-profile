@@ -22,6 +22,7 @@ $debug = $false
 ############                      $EDITOR_Override                                                                   ############
 ############                      $debug_Override                                                                    ############
 ############                      $repo_root_Override  [To point to a fork, for example]                             ############
+############                      $show_help_Override  [display Show-Help on PowerShell launch]                      ############
 ############                      $timeFilePath_Override                                                             ############
 ############                      $updateInterval_Override                                                           ############
 ############                                                                                                         ############
@@ -758,4 +759,6 @@ if (Test-Path "$PSScriptRoot\CTTcustom.ps1") {
     Invoke-Expression -Command "& `"$PSScriptRoot\CTTcustom.ps1`""
 }
 
-Write-Host "$($PSStyle.Foreground.Yellow)Use 'Show-Help' to display help$($PSStyle.Reset)"
+if (-not $show_help_Override) {
+    Write-Host "$($PSStyle.Foreground.Yellow)Use 'Show-Help' to display help$($PSStyle.Reset)"
+}
