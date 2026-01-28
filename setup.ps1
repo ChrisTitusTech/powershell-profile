@@ -141,7 +141,7 @@ $themeInstalled = Install-OhMyPoshTheme -ThemeName "cobalt2"
 Install-NerdFonts -FontName "CascadiaCode" -FontDisplayName "CaskaydiaCove NF"
 
 # Final check and message to the user
-if ((Test-Path -Path $PROFILE) -and (winget list --name "OhMyPosh" -e) -and ($fontFamilies -contains "CaskaydiaCove NF") -and $themeInstalled) {
+if ((Test-Path -Path $PROFILE) -and (winget list --name "Oh-My-Posh" -e) -and ($fontFamilies -contains "CaskaydiaCove NF") -and $themeInstalled) {
     Write-Host "Setup completed successfully. Please restart your PowerShell session to apply changes."
 } else {
     Write-Warning "Setup completed with errors. Please check the error messages above."
