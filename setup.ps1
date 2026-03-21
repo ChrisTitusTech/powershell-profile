@@ -19,9 +19,9 @@ function Test-InternetConnection {
 # Function to install Nerd Fonts
 function Install-NerdFonts {
     param (
-        [string]$FontName = "CascadiaCode",
-        [string]$FontDisplayName = "CaskaydiaCove NF",
-        [string]$Version = "3.2.1"
+        [string]$FontName = "CommitMono",
+        [string]$FontDisplayName = "CommitMono Nerd Font",
+        [string]$Version = "3.4.0"
     )
 
     try {
@@ -107,8 +107,8 @@ else {
 # Function to download Oh My Posh theme locally
 function Install-OhMyPoshTheme {
     param (
-        [string]$ThemeName = "cobalt2",
-        [string]$ThemeUrl = "https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/cobalt2.omp.json"
+        [string]$ThemeName = "posh-theme-thomaskrol",
+        [string]$ThemeUrl = "https://gist.githubusercontent.com/thomaskrol/b5339a5a72b095d69134e2591ba9f6ea/raw/0b3dd9cbe75438fcc69de13e8b9b79dcce20f390/posh-theme-thomaskrol.omp.json"
     )
     $profilePath = Get-ProfileDir
     if (!(Test-Path -Path $profilePath)) {
@@ -135,13 +135,13 @@ catch {
 }
 
 # Download Oh My Posh theme locally
-$themeInstalled = Install-OhMyPoshTheme -ThemeName "cobalt2"
+$themeInstalled = Install-OhMyPoshTheme -ThemeName "posh-theme-thomaskrol"
 
 # Font Install
-Install-NerdFonts -FontName "CascadiaCode" -FontDisplayName "CaskaydiaCove NF"
+Install-NerdFonts -FontName "CommitMono" -FontDisplayName "CommitMono Nerd Font"
 
 # Final check and message to the user
-if ((Test-Path -Path $PROFILE) -and (winget list --name "OhMyPosh" -e) -and ($fontFamilies -contains "CaskaydiaCove NF") -and $themeInstalled) {
+if ((Test-Path -Path $PROFILE) -and (winget list --name "OhMyPosh" -e) -and ($fontFamilies -contains "CommitMono Nerd Font") -and $themeInstalled) {
     Write-Host "Setup completed successfully. Please restart your PowerShell session to apply changes."
 } else {
     Write-Warning "Setup completed with errors. Please check the error messages above."
