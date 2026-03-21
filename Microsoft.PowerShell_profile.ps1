@@ -676,7 +676,24 @@ Register-ArgumentCompleter -Native -CommandName dotnet -ScriptBlock $scriptblock
 if (Get-Command -Name "Get-Theme_Override" -ErrorAction SilentlyContinue) {
     Get-Theme_Override
 } else {
-    oh-my-posh init pwsh --config https://gist.githubusercontent.com/thomaskrol/b5339a5a72b095d69134e2591ba9f6ea/raw/0b3dd9cbe75438fcc69de13e8b9b79dcce20f390/posh-theme-thomaskrol.omp.json | Invoke-Expression
+    # Oh My Posh initialization with local theme fallback and auto-download
+    $localThemePath = Join-Path (Get-ProfileDir) "posh-theme-thomaskrol.omp.json"
+    $themeUrl = "https://gist.githubusercontent.com/thomaskrol/b5339a5a72b095d69134e2591ba9f6ea/raw/0b3dd9cbe75438fcc69de13e8b9b79dcce20f390/posh-theme-thomaskrol.omp.json"
+    if (-not (Test-Path $localThemePath)) {
+        # Try to download the theme file to the detected local path
+        try {
+            Invoke-RestMethod -Uri $themeUrl -OutFile $localThemePath
+            Write-Host "Downloaded missing Oh My Posh theme to $localThemePath"
+        } catch {
+            Write-Warning "Failed to download theme file. Falling back to remote theme. Error: $_"
+        }
+    }
+    if (Test-Path $localThemePath) {
+        oh-my-posh init pwsh --config $localThemePath | Invoke-Expression
+    } else {
+        # Fallback to remote theme if local file doesn't exist
+        oh-my-posh init pwsh --config $themeUrl | Invoke-Expression
+    }
 }
 
 if (Get-Command zoxide -ErrorAction SilentlyContinue) {
