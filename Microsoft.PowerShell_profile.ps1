@@ -520,17 +520,13 @@ function gs { git status }
 
 function ga { git add . }
 
-function gc { param($m) git commit -m "$m" }
+function gc { git commit }
 
-function gpush { git push }
+function gcm { param($m) git commit -m "$m" }
 
-function gpull { git pull }
+function gcp { param($m) git commit -p -m "$m" }
 
-function g { __zoxide_z github }
-
-function gcl { git clone "$args" }
-
-function gcom {
+function gcam {
     git add .
     git commit -m "$args"
 }
@@ -539,6 +535,24 @@ function lazyg {
     git commit -m "$args"
     git push
 }
+
+function gd { git diff }
+
+function gb { git branch "$args" }
+
+function gbr { git branch -r "$args" }
+
+function gco { git checkout "$args"
+
+function glg { git log --oneline --graph } }
+
+function gpsh { git push }
+
+function gpll { git pull }
+
+function g { __zoxide_z github }
+
+function gcl { git clone "$args" }
 
 # Quick Access to System Information
 function sysinfo { Get-ComputerInfo }
@@ -634,6 +648,7 @@ $scriptblock = {
     param($wordToComplete, $commandAst, $cursorPosition)
     $customCompletions = @{
         'git' = @('status', 'add', 'commit', 'push', 'pull', 'clone', 'checkout')
+        'bun' = @('install', 'start', 'run', 'test', 'build', 'add')
         'npm' = @('install', 'start', 'run', 'test', 'build')
         'deno' = @('run', 'compile', 'bundle', 'test', 'lint', 'fmt', 'cache', 'info', 'doc', 'upgrade')
     }
@@ -645,7 +660,7 @@ $scriptblock = {
         }
     }
 }
-Register-ArgumentCompleter -Native -CommandName git, npm, deno -ScriptBlock $scriptblock
+Register-ArgumentCompleter -Native -CommandName git, bun, npm, deno -ScriptBlock $scriptblock
 
 $scriptblock = {
     param($wordToComplete, $commandAst, $cursorPosition)
