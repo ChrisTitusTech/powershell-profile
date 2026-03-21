@@ -697,57 +697,192 @@ function Show-Help {
     $helpText = @"
 $($PSStyle.Foreground.Cyan)PowerShell Profile Help$($PSStyle.Reset)
 $($PSStyle.Foreground.Yellow)=======================$($PSStyle.Reset)
-$($PSStyle.Foreground.Green)Edit-Profile$($PSStyle.Reset) - Opens the current user's profile for editing using the configured editor.
-$($PSStyle.Foreground.Green)Update-Profile$($PSStyle.Reset) - Checks for profile updates from a remote repository and updates if necessary.
-$($PSStyle.Foreground.Green)Update-PowerShell$($PSStyle.Reset) - Checks for the latest PowerShell release and updates if a new version is available.
 
-$($PSStyle.Foreground.Cyan)Git Shortcuts$($PSStyle.Reset)
+$($PSStyle.Foreground.Cyan)Profile Management$($PSStyle.Reset)
 $($PSStyle.Foreground.Yellow)=======================$($PSStyle.Reset)
-$($PSStyle.Foreground.Green)g$($PSStyle.Reset) - Changes to the GitHub directory.
-$($PSStyle.Foreground.Green)ga$($PSStyle.Reset) - Shortcut for 'git add .'.
-$($PSStyle.Foreground.Green)gc$($PSStyle.Reset) <message> - Shortcut for 'git commit -m'.
-$($PSStyle.Foreground.Green)gcl$($PSStyle.Reset) <repo> - Shortcut for 'git clone'.
-$($PSStyle.Foreground.Green)gcom$($PSStyle.Reset) <message> - Adds all changes and commits with the specified message.
-$($PSStyle.Foreground.Green)gp$($PSStyle.Reset) - Shortcut for 'git push'.
-$($PSStyle.Foreground.Green)gpull$($PSStyle.Reset) - Shortcut for 'git pull'.
-$($PSStyle.Foreground.Green)gpush$($PSStyle.Reset) - Shortcut for 'git push'.
-$($PSStyle.Foreground.Green)gs$($PSStyle.Reset) - Shortcut for 'git status'.
-$($PSStyle.Foreground.Green)lazyg$($PSStyle.Reset) <message> - Adds all changes, commits with the specified message, and pushes to the remote repository.
+$($PSStyle.Foreground.Green)Edit-Profile$($PSStyle.Reset) / $($PSStyle.Foreground.Green)ep$($PSStyle.Reset)
+  Opens profile in editor
 
-$($PSStyle.Foreground.Cyan)Shortcuts$($PSStyle.Reset)
-$($PSStyle.Foreground.Yellow)=======================$($PSStyle.Reset)
-$($PSStyle.Foreground.Green)cpy$($PSStyle.Reset) <text> - Copies the specified text to the clipboard.
-$($PSStyle.Foreground.Green)df$($PSStyle.Reset) - Displays information about volumes.
-$($PSStyle.Foreground.Green)docs$($PSStyle.Reset) - Changes the current directory to the user's Documents folder.
-$($PSStyle.Foreground.Green)dtop$($PSStyle.Reset) - Changes the current directory to the user's Desktop folder.
-$($PSStyle.Foreground.Green)ep$($PSStyle.Reset) - Opens the profile for editing.
-$($PSStyle.Foreground.Green)export$($PSStyle.Reset) <name> <value> - Sets an environment variable.
-$($PSStyle.Foreground.Green)ff$($PSStyle.Reset) <name> - Finds files recursively with the specified name.
-$($PSStyle.Foreground.Green)flushdns$($PSStyle.Reset) - Clears the DNS cache.
-$($PSStyle.Foreground.Green)pubip$($PSStyle.Reset) - Retrieves the public IP address of the machine.
-$($PSStyle.Foreground.Green)grep$($PSStyle.Reset) <regex> [dir] - Searches for a regex pattern in files within the specified directory or from the pipeline input.
-$($PSStyle.Foreground.Green)hb$($PSStyle.Reset) <file> - Uploads the specified file's content to a hastebin-like service and returns the URL.
-$($PSStyle.Foreground.Green)head$($PSStyle.Reset) <path> [n] - Displays the first n lines of a file (default 10).
-$($PSStyle.Foreground.Green)k9$($PSStyle.Reset) <name> - Kills a process by name.
-$($PSStyle.Foreground.Green)la$($PSStyle.Reset) - Lists all files in the current directory with detailed formatting.
-$($PSStyle.Foreground.Green)ll$($PSStyle.Reset) - Lists all files, including hidden, in the current directory with detailed formatting.
-$($PSStyle.Foreground.Green)mkcd$($PSStyle.Reset) <dir> - Creates and changes to a new directory.
-$($PSStyle.Foreground.Green)nf$($PSStyle.Reset) <name> - Creates a new file with the specified name.
-$($PSStyle.Foreground.Green)pgrep$($PSStyle.Reset) <name> - Lists processes by name.
-$($PSStyle.Foreground.Green)pkill$($PSStyle.Reset) <name> - Kills processes by name.
-$($PSStyle.Foreground.Green)pst$($PSStyle.Reset) - Retrieves text from the clipboard.
-$($PSStyle.Foreground.Green)sed$($PSStyle.Reset) <file> <find> <replace> - Replaces text in a file.
-$($PSStyle.Foreground.Green)sysinfo$($PSStyle.Reset) - Displays detailed system information.
-$($PSStyle.Foreground.Green)tail$($PSStyle.Reset) <path> [n] - Displays the last n lines of a file (default 10).
-$($PSStyle.Foreground.Green)touch$($PSStyle.Reset) <file> - Creates a new empty file.
-$($PSStyle.Foreground.Green)unzip$($PSStyle.Reset) <file> - Extracts a zip file to the current directory.
-$($PSStyle.Foreground.Green)uptime$($PSStyle.Reset) - Displays the system uptime.
-$($PSStyle.Foreground.Green)which$($PSStyle.Reset) <name> - Shows the path of the command.
-$($PSStyle.Foreground.Green)winutil$($PSStyle.Reset) - Runs the latest WinUtil full-release script from Chris Titus Tech.
-$($PSStyle.Foreground.Green)winutildev$($PSStyle.Reset) - Runs the latest WinUtil pre-release script from Chris Titus Tech.
-$($PSStyle.Foreground.Yellow)=======================$($PSStyle.Reset)
+$($PSStyle.Foreground.Green)Update-Profile$($PSStyle.Reset)
+  Checks & downloads latest profile from repository
 
-Use '$($PSStyle.Foreground.Magenta)Show-Help$($PSStyle.Reset)' to display this help message.
+$($PSStyle.Foreground.Green)Update-PowerShell$($PSStyle.Reset)
+  Checks & updates to latest PowerShell release
+
+$($PSStyle.Foreground.Green)Invoke-Profile$($PSStyle.Reset)
+  Reloads profile
+
+$($PSStyle.Foreground.Green)Clear-Cache$($PSStyle.Reset)
+  Clears Windows/temp/browser cache files
+
+$($PSStyle.Foreground.Cyan)Git Commands$($PSStyle.Reset)
+$($PSStyle.Foreground.Yellow)=======================$($PSStyle.Reset)
+$($PSStyle.Foreground.Green)g$($PSStyle.Reset)
+  Jump to github directory | i.e. zoxide jump github
+
+$($PSStyle.Foreground.Green)gs$($PSStyle.Reset)
+  Show repo status | i.e. git status
+
+$($PSStyle.Foreground.Green)ga$($PSStyle.Reset)
+  Stage all changes | i.e. git add .
+
+$($PSStyle.Foreground.Green)gc$($PSStyle.Reset) <msg>
+  Commit (interactive) | i.e. git commit
+
+$($PSStyle.Foreground.Green)gcm$($PSStyle.Reset) <msg>
+  Commit with message | i.e. git commit -m <msg>
+
+$($PSStyle.Foreground.Green)gcp$($PSStyle.Reset) <msg>
+  Commit patches with message | i.e. git commit -p -m <msg>
+
+$($PSStyle.Foreground.Green)gcam$($PSStyle.Reset) <msg>
+  Stage & commit all with message | i.e. git add . && git commit -m <msg>
+
+$($PSStyle.Foreground.Green)gd$($PSStyle.Reset)
+  Show diff | i.e. git diff
+
+$($PSStyle.Foreground.Green)gb$($PSStyle.Reset) [name]
+  List or create branch | i.e. git branch [name]
+
+$($PSStyle.Foreground.Green)gbr$($PSStyle.Reset) [name]
+  List remote branches | i.e. git branch -r [name]
+
+$($PSStyle.Foreground.Green)gco$($PSStyle.Reset) <branch>
+  Switch branch | i.e. git checkout <branch>
+
+$($PSStyle.Foreground.Green)glg$($PSStyle.Reset)
+  Pretty log graph | i.e. git log --oneline --graph
+
+$($PSStyle.Foreground.Green)gpsh$($PSStyle.Reset)
+  Push changes | i.e. git push
+
+$($PSStyle.Foreground.Green)gpll$($PSStyle.Reset)
+  Pull changes | i.e. git pull
+
+$($PSStyle.Foreground.Green)gcl$($PSStyle.Reset) <repo>
+  Clone repository | i.e. git clone <repo>
+
+$($PSStyle.Foreground.Green)lazyg$($PSStyle.Reset) <msg>
+  Stage, commit & push all with message | i.e. git add . && git commit -m <msg> && git push
+
+$($PSStyle.Foreground.Cyan)File & Directory Management$($PSStyle.Reset)
+$($PSStyle.Foreground.Yellow)=======================$($PSStyle.Reset)
+$($PSStyle.Foreground.Green)touch$($PSStyle.Reset) <file>
+  Create empty file | i.e. "" | Out-File <file>
+
+$($PSStyle.Foreground.Green)nf$($PSStyle.Reset) <name>
+  Create new file | i.e. New-Item -ItemType file -Name <name>
+
+$($PSStyle.Foreground.Green)ff$($PSStyle.Reset) <name>
+  Find files recursively | i.e. Get-ChildItem -Recurse -Filter *<name>*
+
+$($PSStyle.Foreground.Green)mkcd$($PSStyle.Reset) <dir>
+  Create & enter directory | i.e. mkdir <dir> && cd <dir>
+
+$($PSStyle.Foreground.Green)unzip$($PSStyle.Reset) <file>
+  Extract zip file | i.e. Expand-Archive <file> -DestinationPath .
+
+$($PSStyle.Foreground.Green)trash$($PSStyle.Reset) <path>
+  Move to recycle bin | i.e. Shell.Application InvokeVerb delete
+
+$($PSStyle.Foreground.Cyan)Navigation Shortcuts$($PSStyle.Reset)
+$($PSStyle.Foreground.Yellow)=======================$($PSStyle.Reset)
+$($PSStyle.Foreground.Green)docs$($PSStyle.Reset)
+  Go to Documents folder | i.e. cd [Environment]::GetFolderPath("MyDocuments")
+
+$($PSStyle.Foreground.Green)dtop$($PSStyle.Reset)
+  Go to Desktop folder | i.e. cd [Environment]::GetFolderPath("Desktop")
+
+$($PSStyle.Foreground.Cyan)System & Process Management$($PSStyle.Reset)
+$($PSStyle.Foreground.Yellow)=======================$($PSStyle.Reset)
+$($PSStyle.Foreground.Green)admin$($PSStyle.Reset) / $($PSStyle.Foreground.Green)su$($PSStyle.Reset) [cmd]
+  Elevate privileges | i.e. Start-Process -Verb runAs
+
+$($PSStyle.Foreground.Green)uptime$($PSStyle.Reset)
+  Show system uptime since boot
+
+$($PSStyle.Foreground.Green)k9$($PSStyle.Reset) <process>
+  Kill process by name | i.e. Stop-Process -Name <process>
+
+$($PSStyle.Foreground.Green)pkill$($PSStyle.Reset) <pattern>
+  Stop processes by name | i.e. Get-Process <pattern> | Stop-Process
+
+$($PSStyle.Foreground.Green)pgrep$($PSStyle.Reset) <pattern>
+  List processes by name | i.e. Get-Process <pattern>
+
+$($PSStyle.Foreground.Cyan)File & Text Operations$($PSStyle.Reset)
+$($PSStyle.Foreground.Yellow)=======================$($PSStyle.Reset)
+$($PSStyle.Foreground.Green)grep$($PSStyle.Reset) <regex> [dir]
+  Search files for pattern | i.e. select-string <regex>
+
+$($PSStyle.Foreground.Green)sed$($PSStyle.Reset) <file> <find> <replace>
+  Replace text in file | i.e. (Get-Content).replace() | Set-Content
+
+$($PSStyle.Foreground.Green)head$($PSStyle.Reset) <path> [n]
+  Show first n lines (def: 10) | i.e. Get-Content -Head
+
+$($PSStyle.Foreground.Green)tail$($PSStyle.Reset) <path> [n]
+  Show last n lines (def: 10) | i.e. Get-Content -Tail
+
+$($PSStyle.Foreground.Green)which$($PSStyle.Reset) <name>
+  Show command path | i.e. Get-Command -ExpandProperty Definition
+
+$($PSStyle.Foreground.Cyan)Directory & File Listing$($PSStyle.Reset)
+$($PSStyle.Foreground.Yellow)=======================$($PSStyle.Reset)
+$($PSStyle.Foreground.Green)la$($PSStyle.Reset)
+  List files formatted | i.e. Get-ChildItem | Format-Table
+
+$($PSStyle.Foreground.Green)ll$($PSStyle.Reset)
+  List all files incl. hidden | i.e. Get-ChildItem -Force | Format-Table
+
+$($PSStyle.Foreground.Cyan)System Information$($PSStyle.Reset)
+$($PSStyle.Foreground.Yellow)=======================$($PSStyle.Reset)
+$($PSStyle.Foreground.Green)sysinfo$($PSStyle.Reset)
+  System info details | i.e. Get-ComputerInfo
+
+$($PSStyle.Foreground.Green)df$($PSStyle.Reset)
+  Volume information | i.e. Get-Volume
+
+$($PSStyle.Foreground.Cyan)Network & Utilities$($PSStyle.Reset)
+$($PSStyle.Foreground.Yellow)=======================$($PSStyle.Reset)
+$($PSStyle.Foreground.Green)pubip$($PSStyle.Reset)
+  Get public IP | i.e. Invoke-WebRequest http://ifconfig.me/ip
+
+$($PSStyle.Foreground.Green)flushdns$($PSStyle.Reset)
+  Clear DNS cache | i.e. Clear-DnsClientCache
+
+$($PSStyle.Foreground.Green)cpy$($PSStyle.Reset) <text>
+  Copy to clipboard | i.e. Set-Clipboard <text>
+
+$($PSStyle.Foreground.Green)pst$($PSStyle.Reset)
+  Get clipboard text | i.e. Get-Clipboard
+
+$($PSStyle.Foreground.Cyan)Advanced Utilities$($PSStyle.Reset)
+$($PSStyle.Foreground.Yellow)=======================$($PSStyle.Reset)
+$($PSStyle.Foreground.Green)hb$($PSStyle.Reset) <file>
+  Upload file to hastebin service
+
+$($PSStyle.Foreground.Green)export$($PSStyle.Reset) <name> <value>
+  Set env variable | i.e. \$env <name> = <value>
+
+$($PSStyle.Foreground.Cyan)External Tools$($PSStyle.Reset)
+$($PSStyle.Foreground.Yellow)=======================$($PSStyle.Reset)
+$($PSStyle.Foreground.Green)winutil$($PSStyle.Reset)
+  Launch Chris Titus WinUtil (full release)
+
+$($PSStyle.Foreground.Green)winutildev$($PSStyle.Reset)
+  Launch Chris Titus WinUtil (dev/pre-release)
+
+$($PSStyle.Foreground.Cyan)Aliases$($PSStyle.Reset)
+$($PSStyle.Foreground.Yellow)=======================$($PSStyle.Reset)
+$($PSStyle.Foreground.Green)vim$($PSStyle.Reset)
+  Configured editor | i.e. \$EDITOR (nvim/vim/code/etc)
+
+$($PSStyle.Foreground.Green)su$($PSStyle.Reset)
+  Admin privilege escalation | i.e. admin
+
+$($PSStyle.Foreground.Yellow)=======================$($PSStyle.Reset)
+Type '$($PSStyle.Foreground.Magenta)Show-Help$($PSStyle.Reset)' anytime to display this help.
 "@
     Write-Host $helpText
 }
