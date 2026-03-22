@@ -107,8 +107,8 @@ else {
 # Function to download Oh My Posh theme locally
 function Install-OhMyPoshTheme {
     param (
-        [string]$ThemeName = "posh-theme-thomaskrol",
-        [string]$ThemeUrl = "https://gist.githubusercontent.com/thomaskrol/b5339a5a72b095d69134e2591ba9f6ea/raw/0b3dd9cbe75438fcc69de13e8b9b79dcce20f390/posh-theme-thomaskrol.omp.json"
+        [string]$ThemeName = "bubbles-tweak",
+        [string]$ThemeUrl = "https://gist.githubusercontent.com/thomaskrol/b5339a5a72b095d69134e2591ba9f6ea/raw/b5fe88a55f352c15e0ce889c125ce3a19c5f6e1a/bubbles-tweak.omp.json"
     )
     $profilePath = Get-ProfileDir
     if (!(Test-Path -Path $profilePath)) {
@@ -135,7 +135,7 @@ catch {
 }
 
 # Download Oh My Posh theme locally
-$themeInstalled = Install-OhMyPoshTheme -ThemeName "posh-theme-thomaskrol"
+$themeInstalled = Install-OhMyPoshTheme -ThemeName "bubbles-tweak"
 
 # Font Install
 Install-NerdFonts -FontName "CommitMono" -FontDisplayName "CommitMono Nerd Font"

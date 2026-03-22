@@ -677,8 +677,8 @@ if (Get-Command -Name "Get-Theme_Override" -ErrorAction SilentlyContinue) {
     Get-Theme_Override
 } else {
     # Oh My Posh initialization with local theme fallback and auto-download
-    $localThemePath = Join-Path (Get-ProfileDir) "posh-theme-thomaskrol.omp.json"
-    $themeUrl = "https://gist.githubusercontent.com/thomaskrol/b5339a5a72b095d69134e2591ba9f6ea/raw/0b3dd9cbe75438fcc69de13e8b9b79dcce20f390/posh-theme-thomaskrol.omp.json"
+    $localThemePath = Join-Path (Get-ProfileDir) "bubbles-tweak.omp.json"
+    $themeUrl = "https://gist.githubusercontent.com/thomaskrol/b5339a5a72b095d69134e2591ba9f6ea/raw/b5fe88a55f352c15e0ce889c125ce3a19c5f6e1a/bubbles-tweak.omp.json"
     if (-not (Test-Path $localThemePath)) {
         # Try to download the theme file to the detected local path
         try {
