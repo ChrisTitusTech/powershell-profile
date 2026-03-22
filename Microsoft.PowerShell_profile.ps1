@@ -112,7 +112,7 @@ if ([bool]([System.Security.Principal.WindowsIdentity]::GetCurrent()).IsSystem) 
     [System.Environment]::SetEnvironmentVariable('POWERSHELL_TELEMETRY_OPTOUT', 'true', [System.EnvironmentVariableTarget]::Machine)
 }
 
-# Initial GitHub.com connectivity check
+# Lazy-load initial GitHub.com connectivity check
 function Test-GitHubConnection {
     if ($PSVersionTable.PSEdition -eq "Core") {
         # If PowerShell Core, use a 1 second timeout
@@ -124,14 +124,23 @@ function Test-GitHubConnection {
         return ($result.Status -eq "Success")
     }
 }
-$global:canConnectToGitHub = Test-GitHubConnection
+# Defer GitHub check - only runs if actually called
+$global:canConnectToGitHub = $null
 
 # Import Modules and External Profiles
-# Ensure Terminal-Icons module is installed before importing
-if (-not (Get-Module -ListAvailable -Name Terminal-Icons)) {
-    Install-Module -Name Terminal-Icons -Scope CurrentUser -Force -SkipPublisherCheck
+# Lazy-load Terminal-Icons
+$terminalIconsLoaded = $false
+function Initialize-TerminalIcons {
+    if (-not $script:terminalIconsLoaded) {
+        # Ensure Terminal-Icons module is installed before importing
+        if (-not (Get-Module -ListAvailable -Name Terminal-Icons)) {
+            Install-Module -Name Terminal-Icons -Scope CurrentUser -Force -SkipPublisherCheck
+        }
+        Import-Module -Name Terminal-Icons | Out-Null
+        $script:terminalIconsLoaded = $true
+    }
 }
-Import-Module -Name Terminal-Icons
+
 $ChocolateyProfile = "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"
 if (Test-Path($ChocolateyProfile)) {
     Import-Module "$ChocolateyProfile"
@@ -147,7 +156,7 @@ if (-not [string]::IsNullOrWhiteSpace($lastExecRaw)) {
     }
 }
 
-# Check for Profile Updates
+# Check for Profile Updates in background
 function Update-Profile {
     # If function "Update-Profile_Override" is defined in profile.ps1 file
     # then call it instead.
@@ -511,9 +520,15 @@ function dtop {
 # Simplified Process Management
 function k9 { Stop-Process -Name $args[0] }
 
-# Enhanced Listing
-function la { Get-ChildItem | Format-Table -AutoSize }
-function ll { Get-ChildItem -Force | Format-Table -AutoSize }
+# Enhanced Listing (with lazy-loaded Terminal-Icons)
+function la {
+    Initialize-TerminalIcons
+    Get-ChildItem | Format-Table -AutoSize 
+}
+function ll {
+    Initialize-TerminalIcons
+    Get-ChildItem -Force | Format-Table -AutoSize 
+}
 
 # Git Shortcuts
 function gs { git status }
