@@ -107,17 +107,17 @@ else {
 # Function to download Oh My Posh theme locally
 function Install-OhMyPoshTheme {
     param (
-        [string]$ThemeName = "bubbles-tweak",
-        [string]$ThemeUrl = "https://gist.githubusercontent.com/thomaskrol/b5339a5a72b095d69134e2591ba9f6ea/raw/b5fe88a55f352c15e0ce889c125ce3a19c5f6e1a/bubbles-tweak.omp.json"
+        [string]$ThemeFile = "bubbles-edit.omp.yaml",
+        [string]$ThemeUrl = "https://gist.github.com/thomaskrol/b5339a5a72b095d69134e2591ba9f6ea/raw/3040820a8c59421f4aff743bfb97c1e234806251/bubbles-edit.omp.yaml"
     )
     $profilePath = Get-ProfileDir
     if (!(Test-Path -Path $profilePath)) {
         New-Item -Path $profilePath -ItemType "directory"
     }
-    $themeFilePath = Join-Path $profilePath "$ThemeName.omp.json"
+    $themeFilePath = Join-Path $profilePath $ThemeFile
     try {
         Invoke-RestMethod -Uri $ThemeUrl -OutFile $themeFilePath
-        Write-Host "Oh My Posh theme '$ThemeName' has been downloaded to [$themeFilePath]"
+        Write-Host "Oh My Posh theme '$ThemeFile' has been downloaded to [$themeFilePath]"
         return $themeFilePath
     }
     catch {
@@ -135,7 +135,7 @@ catch {
 }
 
 # Download Oh My Posh theme locally
-$themeInstalled = Install-OhMyPoshTheme -ThemeName "bubbles-tweak"
+$themeInstalled = Install-OhMyPoshTheme -ThemeName "bubbles-expanded"
 
 # Font Install
 Install-NerdFonts -FontName "CommitMono" -FontDisplayName "CommitMono Nerd Font"

@@ -112,7 +112,7 @@ if ([bool]([System.Security.Principal.WindowsIdentity]::GetCurrent()).IsSystem) 
     [System.Environment]::SetEnvironmentVariable('POWERSHELL_TELEMETRY_OPTOUT', 'true', [System.EnvironmentVariableTarget]::Machine)
 }
 
-# Lazy-load initial GitHub.com connectivity check
+# Initial GitHub.com connectivity check
 function Test-GitHubConnection {
     if ($PSVersionTable.PSEdition -eq "Core") {
         # If PowerShell Core, use a 1 second timeout
@@ -124,23 +124,14 @@ function Test-GitHubConnection {
         return ($result.Status -eq "Success")
     }
 }
-# Defer GitHub check - only runs if actually called
-$global:canConnectToGitHub = $null
+$global:canConnectToGitHub = Test-GitHubConnection
 
 # Import Modules and External Profiles
-# Lazy-load Terminal-Icons
-$terminalIconsLoaded = $false
-function Initialize-TerminalIcons {
-    if (-not $script:terminalIconsLoaded) {
-        # Ensure Terminal-Icons module is installed before importing
-        if (-not (Get-Module -ListAvailable -Name Terminal-Icons)) {
-            Install-Module -Name Terminal-Icons -Scope CurrentUser -Force -SkipPublisherCheck
-        }
-        Import-Module -Name Terminal-Icons | Out-Null
-        $script:terminalIconsLoaded = $true
-    }
+# Ensure Terminal-Icons module is installed before importing
+if (-not (Get-Module -ListAvailable -Name Terminal-Icons)) {
+    Install-Module -Name Terminal-Icons -Scope CurrentUser -Force -SkipPublisherCheck
 }
-
+Import-Module -Name Terminal-Icons
 $ChocolateyProfile = "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"
 if (Test-Path($ChocolateyProfile)) {
     Import-Module "$ChocolateyProfile"
@@ -156,7 +147,7 @@ if (-not [string]::IsNullOrWhiteSpace($lastExecRaw)) {
     }
 }
 
-# Check for Profile Updates in background
+# Check for Profile Updates
 function Update-Profile {
     # If function "Update-Profile_Override" is defined in profile.ps1 file
     # then call it instead.
@@ -402,32 +393,6 @@ function unzip ($file) {
     $fullFile = Get-ChildItem -Path $pwd -Filter $file | ForEach-Object { $_.FullName }
     Expand-Archive -Path $fullFile -DestinationPath $pwd
 }
-function hb {
-    if ($args.Length -eq 0) {
-        Write-Error "No file path specified."
-        return
-    }
-
-    $FilePath = $args[0]
-
-    if (Test-Path $FilePath) {
-        $Content = Get-Content $FilePath -Raw
-    } else {
-        Write-Error "File path does not exist."
-        return
-    }
-
-    $uri = "http://bin.christitus.com/documents"
-    try {
-        $response = Invoke-RestMethod -Uri $uri -Method Post -Body $Content -ErrorAction Stop
-        $hasteKey = $response.key
-        $url = "http://bin.christitus.com/$hasteKey"
-        Set-Clipboard $url
-        Write-Output "$url copied to clipboard."
-    } catch {
-        Write-Error "Failed to upload the document. Error: $_"
-    }
-}
 function grep($regex, $dir) {
     if ( $dir ) {
         Get-ChildItem $dir | select-string $regex
@@ -520,30 +485,36 @@ function dtop {
 # Simplified Process Management
 function k9 { Stop-Process -Name $args[0] }
 
-# Enhanced Listing (with lazy-loaded Terminal-Icons)
-function la {
-    Initialize-TerminalIcons
-    Get-ChildItem | Format-Table -AutoSize 
-}
-function ll {
-    Initialize-TerminalIcons
-    Get-ChildItem -Force | Format-Table -AutoSize 
-}
+# Enhanced Listing
+function la { Get-ChildItem | Format-Table -AutoSize }
+function ll { Get-ChildItem -Force | Format-Table -AutoSize }
 
 # Git Shortcuts
 function gs { git status }
+function ga($files = ".") { git add $files }
 
-function ga { git add . }
+function gcom {
+    param([string]$m = $null)
+    if ([string]::IsNullOrEmpty($m)) {
+        git commit
+    } else {
+        git commit -m "$m"
+    }
+}
 
-function gc { git commit }
+function gcomp {
+    param([string]$m = $null)
+    if ([string]::IsNullOrEmpty($m)) {
+        git commit -p
+    } else {
+        git commit -p -m "$m"
+    }
+}
 
-function gcm { param($m) git commit -m "$m" }
-
-function gcp { param($m) git commit -p -m "$m" }
-
-function gcam {
+function gcoma {
+    param([string]$m = $null)
     git add .
-    git commit -m "$args"
+    gcom $m
 }
 function lazyg {
     git add .
@@ -551,7 +522,14 @@ function lazyg {
     git push
 }
 
-function gd { git diff }
+function gd {
+    param([string[]]$files = @())
+    if ($files.Count -eq 0) {
+        git diff
+    } else {
+        git diff $files
+    }
+}
 
 function gb { git branch "$args" }
 
@@ -559,7 +537,7 @@ function gbr { git branch -r "$args" }
 
 function gco { git checkout "$args"
 
-function glg { git log --oneline --graph } }
+function glog { git log --oneline --graph } }
 
 function gpsh { git push }
 
@@ -692,8 +670,8 @@ if (Get-Command -Name "Get-Theme_Override" -ErrorAction SilentlyContinue) {
     Get-Theme_Override
 } else {
     # Oh My Posh initialization with local theme fallback and auto-download
-    $localThemePath = Join-Path (Get-ProfileDir) "bubbles-tweak.omp.json"
-    $themeUrl = "https://gist.githubusercontent.com/thomaskrol/b5339a5a72b095d69134e2591ba9f6ea/raw/b5fe88a55f352c15e0ce889c125ce3a19c5f6e1a/bubbles-tweak.omp.json"
+    $localThemePath = Join-Path (Get-ProfileDir) "bubbles-edit.omp.yaml"
+    $themeUrl = "https://gist.github.com/thomaskrol/b5339a5a72b095d69134e2591ba9f6ea/raw/3040820a8c59421f4aff743bfb97c1e234806251/bubbles-edit.omp.yaml"
     if (-not (Test-Path $localThemePath)) {
         # Try to download the theme file to the detected local path
         try {
@@ -729,35 +707,31 @@ function Show-Help {
     $helpText = @"
 $($PSStyle.Foreground.Cyan)PowerShell Profile Help$($PSStyle.Reset)
 $($PSStyle.Foreground.Yellow)=======================$($PSStyle.Reset)
-
-$($PSStyle.Foreground.Cyan)Profile Management$($PSStyle.Reset)
-$($PSStyle.Foreground.Yellow)=======================$($PSStyle.Reset)
 $($PSStyle.Foreground.Green)Edit-Profile$($PSStyle.Reset) / $($PSStyle.Foreground.Green)ep$($PSStyle.Reset) - Opens profile in editor
 $($PSStyle.Foreground.Green)Update-Profile$($PSStyle.Reset) - Checks & downloads latest profile from repository
 $($PSStyle.Foreground.Green)Update-PowerShell$($PSStyle.Reset) - Checks & updates to latest PowerShell release
 $($PSStyle.Foreground.Green)Invoke-Profile$($PSStyle.Reset) - Reloads profile
 $($PSStyle.Foreground.Green)Clear-Cache$($PSStyle.Reset) - Clears Windows/temp/browser cache files
 
-$($PSStyle.Foreground.Cyan)Git Commands$($PSStyle.Reset)
+$($PSStyle.Foreground.Cyan)Git Shortcuts$($PSStyle.Reset)
 $($PSStyle.Foreground.Yellow)=======================$($PSStyle.Reset)
 $($PSStyle.Foreground.Green)g$($PSStyle.Reset) - Jump to github directory | i.e. zoxide jump github
 $($PSStyle.Foreground.Green)gs$($PSStyle.Reset) - Show repo status | i.e. git status
-$($PSStyle.Foreground.Green)ga$($PSStyle.Reset) - Stage all changes | i.e. git add .
-$($PSStyle.Foreground.Green)gc$($PSStyle.Reset) <msg> - Commit (interactive) | i.e. git commit
-$($PSStyle.Foreground.Green)gcm$($PSStyle.Reset) <msg> - Commit with message | i.e. git commit -m <msg>
-$($PSStyle.Foreground.Green)gcp$($PSStyle.Reset) <msg> - Commit patches with message | i.e. git commit -p -m <msg>
-$($PSStyle.Foreground.Green)gcam$($PSStyle.Reset) <msg> - Stage & commit all with message | i.e. git add . && git commit -m <msg>
-$($PSStyle.Foreground.Green)gd$($PSStyle.Reset) - Show diff | i.e. git diff
+$($PSStyle.Foreground.Green)ga$($PSStyle.Reset) [files] - Stage files or all | i.e. git add . or <files>
+$($PSStyle.Foreground.Green)gcom$($PSStyle.Reset) [msg] - Commit interactive or with message | i.e. git commit [-m <msg>]
+$($PSStyle.Foreground.Green)gcomp$($PSStyle.Reset) [msg] - Patch commit, optionally with message | i.e. git commit -p [-m <msg>]
+$($PSStyle.Foreground.Green)gcoma$($PSStyle.Reset) [msg] - Stage all and commit interactive or with message | i.e. git add . && git commit [-m <msg>]
+$($PSStyle.Foreground.Green)gd$($PSStyle.Reset) [files] - Show diff for files or all | i.e. git diff [files]
 $($PSStyle.Foreground.Green)gb$($PSStyle.Reset) [name] - List or create branch | i.e. git branch [name]
 $($PSStyle.Foreground.Green)gbr$($PSStyle.Reset) [name] - List remote branches | i.e. git branch -r [name]
 $($PSStyle.Foreground.Green)gco$($PSStyle.Reset) <branch> - Switch branch | i.e. git checkout <branch>
-$($PSStyle.Foreground.Green)glg$($PSStyle.Reset) - Pretty log graph | i.e. git log --oneline --graph
+$($PSStyle.Foreground.Green)glog$($PSStyle.Reset) - Pretty log graph | i.e. git log --oneline --graph
 $($PSStyle.Foreground.Green)gpsh$($PSStyle.Reset) - Push changes | i.e. git push
 $($PSStyle.Foreground.Green)gpll$($PSStyle.Reset) - Pull changes | i.e. git pull
 $($PSStyle.Foreground.Green)gcl$($PSStyle.Reset) <repo> - Clone repository | i.e. git clone <repo>
 $($PSStyle.Foreground.Green)lazyg$($PSStyle.Reset) <msg> - Stage, commit & push all with message | i.e. git add . && git commit -m <msg> && git push
 
-$($PSStyle.Foreground.Cyan)File & Directory Management$($PSStyle.Reset)
+$($PSStyle.Foreground.Cyan)Shortcuts$($PSStyle.Reset)
 $($PSStyle.Foreground.Yellow)=======================$($PSStyle.Reset)
 $($PSStyle.Foreground.Green)touch$($PSStyle.Reset) <file> - Create empty file | i.e. "" | Out-File <file>
 $($PSStyle.Foreground.Green)nf$($PSStyle.Reset) <name> - Create new file | i.e. New-Item -ItemType file -Name <name>
@@ -765,62 +739,34 @@ $($PSStyle.Foreground.Green)ff$($PSStyle.Reset) <name> - Find files recursively 
 $($PSStyle.Foreground.Green)mkcd$($PSStyle.Reset) <dir> - Create & enter directory | i.e. mkdir <dir> && cd <dir>
 $($PSStyle.Foreground.Green)unzip$($PSStyle.Reset) <file> - Extract zip file | i.e. Expand-Archive <file> -DestinationPath .
 $($PSStyle.Foreground.Green)trash$($PSStyle.Reset) <path> - Move to recycle bin | i.e. Shell.Application InvokeVerb delete
-
-$($PSStyle.Foreground.Cyan)Navigation Shortcuts$($PSStyle.Reset)
-$($PSStyle.Foreground.Yellow)=======================$($PSStyle.Reset)
 $($PSStyle.Foreground.Green)docs$($PSStyle.Reset) - Go to Documents folder | i.e. cd [Environment]::GetFolderPath("MyDocuments")
 $($PSStyle.Foreground.Green)dtop$($PSStyle.Reset) - Go to Desktop folder | i.e. cd [Environment]::GetFolderPath("Desktop")
-
-$($PSStyle.Foreground.Cyan)System & Process Management$($PSStyle.Reset)
-$($PSStyle.Foreground.Yellow)=======================$($PSStyle.Reset)
 $($PSStyle.Foreground.Green)admin$($PSStyle.Reset) / $($PSStyle.Foreground.Green)su$($PSStyle.Reset) [cmd] - Elevate privileges | i.e. Start-Process -Verb runAs
 $($PSStyle.Foreground.Green)uptime$($PSStyle.Reset) - Show system uptime since boot
 $($PSStyle.Foreground.Green)k9$($PSStyle.Reset) <process> - Kill process by name | i.e. Stop-Process -Name <process>
 $($PSStyle.Foreground.Green)pkill$($PSStyle.Reset) <pattern> - Stop processes by name | i.e. Get-Process <pattern> | Stop-Process
 $($PSStyle.Foreground.Green)pgrep$($PSStyle.Reset) <pattern> - List processes by name | i.e. Get-Process <pattern>
-
-$($PSStyle.Foreground.Cyan)File & Text Operations$($PSStyle.Reset)
-$($PSStyle.Foreground.Yellow)=======================$($PSStyle.Reset)
 $($PSStyle.Foreground.Green)grep$($PSStyle.Reset) <regex> [dir] - Search files for pattern | i.e. select-string <regex>
 $($PSStyle.Foreground.Green)sed$($PSStyle.Reset) <file> <find> <replace> - Replace text in file | i.e. (Get-Content).replace() | Set-Content
 $($PSStyle.Foreground.Green)head$($PSStyle.Reset) <path> [n] - Show first n lines (def: 10) | i.e. Get-Content -Head
 $($PSStyle.Foreground.Green)tail$($PSStyle.Reset) <path> [n] - Show last n lines (def: 10) | i.e. Get-Content -Tail
 $($PSStyle.Foreground.Green)which$($PSStyle.Reset) <name> - Show command path | i.e. Get-Command -ExpandProperty Definition
-
-$($PSStyle.Foreground.Cyan)Directory & File Listing$($PSStyle.Reset)
-$($PSStyle.Foreground.Yellow)=======================$($PSStyle.Reset)
 $($PSStyle.Foreground.Green)la$($PSStyle.Reset) - List files formatted | i.e. Get-ChildItem | Format-Table
 $($PSStyle.Foreground.Green)ll$($PSStyle.Reset) - List all files incl. hidden | i.e. Get-ChildItem -Force | Format-Table
-
-$($PSStyle.Foreground.Cyan)System Information$($PSStyle.Reset)
-$($PSStyle.Foreground.Yellow)=======================$($PSStyle.Reset)
 $($PSStyle.Foreground.Green)sysinfo$($PSStyle.Reset) - System info details | i.e. Get-ComputerInfo
 $($PSStyle.Foreground.Green)df$($PSStyle.Reset) - Volume information | i.e. Get-Volume
-
-$($PSStyle.Foreground.Cyan)Network & Utilities$($PSStyle.Reset)
-$($PSStyle.Foreground.Yellow)=======================$($PSStyle.Reset)
 $($PSStyle.Foreground.Green)pubip$($PSStyle.Reset) - Get public IP | i.e. Invoke-WebRequest http://ifconfig.me/ip
 $($PSStyle.Foreground.Green)flushdns$($PSStyle.Reset) - Clear DNS cache | i.e. Clear-DnsClientCache
 $($PSStyle.Foreground.Green)cpy$($PSStyle.Reset) <text> - Copy to clipboard | i.e. Set-Clipboard <text>
 $($PSStyle.Foreground.Green)pst$($PSStyle.Reset) - Get clipboard text | i.e. Get-Clipboard
-
-$($PSStyle.Foreground.Cyan)Advanced Utilities$($PSStyle.Reset)
-$($PSStyle.Foreground.Yellow)=======================$($PSStyle.Reset)
-$($PSStyle.Foreground.Green)hb$($PSStyle.Reset) <file> - Upload file to hastebin service
 $($PSStyle.Foreground.Green)export$($PSStyle.Reset) <name> <value> - Set env variable | i.e. \$env <name> = <value>
-
-$($PSStyle.Foreground.Cyan)External Tools$($PSStyle.Reset)
-$($PSStyle.Foreground.Yellow)=======================$($PSStyle.Reset)
 $($PSStyle.Foreground.Green)winutil$($PSStyle.Reset) - Launch Chris Titus WinUtil (full release)
 $($PSStyle.Foreground.Green)winutildev$($PSStyle.Reset) - Launch Chris Titus WinUtil (dev/pre-release)
-
-$($PSStyle.Foreground.Cyan)Aliases$($PSStyle.Reset)
-$($PSStyle.Foreground.Yellow)=======================$($PSStyle.Reset)
 $($PSStyle.Foreground.Green)vim$($PSStyle.Reset) - Configured editor | i.e. \$EDITOR (nvim/vim/code/etc)
 $($PSStyle.Foreground.Green)su$($PSStyle.Reset) - Admin privilege escalation | i.e. admin
-
 $($PSStyle.Foreground.Yellow)=======================$($PSStyle.Reset)
-Type '$($PSStyle.Foreground.Magenta)Show-Help$($PSStyle.Reset)' anytime to display this help.
+
+Use '$($PSStyle.Foreground.Magenta)Show-Help$($PSStyle.Reset)' anytime to display this help message.
 "@
     Write-Host $helpText
 }
