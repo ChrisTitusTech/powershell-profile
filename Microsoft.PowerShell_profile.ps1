@@ -486,8 +486,8 @@ function dtop {
 function k9 { Stop-Process -Name $args[0] }
 
 # Enhanced Listing
-function la { Get-ChildItem | Format-Table -AutoSize }
-function ll { Get-ChildItem -Force | Format-Table -AutoSize }
+function la($dir = "") { Get-ChildItem $dir | Format-Table -AutoSize }
+function ll($dir = "") { Get-ChildItem -Force $dir | Format-Table -AutoSize }
 
 # Git Shortcuts
 function gs { git status }
@@ -751,8 +751,8 @@ $($PSStyle.Foreground.Green)sed$($PSStyle.Reset) <file> <find> <replace> - Repla
 $($PSStyle.Foreground.Green)head$($PSStyle.Reset) <path> [n] - Show first n lines (def: 10) | i.e. Get-Content -Head
 $($PSStyle.Foreground.Green)tail$($PSStyle.Reset) <path> [n] - Show last n lines (def: 10) | i.e. Get-Content -Tail
 $($PSStyle.Foreground.Green)which$($PSStyle.Reset) <name> - Show command path | i.e. Get-Command -ExpandProperty Definition
-$($PSStyle.Foreground.Green)la$($PSStyle.Reset) - List files formatted | i.e. Get-ChildItem | Format-Table
-$($PSStyle.Foreground.Green)ll$($PSStyle.Reset) - List all files incl. hidden | i.e. Get-ChildItem -Force | Format-Table
+$($PSStyle.Foreground.Green)la$($PSStyle.Reset) [directory] - List files formatted | i.e. Get-ChildItem [directory] | Format-Table
+$($PSStyle.Foreground.Green)ll$($PSStyle.Reset) [directory] - List all files incl. hidden | i.e. Get-ChildItem [directory] -Force | Format-Table
 $($PSStyle.Foreground.Green)sysinfo$($PSStyle.Reset) - System info details | i.e. Get-ComputerInfo
 $($PSStyle.Foreground.Green)df$($PSStyle.Reset) - Volume information | i.e. Get-Volume
 $($PSStyle.Foreground.Green)pubip$($PSStyle.Reset) - Get public IP | i.e. Invoke-WebRequest http://ifconfig.me/ip
