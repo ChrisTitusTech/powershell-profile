@@ -482,6 +482,10 @@ function dtop {
     Set-Location -Path $dtop
 }
 
+# Dot navigation to parent directories
+function .. { Set-Location .. }
+function ... { Set-Location ../.. }
+
 # Simplified Process Management
 function k9 { Stop-Process -Name $args[0] }
 
@@ -610,6 +614,27 @@ Set-PSReadLineKeyHandler -Chord 'Ctrl+LeftArrow' -Function BackwardWord
 Set-PSReadLineKeyHandler -Chord 'Ctrl+RightArrow' -Function ForwardWord
 Set-PSReadLineKeyHandler -Chord 'Ctrl+z' -Function Undo
 Set-PSReadLineKeyHandler -Chord 'Ctrl+y' -Function Redo
+
+# Triple-Dot Directory Navigation
+# Expands ... to ../.. in any command, supports chaining
+Set-PSReadLineKeyHandler -Key Enter -ScriptBlock {
+    $line = $null
+    $cursor = $null
+    [Microsoft.PowerShell.PSConsoleReadLine]::GetBufferState([ref]$line, [ref]$cursor)
+    
+    if ($line -match '(?<!^)\.\.\.') {
+        $expanded = $line -replace '\.\.\.', '../..'
+
+        if ($expanded -ne $line) {
+            [Microsoft.PowerShell.PSConsoleReadLine]::DeleteLine()
+            [Microsoft.PowerShell.PSConsoleReadLine]::Insert($expanded)
+            [Microsoft.PowerShell.PSConsoleReadLine]::AcceptLine()
+            return
+        }
+    }
+
+    [Microsoft.PowerShell.PSConsoleReadLine]::AcceptLine()
+} -ErrorAction SilentlyContinue
 
 # Custom functions for PSReadLine
 Set-PSReadLineOption -AddToHistoryHandler {
