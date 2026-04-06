@@ -621,7 +621,7 @@ Set-PSReadLineKeyHandler -Key Enter -ScriptBlock {
     $line = $null
     $cursor = $null
     [Microsoft.PowerShell.PSConsoleReadLine]::GetBufferState([ref]$line, [ref]$cursor)
-    
+
     if ($line -match '(?<!^)\.\.\.') {
         $expanded = $line -replace '\.\.\.', '../..'
 
