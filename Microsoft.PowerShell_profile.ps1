@@ -539,9 +539,9 @@ function gb { git branch "$args" }
 
 function gbr { git branch -r "$args" }
 
-function gco { git checkout "$args"
+function gco { git checkout "$args" }
 
-function glog { git log --oneline --graph } }
+function glog { git log --oneline --graph }
 
 function gpsh { git push }
 
