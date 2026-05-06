@@ -22,6 +22,7 @@ $debug = $false
 ############                      $EDITOR_Override                                                                   ############
 ############                      $debug_Override                                                                    ############
 ############                      $repo_root_Override  [To point to a fork, for example]                             ############
+############                      $show_help_Override  [display Show-Help on PowerShell launch]                      ############
 ############                      $timeFilePath_Override                                                             ############
 ############                      $updateInterval_Override                                                           ############
 ############                                                                                                         ############
@@ -298,7 +299,7 @@ if ($EDITOR_Override){
 }
 # Quick Access to Editing the Profile
 function Edit-Profile {
-    vim $PROFILE.CurrentUserAllHosts
+    & $EDITOR $PROFILE.CurrentUserAllHosts
 }
 Set-Alias -Name ep -Value Edit-Profile
 
@@ -337,11 +338,12 @@ function winutildev {
 
 # System Utilities
 function admin {
+    $cwd = (Get-Location).ProviderPath
     if ($args.Count -gt 0) {
         $argList = $args -join ' '
-        Start-Process wt -Verb runAs -ArgumentList "pwsh.exe -NoExit -Command $argList"
+        Start-Process wt -Verb runAs -ArgumentList @('-d', $cwd, 'pwsh.exe', '-NoExit', '-Command', $argList)
     } else {
-        Start-Process wt -Verb runAs
+        Start-Process wt -Verb runAs -ArgumentList @('-d', $cwd, 'pwsh.exe', '-NoExit')
     }
 }
 
@@ -755,7 +757,9 @@ Use '$($PSStyle.Foreground.Magenta)Show-Help$($PSStyle.Reset)' to display this h
 }
 
 if (Test-Path "$PSScriptRoot\CTTcustom.ps1") {
-    Invoke-Expression -Command "& `"$PSScriptRoot\CTTcustom.ps1`""
+    . (Join-Path -Path $PSScriptRoot -ChildPath 'CTTcustom.ps1')
 }
 
-Write-Host "$($PSStyle.Foreground.Yellow)Use 'Show-Help' to display help$($PSStyle.Reset)"
+if (-not $show_help_Override) {
+    Write-Host "$($PSStyle.Foreground.Yellow)Use 'Show-Help' to display help$($PSStyle.Reset)"
+}
