@@ -56,14 +56,7 @@ function Update-Profile {
     Write-Host "Updated PowerShell Profile" -ForegroundColor Green
 }
 
-function Update-PowerShell {
-    # This does work pwsh can update itself inside of itself :)
-    winget upgrade Microsoft.Powershell --source winget --silent
-}
-
-function touch {
-    param([string]$File)
-    
+function touch ($File) {
     if (Test-Path $File) {
         (Get-Item $File).LastWriteTime = Get-Date
     } else {
@@ -91,8 +84,7 @@ function unzip ($file) {
     Expand-Archive -Path $file
 }
 
-function grep {
-    param([string]$Pattern,[string]$Path)
+function grep ($Pattern, $Path) {
     Select-String -Pattern $Pattern -Path $Path
 }
 
@@ -104,18 +96,12 @@ function which ($name) {
     (Get-Command $name).Definition
 }
 
-function head {
-    param($Path, $n = 10)
-    Get-Content $Path -Head $n
-}
-
-function tail {
-    param($Path, $n = 10, [switch]$f = $false)
-    Get-Content $Path -Tail $n -Wait:$f
+function head ($Path) {
+    Get-Content $Path -Head 10
 }
 
 function mkcd ($dir) {
-    New-Item -Path $dir -ItemType Directory -Force
+    New-Item -Path $dir -ItemType Directory -Force | Out-Null
     Set-Location -Path $dir
 }
 
@@ -194,7 +180,6 @@ function Show-Help {
     $($PSStyle.Foreground.Green)ll$($PSStyle.Reset) - Lists all files, including hidden, in the current directory with detailed formatting.
     $($PSStyle.Foreground.Green)mkcd$($PSStyle.Reset) <dir> - Creates and changes to a new directory.
     $($PSStyle.Foreground.Green)sed$($PSStyle.Reset) <file> <find> <replace> - Replaces text in a file.
-    $($PSStyle.Foreground.Green)tail$($PSStyle.Reset) <path> [n] - Displays the last n lines of a file (default 10).
     $($PSStyle.Foreground.Green)touch$($PSStyle.Reset) <file> - Creates a new empty file.
     $($PSStyle.Foreground.Green)unzip$($PSStyle.Reset) <file> - Extracts a zip file to the current directory.
     $($PSStyle.Foreground.Green)uptime$($PSStyle.Reset) - Displays the system uptime.
