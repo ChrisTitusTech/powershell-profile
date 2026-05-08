@@ -6,16 +6,15 @@ Write-Host "$($PSStyle.Foreground.Yellow)Use 'Show-Help' to display help$($PSSty
 # History
 #----------
 
-$psReadLineOptions = @{
-    EditMode                      = 'Windows'
-    HistoryNoDuplicates           = $true
-    HistorySearchCursorMovesToEnd = $true
-    BellStyle                     = 'None'
-    PredictionSource              = 'History'
-    PredictionViewStyle           = 'ListView'
-    MaximumHistoryCount           = 10000
-
-    Colors = @{
+Set-PSReadLineOption `
+    -EditMode Windows `
+    -HistoryNoDuplicates `
+    -HistorySearchCursorMovesToEnd `
+    -BellStyle None `
+    -PredictionSource History `
+    -PredictionViewStyle ListView `
+    -MaximumHistoryCount 10000 `
+    -Colors @{
         Command   = '#87CEEB'
         Parameter = '#98FB98'
         Operator  = '#FFB6C1'
@@ -26,15 +25,10 @@ $psReadLineOptions = @{
         Comment   = '#D3D3D3'
         Keyword   = '#8367c7'
         Error     = '#FF6347'
+    } `
+    -AddToHistoryHandler {
+        $args[0] -notmatch 'password|secret|token|apikey|connectionstring'
     }
-
-    AddToHistoryHandler = {
-        param($line)
-        $line -notmatch 'password|secret|token|apikey|connectionstring'
-    }
-}
-
-Set-PSReadLineOption @psReadLineOptions
 
 $bindings = @{
     UpArrow          = 'HistorySearchBackward'
@@ -49,8 +43,8 @@ $bindings = @{
     'Ctrl+y'         = 'Redo'
 }
 
-$bindings.GetEnumerator() | ForEach-Object {
-    Set-PSReadLineKeyHandler -Key $_.Key -Function $_.Value
+foreach ($b in $bindings.Keys) {
+    Set-PSReadLineKeyHandler -Key $b -Function $bindings[$b]
 }
 
 #----------
