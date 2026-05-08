@@ -160,8 +160,7 @@ function Show-Help {
     $($PSStyle.Foreground.Cyan)PowerShell Profile Help$($PSStyle.Reset)
     $($PSStyle.Foreground.Yellow)=======================$($PSStyle.Reset)
     $($PSStyle.Foreground.Green)Update-Profile$($PSStyle.Reset) - Checks for profile updates from a remote repository and updates if necessary.
-    $($PSStyle.Foreground.Green)Update-PowerShell$($PSStyle.Reset) - Checks for the latest PowerShell release and updates if a new version is available.
-    
+
     $($PSStyle.Foreground.Cyan)Git Shortcuts$($PSStyle.Reset)
     $($PSStyle.Foreground.Yellow)=======================$($PSStyle.Reset)
     $($PSStyle.Foreground.Green)g$($PSStyle.Reset) - Changes to the GitHub directory.
@@ -174,7 +173,7 @@ function Show-Help {
     $($PSStyle.Foreground.Green)gpush$($PSStyle.Reset) - Shortcut for 'git push'.
     $($PSStyle.Foreground.Green)gs$($PSStyle.Reset) - Shortcut for 'git status'.
     $($PSStyle.Foreground.Green)lazyg$($PSStyle.Reset) <message> - Adds all changes, commits with the specified message, and pushes to the remote repository.
-    
+
     $($PSStyle.Foreground.Cyan)Shortcuts$($PSStyle.Reset)
     $($PSStyle.Foreground.Yellow)=======================$($PSStyle.Reset)
     $($PSStyle.Foreground.Green)docs$($PSStyle.Reset) - Changes the current directory to the user's Documents folder.
