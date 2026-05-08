@@ -1,3 +1,7 @@
+# Chris Titus Tech's PowerShell profile
+# Uses oh-my-posh for nice looking ui and has custom history + custom build-in functions
+
+Set-ExecutionPolicy -ExecutionPolicy Unrestricted -Scope Process
 Invoke-Expression (oh-my-posh init pwsh --config $Home\cobalt2.omp.json)
 
 Write-Host "$($PSStyle.Foreground.Yellow)Use 'Show-Help' to list all available functions$($PSStyle.Reset)"
