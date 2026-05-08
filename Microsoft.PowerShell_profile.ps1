@@ -1,6 +1,6 @@
 oh-my-posh init pwsh --config (Join-Path (Split-Path $Profile) 'cobalt2.omp.json') | Invoke-Expression
 
-Write-Host "$($PSStyle.Foreground.Yellow)Use 'Show-Help' to display help$($PSStyle.Reset)"
+Write-Host "$($PSStyle.Foreground.Yellow)Use 'Show-Help' to list all available functions$($PSStyle.Reset)"
 
 #----------
 # History
