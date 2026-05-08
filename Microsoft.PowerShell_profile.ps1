@@ -150,42 +150,37 @@ function lazyg {
 }
 
 function Show-Help {
-    $helpText = @"
-    $($PSStyle.Foreground.Cyan)PowerShell Profile Help$($PSStyle.Reset)
-    $($PSStyle.Foreground.Yellow)=======================$($PSStyle.Reset)
-    $($PSStyle.Foreground.Green)Update-Profile$($PSStyle.Reset) - Checks for profile updates from a remote repository and updates if necessary.
+    Write-Host @"
+$($PSStyle.Foreground.Cyan)PowerShell Profile Help$($PSStyle.Reset)
+$($PSStyle.Foreground.Yellow)=======================$($PSStyle.Reset)
+$($PSStyle.Foreground.Green)Update-Profile$($PSStyle.Reset) - Checks for profile updates from a remote repository and updates if necessary.
 
-    $($PSStyle.Foreground.Cyan)Git Shortcuts$($PSStyle.Reset)
-    $($PSStyle.Foreground.Yellow)=======================$($PSStyle.Reset)
-    $($PSStyle.Foreground.Green)g$($PSStyle.Reset) - Changes to the GitHub directory.
-    $($PSStyle.Foreground.Green)ga$($PSStyle.Reset) - Shortcut for 'git add .'.
-    $($PSStyle.Foreground.Green)gc$($PSStyle.Reset) <message> - Shortcut for 'git commit -m'.
-    $($PSStyle.Foreground.Green)gcl$($PSStyle.Reset) <repo> - Shortcut for 'git clone'.
-    $($PSStyle.Foreground.Green)gcom$($PSStyle.Reset) <message> - Adds all changes and commits with the specified message.
-    $($PSStyle.Foreground.Green)gp$($PSStyle.Reset) - Shortcut for 'git push'.
-    $($PSStyle.Foreground.Green)gpull$($PSStyle.Reset) - Shortcut for 'git pull'.
-    $($PSStyle.Foreground.Green)gpush$($PSStyle.Reset) - Shortcut for 'git push'.
-    $($PSStyle.Foreground.Green)gs$($PSStyle.Reset) - Shortcut for 'git status'.
-    $($PSStyle.Foreground.Green)lazyg$($PSStyle.Reset) <message> - Adds all changes, commits with the specified message, and pushes to the remote repository.
+$($PSStyle.Foreground.Cyan)Git Shortcuts$($PSStyle.Reset)
+$($PSStyle.Foreground.Yellow)=======================$($PSStyle.Reset)
+$($PSStyle.Foreground.Green)g$($PSStyle.Reset) - Changes to the GitHub directory.
+$($PSStyle.Foreground.Green)ga$($PSStyle.Reset) - git add .
+$($PSStyle.Foreground.Green)gc <message>$($PSStyle.Reset) - git commit -m
+$($PSStyle.Foreground.Green)gcl <repo>$($PSStyle.Reset) - git clone
+$($PSStyle.Foreground.Green)gcom <message>$($PSStyle.Reset) - add + commit
+$($PSStyle.Foreground.Green)gp / gpush$($PSStyle.Reset) - git push
+$($PSStyle.Foreground.Green)gpull$($PSStyle.Reset) - git pull
+$($PSStyle.Foreground.Green)gs$($PSStyle.Reset) - git status
+$($PSStyle.Foreground.Green)lazyg <message>$($PSStyle.Reset) - add + commit + push
 
-    $($PSStyle.Foreground.Cyan)Shortcuts$($PSStyle.Reset)
-    $($PSStyle.Foreground.Yellow)=======================$($PSStyle.Reset)
-    $($PSStyle.Foreground.Green)docs$($PSStyle.Reset) - Changes the current directory to the user's Documents folder.
-    $($PSStyle.Foreground.Green)ff$($PSStyle.Reset) <name> - Finds files recursively with the specified name.
-    $($PSStyle.Foreground.Green)grep$($PSStyle.Reset) <regex> [dir] - Searches for a regex pattern in files within the specified directory or from the pipeline input.
-    $($PSStyle.Foreground.Green)head$($PSStyle.Reset) <path> [n] - Displays the first n lines of a file (default 10).
-    $($PSStyle.Foreground.Green)la$($PSStyle.Reset) - Lists all files in the current directory with detailed formatting.
-    $($PSStyle.Foreground.Green)ll$($PSStyle.Reset) - Lists all files, including hidden, in the current directory with detailed formatting.
-    $($PSStyle.Foreground.Green)mkcd$($PSStyle.Reset) <dir> - Creates and changes to a new directory.
-    $($PSStyle.Foreground.Green)sed$($PSStyle.Reset) <file> <find> <replace> - Replaces text in a file.
-    $($PSStyle.Foreground.Green)touch$($PSStyle.Reset) <file> - Creates a new empty file.
-    $($PSStyle.Foreground.Green)unzip$($PSStyle.Reset) <file> - Extracts a zip file to the current directory.
-    $($PSStyle.Foreground.Green)uptime$($PSStyle.Reset) - Displays the system uptime.
-    $($PSStyle.Foreground.Green)which$($PSStyle.Reset) <name> - Shows the path of the command.
-    $($PSStyle.Foreground.Green)winutil$($PSStyle.Reset) - Runs the latest WinUtil full-release script from Chris Titus Tech.
-    $($PSStyle.Foreground.Green)winutildev$($PSStyle.Reset) - Runs the latest WinUtil pre-release script from Chris Titus Tech.
-    $($PSStyle.Foreground.Yellow)=======================$($PSStyle.Reset)
+$($PSStyle.Foreground.Cyan)Shortcuts$($PSStyle.Reset)
+$($PSStyle.Foreground.Yellow)=======================$($PSStyle.Reset)
+$($PSStyle.Foreground.Green)docs$($PSStyle.Reset) - Documents folder
+$($PSStyle.Foreground.Green)ff <name>$($PSStyle.Reset) - search files
+$($PSStyle.Foreground.Green)grep <regex> [dir]$($PSStyle.Reset) - search text
+$($PSStyle.Foreground.Green)head <file> [n]$($PSStyle.Reset) - first lines
+$($PSStyle.Foreground.Green)la / ll$($PSStyle.Reset) - list files
+$($PSStyle.Foreground.Green)mkcd <dir>$($PSStyle.Reset) - create + enter dir
+$($PSStyle.Foreground.Green)sed <file> <find> <replace>$($PSStyle.Reset) - replace text
+$($PSStyle.Foreground.Green)touch <file>$($PSStyle.Reset) - create file
+$($PSStyle.Foreground.Green)unzip <file>$($PSStyle.Reset) - extract zip
+$($PSStyle.Foreground.Green)uptime$($PSStyle.Reset) - system uptime
+$($PSStyle.Foreground.Green)which <name>$($PSStyle.Reset) - locate command
+$($PSStyle.Foreground.Green)winutil / winutildev$($PSStyle.Reset) - run WinUtil
+$($PSStyle.Foreground.Yellow)=======================$($PSStyle.Reset)
 "@
-
-    Write-Host $helpText
 }
