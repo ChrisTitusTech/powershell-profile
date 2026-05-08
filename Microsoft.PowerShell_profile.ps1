@@ -1,116 +1,8 @@
-# Check for Profile Updates
-function Update-Profile {
-    Invoke-WebRequest -Uri https://github.com/ChrisTitusTech/powershell-profile/raw/main/Microsoft.PowerShell_profile.ps1 -OutFile $Profile
-    Write-Host "Updated PowerShell Profile" -ForegroundColor Green
-}
+oh-my-posh init pwsh --config (Join-Path (Split-Path $Profile) 'cobalt2.omp.json') | Invoke-Expression
 
-function Update-PowerShell {
-    # This does work pwsh can update itself inside of itself :)
-    winget upgrade Microsoft.Powershell --source winget --silent
-}
+Write-Host "$($PSStyle.Foreground.Yellow)Use 'Show-Help' to display help$($PSStyle.Reset)"
 
-function touch {
-    param([string]$File)
-    
-    if (Test-Path $File) {
-        (Get-Item $File).LastWriteTime = Get-Date
-    } else {
-        New-Item $File -ItemType File | Out-Null
-    }
-}
-
-function ff ($name) {
-    (Get-ChildItem -Filter "$name" -Recurse).FullName
-}
-
-function winutil {
-    Invoke-Expression (Invoke-RestMethod https://christitus.com/win)
-}
-
-function winutildev {
-    Invoke-Expression (Invoke-RestMethod https://christitus.com/windev)
-}
-
-function uptime {
-    (Get-Date) - (gcim Win32_OperatingSystem).LastBootUpTime | Select-Object Days, Hours, Minutes, Seconds
-}
-
-function unzip ($file) {
-    Expand-Archive -Path $file
-}
-
-function grep {
-    param(
-        [string]$Pattern,
-        [string]$Path
-    )
-
-    Select-String -Pattern $Pattern -Path $Path
-}
-
-function sed ($file, $find, $replace) {
-    (Get-Content $file).replace("$find", $replace) | Set-Content $file
-}
-
-function which ($name) {
-    (Get-Command $name).Definition
-}
-
-function head {
-    param($Path, $n = 10)
-    Get-Content $Path -Head $n
-}
-
-function tail {
-    param($Path, $n = 10, [switch]$f = $false)
-    Get-Content $Path -Tail $n -Wait:$f
-}
-
-function mkcd {
-    param($dir)
-    New-Item -Path $dir -ItemType Directory -Force
-    Set-Location -Path $dir
-}
-
-function trash($Path) {
-    $shell = New-Object -ComObject Shell.Application
-
-    $full = (Resolve-Path $Path).Path
-    $folder = Split-Path $full
-    $name = Split-Path $full -Leaf
-
-    $item = $shell.Namespace($folder).ParseName($name)
-    $item.InvokeVerb("delete")
-
-    Write-Host "Moved to Recycle Bin: $full"
-}
-
-function docs {
-    Set-Location -Path $Home\Documents
-}
-
-function la { Get-ChildItem | Format-Table -AutoSize }
-function ll { Get-ChildItem -Force | Format-Table -AutoSize }
-
-function gs { git status }
-function ga { git add . }
-function gc { param($m) git commit -m "$m" }
-function gpush { git push }
-function gpull { git pull }
-function g { __zoxide_z github }
-function gcl { git clone "$args" }
-
-function gcom {
-    git add .
-    git commit -m "$args"
-}
-
-function lazyg {
-    git add .
-    git commit -m "$args"
-    git push
-}
-
+# Setup Powershell history
 $psReadLineOptions = @{
     EditMode                      = 'Windows'
     HistoryNoDuplicates           = $true
@@ -159,7 +51,117 @@ $bindings.GetEnumerator() | ForEach-Object {
     Set-PSReadLineKeyHandler -Key $_.Key -Function $_.Value
 }
 
-oh-my-posh init pwsh --config (Split-Path $Profile) + '\cobalt2.omp.json' | Invoke-Expression
+function Update-Profile {
+    Invoke-WebRequest -Uri https://github.com/ChrisTitusTech/powershell-profile/raw/main/Microsoft.PowerShell_profile.ps1 -OutFile $Profile
+    Write-Host "Updated PowerShell Profile" -ForegroundColor Green
+}
+
+function Update-PowerShell {
+    # This does work pwsh can update itself inside of itself :)
+    winget upgrade Microsoft.Powershell --source winget --silent
+}
+
+function touch {
+    param([string]$File)
+    
+    if (Test-Path $File) {
+        (Get-Item $File).LastWriteTime = Get-Date
+    } else {
+        New-Item $File -ItemType File | Out-Null
+    }
+}
+
+function ff ($name) {
+    (Get-ChildItem -Filter "$name" -Recurse).FullName
+}
+
+function winutil {
+    Invoke-Expression (Invoke-RestMethod https://christitus.com/win)
+}
+
+function winutildev {
+    Invoke-Expression (Invoke-RestMethod https://christitus.com/windev)
+}
+
+function uptime {
+    (Get-Date) - (gcim Win32_OperatingSystem).LastBootUpTime | Select-Object Days, Hours, Minutes, Seconds
+}
+
+function unzip ($file) {
+    Expand-Archive -Path $file
+}
+
+function grep {
+    param([string]$Pattern,[string]$Path)
+    Select-String -Pattern $Pattern -Path $Path
+}
+
+function sed ($file, $find, $replace) {
+    (Get-Content $file).replace("$find", $replace) | Set-Content $file
+}
+
+function which ($name) {
+    (Get-Command $name).Definition
+}
+
+function head {
+    param($Path, $n = 10)
+    Get-Content $Path -Head $n
+}
+
+function tail {
+    param($Path, $n = 10, [switch]$f = $false)
+    Get-Content $Path -Tail $n -Wait:$f
+}
+
+function mkcd ($dir) {
+    New-Item -Path $dir -ItemType Directory -Force
+    Set-Location -Path $dir
+}
+
+function trash ($Path) {
+    $shell = New-Object -ComObject Shell.Application
+
+    $full = (Resolve-Path $Path).Path
+    $folder = Split-Path $full
+    $name = Split-Path $full -Leaf
+
+    $item = $shell.Namespace($folder).ParseName($name)
+    $item.InvokeVerb("delete")
+
+    Write-Host "Moved to Recycle Bin: $full"
+}
+
+function docs {
+    Set-Location -Path $Home\Documents
+}
+
+function la {
+    Get-ChildItem | Format-Table -AutoSize
+}
+
+function ll {
+    Get-ChildItem -Force | Format-Table -AutoSize
+}
+
+function gs { git status }
+function ga { git add . }
+function gc { param($m) git commit -m "$m" }
+function gpush { git push }
+function gpull { git pull }
+function g { __zoxide_z github }
+function gcl { git clone "$args" }
+
+function gcom {
+    git add .
+    git commit -m "$args"
+}
+
+function lazyg {
+    git add .
+    git commit -m "$args"
+    git push
+}
 
 function Show-Help {
     $helpText = @"
@@ -204,5 +206,3 @@ function Show-Help {
 
     Write-Host $helpText
 }
-
-Write-Host "$($PSStyle.Foreground.Yellow)Use 'Show-Help' to display help$($PSStyle.Reset)"
