@@ -1,4 +1,4 @@
-oh-my-posh init pwsh --config $Home\cobalt2.omp.json | Invoke-Expression
+Invoke-Expression (oh-my-posh init pwsh --config $Home\cobalt2.omp.json)
 
 Write-Host "$($PSStyle.Foreground.Yellow)Use 'Show-Help' to list all available functions$($PSStyle.Reset)"
 
