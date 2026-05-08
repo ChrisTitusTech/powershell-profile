@@ -2,7 +2,10 @@ oh-my-posh init pwsh --config (Join-Path (Split-Path $Profile) 'cobalt2.omp.json
 
 Write-Host "$($PSStyle.Foreground.Yellow)Use 'Show-Help' to display help$($PSStyle.Reset)"
 
-# Setup Powershell history
+#----------
+# History
+#----------
+
 $psReadLineOptions = @{
     EditMode                      = 'Windows'
     HistoryNoDuplicates           = $true
@@ -49,6 +52,10 @@ $bindings = @{
 $bindings.GetEnumerator() | ForEach-Object {
     Set-PSReadLineKeyHandler -Key $_.Key -Function $_.Value
 }
+
+#----------
+# Functions
+#----------
 
 function Update-Profile {
     Invoke-WebRequest -Uri https://github.com/ChrisTitusTech/powershell-profile/raw/main/Microsoft.PowerShell_profile.ps1 -OutFile $Profile
