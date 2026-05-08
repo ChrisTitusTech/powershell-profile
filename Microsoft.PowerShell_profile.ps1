@@ -6,7 +6,7 @@ function Update-Profile {
 
 function Update-PowerShell {
     # This does work pwsh can update itself inside of itself :)
-    winget upgrade Microsoft.Powershell
+    winget upgrade Microsoft.Powershell --source winget --silent
 }
 
 function touch {
