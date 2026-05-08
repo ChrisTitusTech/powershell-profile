@@ -33,7 +33,6 @@ $psReadLineOptions = @{
 
 Set-PSReadLineOption @psReadLineOptions
 
-# Keybindings
 $bindings = @{
     UpArrow          = 'HistorySearchBackward'
     DownArrow        = 'HistorySearchForward'
