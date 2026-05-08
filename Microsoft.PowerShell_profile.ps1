@@ -6,10 +6,7 @@ Invoke-Expression (oh-my-posh init pwsh --config $Home\cobalt2.omp.json)
 
 Write-Host "$($PSStyle.Foreground.Yellow)Use 'Show-Help' to list all available functions$($PSStyle.Reset)"
 
-#----------
 # History
-#----------
-
 Set-PSReadLineOption `
     -EditMode Windows `
     -HistoryNoDuplicates `
@@ -51,10 +48,7 @@ foreach ($b in $bindings.Keys) {
     Set-PSReadLineKeyHandler -Key $b -Function $bindings[$b]
 }
 
-#----------
 # Functions
-#----------
-
 function Update-Profile {
     Invoke-WebRequest -Uri https://github.com/ChrisTitusTech/powershell-profile/raw/main/Microsoft.PowerShell_profile.ps1 -OutFile $Profile
     Write-Host "Updated PowerShell Profile" -ForegroundColor Green
