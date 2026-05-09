@@ -1,5 +1,5 @@
 # Chris Titus Tech's PowerShell profile
-# Uses oh-my-posh for nice looking ui and has custom history + custom build-in functions
+# Uses oh-my-posh and has custom history + custom build-in functions
 
 Invoke-Expression (oh-my-posh init pwsh --config $Home\cobalt2.omp.json)
 Write-Host "Use 'Show-Help' to list all available functions" -ForegroundColor Yellow
