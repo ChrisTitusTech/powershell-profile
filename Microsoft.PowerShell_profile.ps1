@@ -95,6 +95,10 @@ function docs {
     Set-Location -Path $Home\Documents
 }
 
+function la {
+    Get-ChildItem | Format-Table -AutoSize
+}
+
 function ll {
     Get-ChildItem -Force | Format-Table -AutoSize
 }
@@ -106,7 +110,10 @@ function gc ($m) { git commit -m "$m" }
 function gpush { git push }
 function gpull { git pull }
 function g { __zoxide_z github }
-function gcl { git clone "$args" }
+
+function gcl {
+    git clone $args
+}
 
 function gcom {
     git add .
