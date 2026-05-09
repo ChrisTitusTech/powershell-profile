@@ -94,12 +94,8 @@ function docs {
     Set-Location -Path $Home\Documents
 }
 
-function la ($Path) {
-    Get-ChildItem "*$Path*" | Format-Table -AutoSize
-}
-
-function ll ($Path) {
-    Get-ChildItem "*$Path*" -Force | Format-Table -AutoSize
+function ll {
+    Get-ChildItem -Force | Format-Table -AutoSize
 }
 
 function gs { git status }
