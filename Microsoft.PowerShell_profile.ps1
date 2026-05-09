@@ -79,16 +79,11 @@ function mkcd ($Path) {
 }
 
 function trash ($Path) {
-    $shell = New-Object -ComObject Shell.Application
-
-    $full = (Resolve-Path $Path).Path
-    $folder = Split-Path $full
-    $name = Split-Path $full -Leaf
-
-    $item = $shell.Namespace($folder).ParseName($name)
-    $item.InvokeVerb("delete")
-
-    Write-Host "Moved to Recycle Bin: $full"
+    if (Test-Path $Path -PathType Container) {
+        [Microsoft.VisualBasic.FileIO.FileSystem]::DeleteDirectory($Path,'OnlyErrorDialogs','SendToRecycleBin')
+    } else {
+        [Microsoft.VisualBasic.FileIO.FileSystem]::DeleteFile($Path,'OnlyErrorDialogs','SendToRecycleBin')
+    }
 }
 
 function docs {
