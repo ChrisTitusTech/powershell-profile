@@ -118,37 +118,49 @@ function lazyg {
 }
 
 function Show-Help {
+    $title    = $PSStyle.Foreground.BrightMagenta
+    $section  = $PSStyle.Foreground.BrightBlue
+    $command  = $PSStyle.Foreground.BrightGreen
+    $desc     = $PSStyle.Foreground.BrightWhite
+    $accent   = $PSStyle.Foreground.BrightYellow
+    $dim      = $PSStyle.Foreground.BrightBlack
+    $reset    = $PSStyle.Reset
+
     Write-Host @"
-$($PSStyle.Foreground.Cyan)PowerShell Profile Help$($PSStyle.Reset)
-$($PSStyle.Foreground.Yellow)=======================$($PSStyle.Reset)
-$($PSStyle.Foreground.Green)Update-Profile$($PSStyle.Reset) - Checks for profile updates from a remote repository and updates if necessary.
+${title}󰘳 PowerShell Profile Help${reset}
+${dim}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${reset}
 
-$($PSStyle.Foreground.Cyan)Git Shortcuts$($PSStyle.Reset)
-$($PSStyle.Foreground.Yellow)=======================$($PSStyle.Reset)
-$($PSStyle.Foreground.Green)g$($PSStyle.Reset) - Changes to the GitHub directory.
-$($PSStyle.Foreground.Green)ga$($PSStyle.Reset) - git add .
-$($PSStyle.Foreground.Green)gc <message>$($PSStyle.Reset) - git commit -m
-$($PSStyle.Foreground.Green)gcl <repo>$($PSStyle.Reset) - git clone
-$($PSStyle.Foreground.Green)gcom <message>$($PSStyle.Reset) - add + commit
-$($PSStyle.Foreground.Green)gp / gpush$($PSStyle.Reset) - git push
-$($PSStyle.Foreground.Green)gpull$($PSStyle.Reset) - git pull
-$($PSStyle.Foreground.Green)gs$($PSStyle.Reset) - git status
-$($PSStyle.Foreground.Green)lazyg <message>$($PSStyle.Reset) - add + commit + push
+${section}󰊢 Update${reset}
+  ${command}Update-Profile${reset}  ${accent}→${reset} ${desc}Updates the profile from a remote repository.${reset}
 
-$($PSStyle.Foreground.Cyan)Shortcuts$($PSStyle.Reset)
-$($PSStyle.Foreground.Yellow)=======================$($PSStyle.Reset)
-$($PSStyle.Foreground.Green)docs$($PSStyle.Reset) - Documents folder
-$($PSStyle.Foreground.Green)ff <name>$($PSStyle.Reset) - search files
-$($PSStyle.Foreground.Green)grep <regex> [dir]$($PSStyle.Reset) - search text
-$($PSStyle.Foreground.Green)head <file> [n]$($PSStyle.Reset) - first lines
-$($PSStyle.Foreground.Green)la / ll$($PSStyle.Reset) - list files
-$($PSStyle.Foreground.Green)mkcd <dir>$($PSStyle.Reset) - create + enter dir
-$($PSStyle.Foreground.Green)sed <file> <find> <replace>$($PSStyle.Reset) - replace text
-$($PSStyle.Foreground.Green)touch <file>$($PSStyle.Reset) - create file
-$($PSStyle.Foreground.Green)unzip <file>$($PSStyle.Reset) - extract zip
-$($PSStyle.Foreground.Green)uptime$($PSStyle.Reset) - system uptime
-$($PSStyle.Foreground.Green)which <name>$($PSStyle.Reset) - locate command
-$($PSStyle.Foreground.Green)winutil / winutildev$($PSStyle.Reset) - run WinUtil
-$($PSStyle.Foreground.Yellow)=======================$($PSStyle.Reset)
+${section}󰊢 Git Shortcuts${reset}
+${dim}────────────────────────────────────────────────────${reset}
+  ${command}g${reset}                  ${accent}→${reset} ${desc}Changes to the GitHub directory${reset}
+  ${command}ga${reset}                 ${accent}→${reset} ${desc}git add .${reset}
+  ${command}gc <message>${reset}       ${accent}→${reset} ${desc}git commit -m${reset}
+  ${command}gcl <repo>${reset}         ${accent}→${reset} ${desc}git clone${reset}
+  ${command}gcom <message>${reset}     ${accent}→${reset} ${desc}add + commit${reset}
+  ${command}gp / gpush${reset}         ${accent}→${reset} ${desc}git push${reset}
+  ${command}gpull${reset}              ${accent}→${reset} ${desc}git pull${reset}
+  ${command}gs${reset}                 ${accent}→${reset} ${desc}git status${reset}
+  ${command}lazyg <message>${reset}    ${accent}→${reset} ${desc}add + commit + push${reset}
+
+${section}󰘴 System Shortcuts${reset}
+${dim}────────────────────────────────────────────────────${reset}
+  ${command}docs${reset}               ${accent}→${reset} ${desc}Documents folder${reset}
+  ${command}ff <name>${reset}          ${accent}→${reset} ${desc}Search files${reset}
+  ${command}grep <regex> [dir]${reset} ${accent}→${reset} ${desc}Search text${reset}
+  ${command}head <file> [n]${reset}    ${accent}→${reset} ${desc}First lines${reset}
+  ${command}la / ll${reset}            ${accent}→${reset} ${desc}List files${reset}
+  ${command}mkcd <dir>${reset}         ${accent}→${reset} ${desc}Create + enter dir${reset}
+  ${command}sed <file> <find> <replace>${reset} ${accent}→${reset} ${desc}Replace text${reset}
+  ${command}touch <file>${reset}       ${accent}→${reset} ${desc}Create file${reset}
+  ${command}unzip <file>${reset}       ${accent}→${reset} ${desc}Extract zip${reset}
+  ${command}uptime${reset}             ${accent}→${reset} ${desc}System uptime${reset}
+  ${command}which <name>${reset}       ${accent}→${reset} ${desc}Locate command${reset}
+  ${command}winutil${reset}            ${accent}→${reset} ${desc}Run WinUtil${reset}
+  ${command}winutildev${reset}         ${accent}→${reset} ${desc}Run WinUtil Dev${reset}
+
+${dim}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${reset}
 "@
 }
