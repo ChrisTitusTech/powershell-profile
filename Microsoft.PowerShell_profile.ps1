@@ -4,31 +4,21 @@
 Invoke-Expression (oh-my-posh init pwsh --config $Home\cobalt2.omp.json)
 Write-Host "Use 'Show-Help' to list all available functions" -ForegroundColor Yellow
 
-# History & Colors & bindings
-Set-PSReadLineOption `
-    -EditMode Windows `
-    -HistoryNoDuplicates `
-    -HistorySearchCursorMovesToEnd `
-    -BellStyle None `
-    -PredictionSource History `
-    -PredictionViewStyle ListView `
-    -MaximumHistoryCount 10000 `
-    -Colors @{
-        Command   = '#87CEEB'
-        Parameter = '#98FB98'
-        Operator  = '#FFB6C1'
-        Variable  = '#DDA0DD'
-        String    = '#FFDAB9'
-        Number    = '#B0E0E6'
-        Type      = '#F0E68C'
-        Comment   = '#D3D3D3'
-        Keyword   = '#8367c7'
-        Error     = '#FF6347'
-    } `
-    -AddToHistoryHandler {
-        $args[0] -notmatch 'password|secret|token|apikey|connectionstring'
-    }
+# History & Colors
+Set-PSReadLineOption -PredictionViewStyle ListView -Colors @{
+    Command   = '#87CEEB'
+    Parameter = '#98FB98'
+    Operator  = '#FFB6C1'
+    Variable  = '#DDA0DD'
+    String    = '#FFDAB9'
+    Number    = '#B0E0E6'
+    Type      = '#F0E68C'
+    Comment   = '#D3D3D3'
+    Keyword   = '#8367c7'
+    Error     = '#FF6347'
+}
 
+# bindings
 $bindings = @{
     UpArrow          = 'HistorySearchBackward'
     DownArrow        = 'HistorySearchForward'
