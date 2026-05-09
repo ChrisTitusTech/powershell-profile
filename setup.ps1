@@ -15,15 +15,7 @@ if (Test-Path $Profile) {
 }
 
 Invoke-WebRequest -Uri https://github.com/ChrisTitusTech/powershell-profile/raw/main/Microsoft.PowerShell_profile.ps1 -OutFile $Profile
-Write-Host "Installed PowerShell Profile" -ForegroundColor Green
-
 Invoke-WebRequest -Uri https://github.com/JanDeDobbeleer/oh-my-posh/raw/main/themes/cobalt2.omp.json -OutFile (Split-Path $Profile)
-Write-Host "Installed oh-my-posh theme" -ForegroundColor Green
 
-Write-Host "Installing dependencies..."
-
-# If you dont have winget then fuck you
-winget install JanDeDobbeleer.OhMyPosh --source winget --silent
-winget install ajeetdsouza.zoxide --source winget --silent
-
+winget install JanDeDobbeleer.OhMyPosh ajeetdsouza.zoxide --source winget --silent
 Write-Host "Installtion Complete!" -ForegroundColor Green
