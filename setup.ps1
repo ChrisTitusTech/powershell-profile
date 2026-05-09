@@ -1,10 +1,5 @@
-if (-Not ($ENV:WT_SESSION)) {
-    Write-Host "You must use Windows Terminal to install ChrisTitusTech's PowerShell profile" -ForegroundColor Red
-    return
-}
-
 if ($PSVersionTable.PSVersion.Major -ne 7) {
-    Write-Host "You must use PowerShell 7 to install ChrisTitusTech's PowerShell profile" -ForegroundColor Red
+    Write-Error "PowerShell 7 (pwsh) is required."
     return
 }
 
