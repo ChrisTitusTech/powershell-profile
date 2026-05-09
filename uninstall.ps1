@@ -9,7 +9,7 @@ if (Test-Path ($Profile + ".bak")) {
     Remove-Item -Path $Profile
 }
 
-Remove-Item -Path (Join-Path (Split-Path $Profile) cobalt2.omp.json))
+Remove-Item -Path $Home\Documents\PowerShell\cobalt2.omp.json
 
 winget remove JanDeDobbeleer.OhMyPosh ajeetdsouza.zoxide --source winget --silent
 Write-Host "Successfully uninstalled CTT PowerShell Profile." -ForegroundColor Green
