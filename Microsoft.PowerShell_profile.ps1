@@ -3,19 +3,7 @@
 Invoke-Expression (oh-my-posh init pwsh --config $Home\Documents\PowerShell\cobalt2.omp.json)
 Write-Host "Use 'Show-Help' to list all available functions" -ForegroundColor Yellow
 
-# History & Colors & KeyBinds
-
-Set-PSReadLineKeyHandler -Key UpArrow -Function HistorySearchBackward
-Set-PSReadLineKeyHandler -Key DownArrow -Function HistorySearchForward
-Set-PSReadLineKeyHandler -Key Tab -Function MenuComplete
-Set-PSReadLineKeyHandler -Chord 'Ctrl+d' -Function DeleteChar
-Set-PSReadLineKeyHandler -Chord 'Ctrl+w' -Function BackwardDeleteWord
-Set-PSReadLineKeyHandler -Chord 'Alt+d' -Function DeleteWord
-Set-PSReadLineKeyHandler -Chord 'Ctrl+LeftArrow' -Function BackwardWord
-Set-PSReadLineKeyHandler -Chord 'Ctrl+RightArrow' -Function ForwardWord
-Set-PSReadLineKeyHandler -Chord 'Ctrl+z' -Function Undo
-Set-PSReadLineKeyHandler -Chord 'Ctrl+y' -Function Redo
-
+# History & Colors
 Set-PSReadLineOption -PredictionViewStyle ListView -Colors @{
     Command   = '#87CEEB'
     Parameter = '#98FB98'
@@ -29,9 +17,19 @@ Set-PSReadLineOption -PredictionViewStyle ListView -Colors @{
     Error     = '#FF6347'
 }
 
-# Functions
+#KeyBinds
+Set-PSReadLineKeyHandler -Key UpArrow -Function HistorySearchBackward
+Set-PSReadLineKeyHandler -Key DownArrow -Function HistorySearchForward
+Set-PSReadLineKeyHandler -Key Tab -Function MenuComplete
+Set-PSReadLineKeyHandler -Chord 'Ctrl+d' -Function DeleteChar
+Set-PSReadLineKeyHandler -Chord 'Ctrl+w' -Function BackwardDeleteWord
+Set-PSReadLineKeyHandler -Chord 'Alt+d' -Function DeleteWord
+Set-PSReadLineKeyHandler -Chord 'Ctrl+LeftArrow' -Function BackwardWord
+Set-PSReadLineKeyHandler -Chord 'Ctrl+RightArrow' -Function ForwardWord
+Set-PSReadLineKeyHandler -Chord 'Ctrl+z' -Function Undo
+Set-PSReadLineKeyHandler -Chord 'Ctrl+y' -Function Redo
 
-# Update Profile
+# Functions
 function Update-Profile {
     Invoke-WebRequest -Uri https://github.com/ChrisTitusTech/powershell-profile/raw/main/Microsoft.PowerShell_profile.ps1 -OutFile $Profile
     Write-Host "Updated PowerShell Profile" -ForegroundColor Green
