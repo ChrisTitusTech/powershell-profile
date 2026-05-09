@@ -53,7 +53,11 @@ function unzip ($file) {
 }
 
 function grep ($Pattern, $Path) {
-    Select-String -Pattern $Pattern -Path $Path
+    if ($Path) {
+        Select-String $Pattern $Path
+    } else {
+        process { $_ | Select-String $Pattern }
+    }
 }
 
 function sed ($file, $find, $replace) {
