@@ -87,10 +87,6 @@ function trash ($Path) {
     }
 }
 
-function docs {
-    Set-Location -Path $Home\Documents
-}
-
 function la {
     Get-ChildItem | Format-Table -AutoSize
 }
