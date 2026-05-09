@@ -12,4 +12,4 @@ irm https://github.com/ChrisTitusTech/powershell-profile/raw/main/setup.ps1 | ie
 
 ## 💖 Donation
 - To morally and mentally support the project, make sure to leave a ⭐️!
-- Sponsor me! https://github.com/sponsors/ChrisTitusTech
+- To financial support me [sponsor](https://github.com/sponsors/ChrisTitusTech)
