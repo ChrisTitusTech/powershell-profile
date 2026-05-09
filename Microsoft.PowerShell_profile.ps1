@@ -56,7 +56,7 @@ function grep ($Pattern, $Path) {
     if ($Path) {
         Select-String $Pattern $Path
     } else {
-        process { $_ | Select-String $Pattern }
+        $input | Select-String $Pattern
     }
 }
 
