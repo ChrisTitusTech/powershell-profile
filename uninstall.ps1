@@ -5,6 +5,8 @@ if ($PSVersionTable.PSVersion.Major -ne 7) {
 
 if (Test-Path ($Profile + ".bak")) {
     Move-Item -Path ($Profile + ".bak") -Destination $Profile
+} else {
+    Remove-Item -Path $Profile
 }
 
 Remove-Item -Path (Join-Path (Split-Path $Profile) cobalt2.omp.json))
