@@ -4,7 +4,7 @@
 Invoke-Expression (oh-my-posh init pwsh --config $Home\cobalt2.omp.json)
 Write-Host "Use 'Show-Help' to list all available functions" -ForegroundColor Yellow
 
-# History & Colors
+# History & Colors & bindings
 Set-PSReadLineOption `
     -EditMode Windows `
     -HistoryNoDuplicates `
