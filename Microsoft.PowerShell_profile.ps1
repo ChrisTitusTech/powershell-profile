@@ -104,10 +104,7 @@ function gc ($m) { git commit -m "$m" }
 function gpush { git push }
 function gpull { git pull }
 function g { __zoxide_z github }
-
-function gcl {
-    git clone $args
-}
+function gcl {git clone $args}
 
 function gcom {
     git add .
