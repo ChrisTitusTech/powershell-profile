@@ -17,8 +17,7 @@ if (Test-Path $Profile) {
 Invoke-WebRequest -Uri https://github.com/ChrisTitusTech/powershell-profile/raw/main/Microsoft.PowerShell_profile.ps1 -OutFile $Profile
 Write-Host "Installed PowerShell Profile" -ForegroundColor Green
 
-Invoke-WebRequest -Uri https://github.com/JanDeDobbeleer/oh-my-posh/raw/main/themes/cobalt2.omp.json -OutFile $Home\cobalt2.omp.json
-attrib +h $Home\cobalt2.omp.json # Hide the file
+Invoke-WebRequest -Uri https://github.com/JanDeDobbeleer/oh-my-posh/raw/main/themes/cobalt2.omp.json -OutFile (Join-Path (Split-Path $Profile)\cobalt2.omp.json)
 Write-Host "Installed oh-my-posh theme" -ForegroundColor Green
 
 Write-Host "Installing dependencies..."
