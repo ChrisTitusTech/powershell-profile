@@ -32,8 +32,8 @@ function touch ($File) {
     }
 }
 
-function ff ($name) {
-    (Get-ChildItem -Filter "$name" -Recurse).FullName
+function ff ($Name) {
+    (Get-ChildItem -Filter "$Name" -Recurse).FullName
 }
 
 function winutil {
@@ -48,7 +48,7 @@ function uptime {
     (Get-Date) - (gcim Win32_OperatingSystem).LastBootUpTime | Select-Object Days, Hours, Minutes, Seconds
 }
 
-function unzip ($file) {
+function unzip ($File) {
     Expand-Archive -Path $file
 }
 
@@ -60,21 +60,21 @@ function grep ($Pattern, $Path) {
     }
 }
 
-function sed ($file, $find, $replace) {
-    (Get-Content $file).replace("$find", $replace) | Set-Content $file
+function sed ($File, $Find, $Replace) {
+    (Get-Content $File).replace("$Find", $Replace) | Set-Content $file
 }
 
-function which ($name) {
-    (Get-Command $name).Definition
+function which ($Name) {
+    (Get-Command $Name).Definition
 }
 
 function head ($Path) {
     Get-Content $Path -Head 10
 }
 
-function mkcd ($dir) {
-    New-Item -Path $dir -ItemType Directory -Force | Out-Null
-    Set-Location -Path $dir
+function mkcd ($Path) {
+    New-Item -Path $Path -ItemType Directory -Force | Out-Null
+    Set-Location -Path $Path
 }
 
 function trash ($Path) {
@@ -100,7 +100,7 @@ function ll {
 
 function gs { git status }
 function ga { git add . }
-function gc { param($m) git commit -m "$m" }
+function gc ($m) { git commit -m "$m" }
 function gpush { git push }
 function gpull { git pull }
 function g { __zoxide_z github }
