@@ -31,23 +31,7 @@ Invoke-WebRequest -Uri https://github.com/JanDeDobbeleer/oh-my-posh/raw/main/the
 attrib +h $Home\cobalt2.omp.json # Hide the file
 Write-Host "Installed oh-my-posh theme" -ForegroundColor Green
 
-Write-Host "Installing fonts this will take a while..."
-
-Invoke-WebRequest -Uri https://github.com/ryanoasis/nerd-fonts/releases/latest/download/CascadiaCode.zip -OutFile CascadiaCode.zip
-Expand-Archive -Path CascadiaCode.zip
-
-Get-ChildItem CascadiaCode -Filter *.ttf | ForEach-Object {
-    ((New-Object -ComObject Shell.Application).Namespace(0x14)).CopyHere($_.FullName)
-    "Installed Font $(Split-Path $_ -Leaf)"
-}
-
-Remove-Item -Path CascadiaCode.zip
-Remove-Item -Path CascadiaCode -Recurse
-
 Write-Host "Installing dependencies..."
-
-Install-PackageProvider -Name NuGet -Force -ErrorAction SilentlyContinue | Out-Null
-Install-Module -Name Terminal-Icons -Force
 
 # If you dont have winget then fuck you
 winget install JanDeDobbeleer.OhMyPosh --source winget --silent
