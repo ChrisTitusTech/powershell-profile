@@ -30,48 +30,20 @@ Set-PSReadLineOption -PredictionViewStyle ListView -Colors @{
 }
 
 # Functions
+
+# Update Profile
 function Update-Profile {
     Invoke-WebRequest -Uri https://github.com/ChrisTitusTech/powershell-profile/raw/main/Microsoft.PowerShell_profile.ps1 -OutFile $Profile
     Write-Host "Updated PowerShell Profile" -ForegroundColor Green
 }
 
+# File / Directory Utilities
 function touch ($File) {
     if (Test-Path $File) {
         (Get-Item $File).LastWriteTime = Get-Date
     } else {
         New-Item $File -ItemType File | Out-Null
     }
-}
-
-function ff ($Name) {
-    (Get-ChildItem -Filter "$Name" -Recurse).FullName
-}
-
-function winutil {
-    Invoke-Expression (Invoke-RestMethod https://christitus.com/win)
-}
-
-function winutildev {
-    Invoke-Expression (Invoke-RestMethod https://christitus.com/windev)
-}
-
-function uptime {
-    (Get-Date) - (gcim Win32_OperatingSystem).LastBootUpTime | Select-Object Days, Hours, Minutes, Seconds
-}
-
-Set-Alias -Name unzip -Value Expand-Archive
-Set-Alias -Name grep -Value Select-String
-
-function sed ($File, $Find, $Replace) {
-    (Get-Content $File).replace("$Find", $Replace) | Set-Content $file
-}
-
-function which ($Name) {
-    (Get-Command $Name).Definition
-}
-
-function head ($Path) {
-    Get-Content $Path -Head 10
 }
 
 function mkcd ($Path) {
@@ -87,22 +59,43 @@ function trash ($Path) {
     }
 }
 
-function la {
-    Get-ChildItem | Format-Table -AutoSize
+function ff ($Name) {
+    (Get-ChildItem -Filter "$Name" -Recurse).FullName
 }
 
-function ll {
-    Get-ChildItem -Force | Format-Table -AutoSize
+function head ($Path) {
+    Get-Content $Path -Head 10
 }
 
+function sed ($File, $Find, $Replace) {
+    (Get-Content $File).replace("$Find", $Replace) | Set-Content $file
+}
+
+function which ($Name) {
+    (Get-Command $Name).Definition
+}
+
+# System Utilities
+function uptime {
+    (Get-Date) - (gcim Win32_OperatingSystem).LastBootUpTime | Select-Object Days, Hours, Minutes, Seconds
+}
+
+function winutil {
+    Invoke-Expression (Invoke-RestMethod https://christitus.com/win)
+}
+
+function winutildev {
+    Invoke-Expression (Invoke-RestMethod https://christitus.com/windev)
+}
+
+# Git Shortcuts
 function gs { git status }
 function ga { git add . }
 function gp { git push }
-function gc ($m) { git commit -m "$m" }
 function gpush { git push }
 function gpull { git pull }
-function g { __zoxide_z github }
-function gcl {git clone $args}
+function gc ($m) { git commit -m "$m" }
+function gcl { git clone $args }
 
 function gcom {
     git add .
@@ -115,6 +108,22 @@ function lazyg {
     git push
 }
 
+function g { __zoxide_z github }
+
+# Listing / Viewing
+function la {
+    Get-ChildItem | Format-Table -AutoSize
+}
+
+function ll {
+    Get-ChildItem -Force | Format-Table -AutoSize
+}
+
+# Aliases
+Set-Alias -Name unzip -Value Expand-Archive
+Set-Alias -Name grep -Value Select-String
+
+# Help
 function Show-Help {
     $title    = $PSStyle.Foreground.BrightMagenta
     $section  = $PSStyle.Foreground.BrightBlue
