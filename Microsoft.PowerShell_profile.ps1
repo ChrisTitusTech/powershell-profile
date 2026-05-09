@@ -151,8 +151,8 @@ ${dim}────────────────────────�
   ${command}docs${reset}               ${accent}→${reset} ${desc}Documents folder${reset}
   ${command}ff <name>${reset}          ${accent}→${reset} ${desc}Search files${reset}
   ${command}grep <regex> [dir]${reset} ${accent}→${reset} ${desc}Search text${reset}
-  ${command}head <file> [n]${reset}    ${accent}→${reset} ${desc}First lines${reset}
-  ${command}ll${reset}            ${accent}→${reset} ${desc}List files${reset}
+  ${command}head <file>${reset}        ${accent}→${reset} ${desc}First lines${reset}
+  ${command}ll${reset}                 ${accent}→${reset} ${desc}List files${reset}
   ${command}mkcd <dir>${reset}         ${accent}→${reset} ${desc}Create + enter dir${reset}
   ${command}sed <file> <find> <replace>${reset} ${accent}→${reset} ${desc}Replace text${reset}
   ${command}touch <file>${reset}       ${accent}→${reset} ${desc}Create file${reset}
