@@ -8,16 +8,6 @@ if ($PSVersionTable.PSVersion.Major -ne 7) {
     return
 }
 
-if (-Not ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
-    Write-Host "You must run this script as administrator" -ForegroundColor Red
-    return
-}
-
-if (-Not (Test-Connection 8.8.8.8 -Count 1 -TimeoutSeconds 1 -Quiet)) { 
-    Write-Host "You must have a activate internet connection to proceed" -ForegroundColor Red
-    return
-}
-
 if (Test-Path $Profile) {
     Move-Item -Path $Profile -Destination ($Profile + ".bak")
 } else {
