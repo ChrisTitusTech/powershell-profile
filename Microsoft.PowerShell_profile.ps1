@@ -18,24 +18,6 @@ Set-PSReadLineOption -PredictionViewStyle ListView -Colors @{
     Error     = '#FF6347'
 }
 
-# bindings
-$bindings = @{
-    UpArrow          = 'HistorySearchBackward'
-    DownArrow        = 'HistorySearchForward'
-    Tab              = 'MenuComplete'
-    'Ctrl+d'         = 'DeleteChar'
-    'Ctrl+w'         = 'BackwardDeleteWord'
-    'Alt+d'          = 'DeleteWord'
-    'Ctrl+LeftArrow' = 'BackwardWord'
-    'Ctrl+RightArrow'= 'ForwardWord'
-    'Ctrl+z'         = 'Undo'
-    'Ctrl+y'         = 'Redo'
-}
-
-foreach ($b in $bindings.Keys) {
-    Set-PSReadLineKeyHandler -Key $b -Function $bindings[$b]
-}
-
 # Functions
 function Update-Profile {
     Invoke-WebRequest -Uri https://github.com/ChrisTitusTech/powershell-profile/raw/main/Microsoft.PowerShell_profile.ps1 -OutFile $Profile
