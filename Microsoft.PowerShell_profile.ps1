@@ -121,7 +121,7 @@ function ll {
 Set-Alias -Name unzip -Value Expand-Archive
 Set-Alias -Name grep -Value Select-String
 
-# Help
+# Help Function
 function Show-Help {
     $title    = $PSStyle.Foreground.BrightMagenta
     $section  = $PSStyle.Foreground.BrightBlue
