@@ -59,17 +59,8 @@ function uptime {
     (Get-Date) - (gcim Win32_OperatingSystem).LastBootUpTime | Select-Object Days, Hours, Minutes, Seconds
 }
 
-function unzip ($File) {
-    Expand-Archive -Path $file
-}
-
-function grep ($Pattern, $Path) {
-    if ($Path) {
-        Select-String $Pattern $Path
-    } else {
-        $input | Select-String $Pattern
-    }
-}
+Set-Alias -Name unzip -Value Expand-Archive
+Set-Alias -Name grep -Value Select-String
 
 function sed ($File, $Find, $Replace) {
     (Get-Content $File).replace("$Find", $Replace) | Set-Content $file
