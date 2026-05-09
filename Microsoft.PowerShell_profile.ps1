@@ -4,7 +4,8 @@
 Invoke-Expression (oh-my-posh init pwsh --config (Join-Path (Split-Path $Profile)\cobalt2.omp.json))
 Write-Host "Use 'Show-Help' to list all available functions" -ForegroundColor Yellow
 
-# History & Colors
+# History & Colors & Tab Completion
+Set-PSReadLineKeyHandler -Key Tab -Function MenuComplete
 Set-PSReadLineOption -PredictionViewStyle ListView -Colors @{
     Command   = '#87CEEB'
     Parameter = '#98FB98'
