@@ -101,6 +101,7 @@ function ll {
 
 function gs { git status }
 function ga { git add . }
+function gp { git push }
 function gc ($m) { git commit -m "$m" }
 function gpush { git push }
 function gpull { git pull }
