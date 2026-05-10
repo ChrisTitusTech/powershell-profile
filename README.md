@@ -1,15 +1,20 @@
-# 🎨 PowerShell Profile (Pretty PowerShell)
+# 🎨 Pretty PowerShell
 
-A stylish and functional PowerShell profile that looks and feels almost as good as a Linux terminal.
+A clean, modern PowerShell profile designed to make Windows terminals feel fast, polished, and closer to a modern Linux shell experience.
 
-## ⚡ One Line Install (Elevated PowerShell Recommended)
+## ⚡ Install
 
-Execute the following command in an elevated PowerShell window to install the PowerShell profile:
+Run the following command in an elevated PowerShell window:
 
-```ps1
+```powershell
 irm https://github.com/ChrisTitusTech/powershell-profile/raw/main/setup.ps1 | iex
 ```
 
-## 💖 Donation
-- To morally and mentally support the project, make sure to leave a ⭐️!
-- To financial support me [sponsor](https://github.com/sponsors/ChrisTitusTech)
+## ⭐ Support the Project
+
+If you find this project useful:
+
+- Leave a star on GitHub
+- Share it with others
+- Consider sponsoring development:  
+  https://github.com/sponsors/ChrisTitusTech
