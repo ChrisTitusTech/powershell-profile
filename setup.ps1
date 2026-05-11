@@ -1,8 +1,7 @@
 #requires -Version 7.0
 
 if (-not ($Env:WT_SESSION)) {
-    Write-Error "Windows Terminal (wt) is required."
-    return
+    Throw "Windows Terminal (wt) is required."
 }
 
 if (Test-Path $Profile) {
