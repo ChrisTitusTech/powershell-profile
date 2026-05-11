@@ -92,7 +92,6 @@ function ga { git add . }
 function gp { git push }
 function gpush { git push }
 function gpull { git pull }
-function gc ($m) { git commit -m "$m" }
 function gcl { git clone $args }
 
 function gcom {
@@ -142,7 +141,6 @@ ${section}󰊢 Git Shortcuts${reset}
 ${dim}────────────────────────────────────────────────────${reset}
   ${command}g${reset}                  ${accent}→${reset} ${desc}Changes to the GitHub directory${reset}
   ${command}ga${reset}                 ${accent}→${reset} ${desc}git add .${reset}
-  ${command}gc <message>${reset}       ${accent}→${reset} ${desc}git commit -m${reset}
   ${command}gcl <repo>${reset}         ${accent}→${reset} ${desc}git clone${reset}
   ${command}gcom <message>${reset}     ${accent}→${reset} ${desc}add + commit${reset}
   ${command}gp / gpush${reset}         ${accent}→${reset} ${desc}git push${reset}
