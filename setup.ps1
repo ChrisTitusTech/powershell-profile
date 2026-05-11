@@ -1,5 +1,9 @@
 #requires -Version 7.0
 
+if (-Not ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
+    Throw "You must run this script as administrator"
+}
+
 if (-not ($Env:WT_SESSION)) {
     Throw "Windows Terminal (wt) is required."
 }
@@ -17,4 +21,5 @@ Install-PackageProvider -Name NuGet -Force
 Install-Module -Name Terminal-Icons -Force
 
 winget install JanDeDobbeleer.OhMyPosh ajeetdsouza.zoxide DEVCOM.JetBrainsMonoNerdFont --source winget --silent
+
 Write-Host "Successfully Installed CTT PowerShell Profile." -ForegroundColor Green
