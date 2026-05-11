@@ -1,6 +1,6 @@
 ### Chris Titus Tech's PowerShell profile
 
-Invoke-Expression (oh-my-posh init pwsh --config $Home\Documents\PowerShell\cobalt2.omp.json)
+oh-my-posh init pwsh --config $Home\Documents\PowerShell\cobalt2.omp.json | Invoke-Expression
 Write-Host "Use 'Show-Help' to list all available functions" -ForegroundColor Yellow
 
 # History & Colors
