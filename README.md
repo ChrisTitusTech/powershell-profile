@@ -11,8 +11,8 @@ irm https://github.com/ChrisTitusTech/powershell-profile/raw/main/setup.ps1 | ie
 ```
 
 ## After you run the installer
-- Open Windows Terminal
-- Go to  Settings
+- Reopen Windows Terminal
+- Go to Settings
 - Select your PowerShell profile
 - Go to Appearance
 - Set Font face to `JetBrainsMono Nerd Font`
