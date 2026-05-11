@@ -4,7 +4,7 @@ A clean, modern PowerShell profile designed to make Windows terminals feel fast,
 
 ## ⚡ Install
 
-Run the following command in an elevated PowerShell window:
+Run the following command in a PowerShell window:
 
 ```powershell
 irm https://github.com/ChrisTitusTech/powershell-profile/raw/main/setup.ps1 | iex
