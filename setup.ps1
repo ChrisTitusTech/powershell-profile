@@ -1,3 +1,8 @@
+if (-not ($Env:WT_SESSION)) {
+    Write-Error "Windows Terminal (wt) is required."
+    return
+}
+
 if ($PSVersionTable.PSVersion.Major -ne 7) {
     Write-Error "PowerShell 7 (pwsh) is required."
     return
