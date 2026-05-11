@@ -10,6 +10,14 @@ Run the following command in a PowerShell window:
 irm https://github.com/ChrisTitusTech/powershell-profile/raw/main/setup.ps1 | iex
 ```
 
+## After you run the installer
+- Open Windows Terminal
+- Go to  Settings
+- Select your PowerShell profile
+- Go to Appearance
+- Set Font face to `JetBrainsMono Nerd Font`
+- Click Save
+
 ## ⭐ Support the Project
 
 If you find this project useful:
