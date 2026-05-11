@@ -13,5 +13,5 @@ if (Test-Path $Profile) {
 Invoke-WebRequest -Uri https://github.com/ChrisTitusTech/powershell-profile/raw/main/Microsoft.PowerShell_profile.ps1 -OutFile $Profile
 Invoke-WebRequest -Uri https://github.com/JanDeDobbeleer/oh-my-posh/raw/main/themes/cobalt2.omp.json -OutFile (Split-Path $Profile)
 
-winget install JanDeDobbeleer.OhMyPosh ajeetdsouza.zoxide --source winget --silent
+winget install JanDeDobbeleer.OhMyPosh ajeetdsouza.zoxide DEVCOM.JetBrainsMonoNerdFont --source winget --silent
 Write-Host "Successfully Installed CTT PowerShell Profile." -ForegroundColor Green
