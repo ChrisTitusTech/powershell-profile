@@ -58,7 +58,7 @@ function trash ($Path) {
 }
 
 function ff ($Name) {
-    (Get-ChildItem -Filter "$Name" -Recurse).FullName
+    Get-ChildItem -Recurse -Filter $Name -File | Select-Object -ExpandProperty FullName
 }
 
 function head ($Path) {
