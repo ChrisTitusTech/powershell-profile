@@ -79,11 +79,11 @@ function uptime {
 }
 
 function winutil {
-    Invoke-Expression (Invoke-RestMethod https://christitus.com/win)
+    Invoke-RestMethod https://christitus.com/win | Invoke-Expression
 }
 
 function winutildev {
-    Invoke-Expression (Invoke-RestMethod https://christitus.com/windev)
+    Invoke-RestMethod https://christitus.com/windev | Invoke-Expression
 }
 
 # Git Shortcuts
