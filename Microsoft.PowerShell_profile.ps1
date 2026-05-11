@@ -70,7 +70,7 @@ function sed ($File, $Find, $Replace) {
 }
 
 function which ($Name) {
-    (Get-Command $Name).Definition
+    (Get-Command $Name).Source
 }
 
 # System Utilities
