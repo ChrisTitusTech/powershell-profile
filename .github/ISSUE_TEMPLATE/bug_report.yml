@@ -10,14 +10,14 @@ body:
     validations:
       required: true
 
-  - type: textarea
+  - type: input
     id: result
     attributes:
       label: Actual behavior
     validations:
       required: true
 
-  - type: textarea
+  - type: input
     id: expected
     attributes:
       label: Expected behavior
