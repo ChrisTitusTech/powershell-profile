@@ -1,54 +1,48 @@
 name: Bug report
-description: Report a reproducible bug
+description: Report a bug
 labels: [bug]
+
 body:
-  - type: markdown
-    attributes:
-      value: |
-        Please fill out all sections to help us reproduce and fix the issue.
   - type: input
-    id: summary
+    id: bug
     attributes:
-      label: Summary
-      description: Short description of the bug
+      label: What broke?
       placeholder: Profile fails to load on PowerShell 7.5
     validations:
       required: true
+
   - type: textarea
     id: steps
     attributes:
-      label: Steps to reproduce
-      description: Provide exact steps
+      label: How to reproduce
       placeholder: |
         1. Open PowerShell
         2. Run ...
-        3. Observe error
+        3. See error
     validations:
       required: true
+
+  - type: textarea
+    id: result
+    attributes:
+      label: What happened?
+    validations:
+      required: true
+
   - type: textarea
     id: expected
     attributes:
-      label: Expected behavior
+      label: What should happen?
     validations:
       required: true
-  - type: textarea
-    id: actual
-    attributes:
-      label: Actual behavior
-    validations:
-      required: true
+
   - type: input
-    id: os
+    id: env
     attributes:
-      label: OS
-      placeholder: Windows 11 24H2
-  - type: input
-    id: psver
-    attributes:
-      label: PowerShell version
-      placeholder: 7.5.1
+      label: Environment
+      placeholder: Windows 11 · PowerShell 7.5.1
+
   - type: textarea
     id: logs
     attributes:
-      label: Logs or screenshots
-      description: Paste relevant errors or add screenshots
+      label: Errors / screenshots
