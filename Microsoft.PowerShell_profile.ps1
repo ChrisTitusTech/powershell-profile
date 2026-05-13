@@ -78,7 +78,7 @@ function which ($Name) {
 
 # System Utilities
 function uptime {
-    (Get-Date) - (gcim Win32_OperatingSystem).LastBootUpTime | Select-Object Days, Hours, Minutes, Seconds
+    (Get-Date) - (Get-CimClass -ClassName Win32_OperatingSystem).LastBootUpTime | Select-Object Days, Hours, Minutes, Seconds
 }
 
 function winutil {
