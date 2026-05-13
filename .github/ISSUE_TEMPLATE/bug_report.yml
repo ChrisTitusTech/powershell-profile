@@ -6,11 +6,4 @@ body:
   - type: markdown
     attributes:
       value: |
-        Describe the bug, what happened, and what you expected instead.
-
-  - type: textarea
-    id: details
-    attributes:
-      label: Details
-    validations:
-      required: true
+        Describe the bug, what happened, and what you expected instead, Provide screenshots if possible.
