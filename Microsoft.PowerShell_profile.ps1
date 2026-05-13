@@ -1,36 +1,55 @@
 ### Chris Titus Tech's PowerShell profile
 
-oh-my-posh init pwsh --config $Home\Documents\PowerShell\cobalt2.omp.json | Invoke-Expression
-zoxide init --cmd z powershell | Out-String | Invoke-Expression
-Import-Module -Name Terminal-Icons
+$isInteractiveShell = $Host.Name -eq "ConsoleHost" -and -not [Console]::IsInputRedirected -and -not [Console]::IsOutputRedirected
+
+$ompConfig = Join-Path (Join-Path $HOME "Documents") "PowerShell/cobalt2.omp.json"
+$ompExe = Get-Command oh-my-posh -CommandType Application -ErrorAction Ignore |
+    Select-Object -First 1 -ExpandProperty Source
+if ($isInteractiveShell -and $ompExe -and (Test-Path $ompConfig)) {
+    & $ompExe init pwsh --config $ompConfig | Invoke-Expression
+}
+
+$zoxideExe = Get-Command zoxide -CommandType Application -ErrorAction Ignore |
+    Select-Object -First 1 -ExpandProperty Source
+if ($isInteractiveShell -and $zoxideExe) {
+    Set-Variable -Name __zoxide_hooked -Scope Script -Value $false -Force
+    Set-Variable -Name __zoxide_hooked -Scope Global -Value $false -Force
+    & $zoxideExe init --cmd z powershell | Out-String | Invoke-Expression 2>$null
+}
+
+if (Get-Module -ListAvailable -Name Terminal-Icons) {
+    Import-Module -Name Terminal-Icons
+}
 
 Write-Host "Use 'Show-Help' to list all available functions" -ForegroundColor Yellow
 
 # History & Colors
-Set-PSReadLineOption -PredictionViewStyle ListView -Colors @{
-    Command   = '#87CEEB'
-    Parameter = '#98FB98'
-    Operator  = '#FFB6C1'
-    Variable  = '#DDA0DD'
-    String    = '#FFDAB9'
-    Number    = '#B0E0E6'
-    Type      = '#F0E68C'
-    Comment   = '#D3D3D3'
-    Keyword   = '#8367c7'
-    Error     = '#FF6347'
-}
+if ($isInteractiveShell -and (Get-Module -ListAvailable -Name PSReadLine)) {
+    Set-PSReadLineOption -PredictionViewStyle ListView -Colors @{
+        Command   = '#87CEEB'
+        Parameter = '#98FB98'
+        Operator  = '#FFB6C1'
+        Variable  = '#DDA0DD'
+        String    = '#FFDAB9'
+        Number    = '#B0E0E6'
+        Type      = '#F0E68C'
+        Comment   = '#D3D3D3'
+        Keyword   = '#8367c7'
+        Error     = '#FF6347'
+    }
 
-#KeyBinds
-Set-PSReadLineKeyHandler -Key UpArrow -Function HistorySearchBackward
-Set-PSReadLineKeyHandler -Key DownArrow -Function HistorySearchForward
-Set-PSReadLineKeyHandler -Key Tab -Function MenuComplete
-Set-PSReadLineKeyHandler -Chord 'Ctrl+d' -Function DeleteChar
-Set-PSReadLineKeyHandler -Chord 'Ctrl+w' -Function BackwardDeleteWord
-Set-PSReadLineKeyHandler -Chord 'Alt+d' -Function DeleteWord
-Set-PSReadLineKeyHandler -Chord 'Ctrl+LeftArrow' -Function BackwardWord
-Set-PSReadLineKeyHandler -Chord 'Ctrl+RightArrow' -Function ForwardWord
-Set-PSReadLineKeyHandler -Chord 'Ctrl+z' -Function Undo
-Set-PSReadLineKeyHandler -Chord 'Ctrl+y' -Function Redo
+    #KeyBinds
+    Set-PSReadLineKeyHandler -Key UpArrow -Function HistorySearchBackward
+    Set-PSReadLineKeyHandler -Key DownArrow -Function HistorySearchForward
+    Set-PSReadLineKeyHandler -Key Tab -Function MenuComplete
+    Set-PSReadLineKeyHandler -Chord 'Ctrl+d' -Function DeleteChar
+    Set-PSReadLineKeyHandler -Chord 'Ctrl+w' -Function BackwardDeleteWord
+    Set-PSReadLineKeyHandler -Chord 'Alt+d' -Function DeleteWord
+    Set-PSReadLineKeyHandler -Chord 'Ctrl+LeftArrow' -Function BackwardWord
+    Set-PSReadLineKeyHandler -Chord 'Ctrl+RightArrow' -Function ForwardWord
+    Set-PSReadLineKeyHandler -Chord 'Ctrl+z' -Function Undo
+    Set-PSReadLineKeyHandler -Chord 'Ctrl+y' -Function Redo
+}
 
 # Functions
 function Update-Profile {
@@ -76,9 +95,45 @@ function which ($Name) {
     (Get-Command $Name).Source
 }
 
+function unzip ($File) {
+    if (-not (Test-Path $File -PathType Leaf)) {
+        Write-Error "File not found: $File"
+        return
+    }
+
+    Expand-Archive -Path $File -DestinationPath (Get-Location) -Force
+}
+
+function pgrep ($Name) {
+    Get-Process -Name $Name -ErrorAction SilentlyContinue
+}
+
+function pkill ($Name) {
+    Get-Process -Name $Name -ErrorAction SilentlyContinue | Stop-Process -Force
+}
+
+function k9 ($Name) {
+    pkill $Name
+}
+
+function grep ($Pattern, $Path) {
+    if ($Path) {
+        Get-ChildItem -Path $Path -Recurse -File -ErrorAction SilentlyContinue | Select-String -Pattern $Pattern
+    } elseif ($input) {
+        $input | Select-String -Pattern $Pattern
+    } else {
+        Write-Error "Usage: grep <pattern> [path] or pipe input to grep"
+    }
+}
+
 # System Utilities
 function uptime {
-    (Get-Date) - (Get-CimClass -ClassName Win32_OperatingSystem).LastBootUpTime | Select-Object Days, Hours, Minutes, Seconds
+    if (Get-Command Get-Uptime -ErrorAction SilentlyContinue) {
+        $boot = Get-Uptime -Since
+    } else {
+        $boot = (Get-CimInstance -ClassName Win32_OperatingSystem).LastBootUpTime
+    }
+    (Get-Date) - $boot | Select-Object Days, Hours, Minutes, Seconds
 }
 
 function winutil {
@@ -108,7 +163,17 @@ function lazyg {
     git push
 }
 
-function g { __zoxide_z github }
+function g {
+    if (Get-Command __zoxide_z -ErrorAction SilentlyContinue) {
+        __zoxide_z github
+    } elseif (Test-Path "$HOME/github") {
+        Set-Location "$HOME/github"
+    }
+}
+
+function docs {
+    Set-Location -Path ([Environment]::GetFolderPath("MyDocuments"))
+}
 
 # Listing / Viewing
 function la {
@@ -120,8 +185,6 @@ function ll {
 }
 
 # Aliases
-Set-Alias -Name unzip -Value Expand-Archive
-Set-Alias -Name grep -Value Select-String
 
 # Help Function
 function Show-Help {
@@ -155,10 +218,13 @@ ${section}󰘴 System Shortcuts${reset}
 ${dim}────────────────────────────────────────────────────${reset}
   ${command}docs${reset}               ${accent}→${reset} ${desc}Documents folder${reset}
   ${command}ff <name>${reset}          ${accent}→${reset} ${desc}Search files${reset}
-  ${command}grep <regex> [dir]${reset} ${accent}→${reset} ${desc}Search text${reset}
+    ${command}grep <pattern> [path]${reset} ${accent}→${reset} ${desc}Search text${reset}
   ${command}head <file>${reset}        ${accent}→${reset} ${desc}First lines${reset}
+    ${command}k9 <name>${reset}          ${accent}→${reset} ${desc}Kill process by name${reset}
   ${command}ll${reset}                 ${accent}→${reset} ${desc}List files${reset}
   ${command}mkcd <dir>${reset}         ${accent}→${reset} ${desc}Create + enter dir${reset}
+    ${command}pgrep <name>${reset}       ${accent}→${reset} ${desc}Find process by name${reset}
+    ${command}pkill <name>${reset}       ${accent}→${reset} ${desc}Stop process by name${reset}
   ${command}sed <file> <find> <replace>${reset} ${accent}→${reset} ${desc}Replace text${reset}
   ${command}touch <file>${reset}       ${accent}→${reset} ${desc}Create file${reset}
   ${command}unzip <file>${reset}       ${accent}→${reset} ${desc}Extract zip${reset}
