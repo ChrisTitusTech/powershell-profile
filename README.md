@@ -1,36 +1,28 @@
-# 🎨 PowerShell Profile (Pretty PowerShell)
+# 🎨 Pretty PowerShell
 
-A stylish and functional PowerShell profile that looks and feels almost as good as a Linux terminal.
+A clean, modern PowerShell profile designed to make Windows terminals feel fast, polished, and closer to a modern Linux shell experience.
 
-## ⚡ One Line Install (Elevated PowerShell Recommended)
+## ⚡ Install
 
-Execute the following command in an elevated PowerShell window to install the PowerShell profile:
+Run the following command in a PowerShell window:
 
-```ps1
+```powershell
 irm https://github.com/ChrisTitusTech/powershell-profile/raw/main/setup.ps1 | iex
 ```
-   
-## Customize this profile
 
-**Do not make any changes to the `Microsoft.PowerShell_profile.ps1` file**, since it's hashed and automatically overwritten by any commits to this repository.
+## After you run the installer
+- Reopen Windows Terminal
+- Go to Settings
+- Select your PowerShell profile
+- Go to Appearance
+- Set Font face to `JetBrainsMono Nerd Font`
+- Click Save
 
-After the profile is installed and active, run the `Edit-Profile` function to create a separate profile file [`profile.ps1`] for your current user. Add any custom code, and/or override VARIABLES/FUNCTIONS in `Microsoft.PowerShell_profile.ps1` by adding any of the following Variable or Function names:
+## ⭐ Support the Project
 
-THE FOLLOWING VARIABLES RESPECT _Override:
-<pre>
-$EDITOR_Override
-$debug_Override
-$repo_root_Override  [To point to a fork, for example]
-$timeFilePath_Override
-$updateInterval_Override
-</pre>
+If you find this project useful:
 
-THE FOLLOWING FUNCTIONS RESPECT _Override: _(do not call the original function from your override function, or you'll create an infinite loop)_
-<pre>
-Debug-Message_Override
-Update-Profile_Override
-Update-PowerShell_Override
-Clear-Cache_Override
-Get-Theme_Override
-WinUtilDev_Override [To call a fork, for example]
-</pre>
+- Leave a star on GitHub
+- Share it with others
+- Consider sponsoring development:  
+  https://github.com/sponsors/ChrisTitusTech
