@@ -11,16 +11,11 @@ if (Test-Path $Profile) {
     New-Item -Path $Profile -Force | Out-Null
 }
 
-$profileDir = Split-Path -Parent $Profile
-if (-not (Test-Path $profileDir)) {
-    New-Item -Path $profileDir -ItemType Directory -Force | Out-Null
-}
-
 # Disable pwsh telemetry for funnzies :)
 [System.Environment]::SetEnvironmentVariable('POWERSHELL_TELEMETRY_OPTOUT','1','Machine')
 
 Invoke-WebRequest -Uri https://github.com/ChrisTitusTech/powershell-profile/raw/main/Microsoft.PowerShell_profile.ps1 -OutFile $Profile
-Invoke-WebRequest -Uri https://github.com/JanDeDobbeleer/oh-my-posh/raw/main/themes/cobalt2.omp.json -OutFile (Join-Path $profileDir "cobalt2.omp.json")
+Invoke-WebRequest -Uri https://github.com/JanDeDobbeleer/oh-my-posh/raw/main/themes/cobalt2.omp.json -OutFile (Split-Path $Profile)
 
 Install-Module -Name Terminal-Icons -Force -Repository PSGallery
 
