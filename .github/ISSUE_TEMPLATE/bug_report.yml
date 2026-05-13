@@ -6,43 +6,20 @@ body:
   - type: input
     id: bug
     attributes:
-      label: What broke?
-      placeholder: Profile fails to load on PowerShell 7.5
-    validations:
-      required: true
-
-  - type: textarea
-    id: steps
-    attributes:
-      label: How to reproduce
-      placeholder: |
-        1. Open PowerShell
-        2. Run ...
-        3. See error
+      label: Bug
     validations:
       required: true
 
   - type: textarea
     id: result
     attributes:
-      label: What happened?
+      label: Actual behavior
     validations:
       required: true
 
   - type: textarea
     id: expected
     attributes:
-      label: What should happen?
+      label: Expected behavior
     validations:
       required: true
-
-  - type: input
-    id: env
-    attributes:
-      label: Environment
-      placeholder: Windows 11 · PowerShell 7.5.1
-
-  - type: textarea
-    id: logs
-    attributes:
-      label: Errors / screenshots
