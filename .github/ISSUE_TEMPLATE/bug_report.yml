@@ -2,16 +2,15 @@ name: Bug report
 description: Report a bug
 labels: [bug]
 
-  - type: input
-    id: result
+body:
+  - type: markdown
     attributes:
-      label: Actual behavior
-    validations:
-      required: true
+      value: |
+        Describe the bug, what happened, and what you expected instead.
 
-  - type: input
-    id: expected
+  - type: textarea
+    id: details
     attributes:
-      label: Expected behavior
+      label: Details
     validations:
       required: true
