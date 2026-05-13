@@ -2,14 +2,6 @@ name: Bug report
 description: Report a bug
 labels: [bug]
 
-body:
-  - type: input
-    id: bug
-    attributes:
-      label: Bug
-    validations:
-      required: true
-
   - type: input
     id: result
     attributes:
