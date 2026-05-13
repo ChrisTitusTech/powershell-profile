@@ -90,7 +90,7 @@ function k9 ($Name) {
 
 # System Utilities
 function uptime {
-    (Get-Date) - (Get-CimClass -ClassName Win32_OperatingSystem).LastBootUpTime | Select-Object Days, Hours, Minutes, Seconds
+    (Get-Date) - (Get-CimInstance -ClassName Win32_OperatingSystem).LastBootUpTime | Select-Object Days, Hours, Minutes, Seconds
 }
 
 function winutil {
