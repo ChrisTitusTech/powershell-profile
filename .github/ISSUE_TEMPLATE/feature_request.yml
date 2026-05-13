@@ -1,35 +1,16 @@
 name: Feature request
-description: Suggest an improvement
+description: Suggest something new
 labels: [enhancement]
 
 body:
-  - type: input
-    id: summary
+  - type: markdown
     attributes:
-      label: Feature
+      value: |
+        Describe the feature and why it would be useful.
+
+  - type: textarea
+    id: request
+    attributes:
+      label: Details
     validations:
       required: true
-
-  - type: input
-    id: problem
-    attributes:
-      label: Problem
-    validations:
-      required: true
-
-  - type: input
-    id: proposal
-    attributes:
-      label: Proposed solution
-    validations:
-      required: true
-
-  - type: input
-    id: alternatives
-    attributes:
-      label: Alternatives
-
-  - type: input
-    id: context
-    attributes:
-      label: Additional context
