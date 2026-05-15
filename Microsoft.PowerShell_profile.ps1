@@ -122,7 +122,7 @@ function lazyg {
 }
 
 function docs {
-    Set-Location -Path ([Environment]::GetFolderPath("MyDocuments"))
+    Set-Location -Path "$Home\Documents"
 }
 
 # Listing / Viewing
