@@ -1,6 +1,6 @@
 ### Chris Titus Tech's PowerShell profile
 
-oh-my-posh init pwsh --config $Home\Documents\PowerShell\cobalt2.omp.json | Invoke-Expression
+oh-my-posh init pwsh --config $Home\cobalt2.omp.json | Invoke-Expression
 zoxide init --cmd z powershell | Out-String | Invoke-Expression
 Import-Module -Name Terminal-Icons
 
