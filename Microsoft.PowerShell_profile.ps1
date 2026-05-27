@@ -94,11 +94,15 @@ function uptime {
 }
 
 function winutil {
-    Invoke-RestMethod https://christitus.com/win | Invoke-Expression
+    & ([ScriptBlock]::Create((Invoke-RestMethod https://christitus.com/win))) @args
 }
 
 function winutildev {
-    Invoke-RestMethod https://christitus.com/windev | Invoke-Expression
+    & ([ScriptBlock]::Create((Invoke-RestMethod https://christitus.com/windev))) @args
+}
+
+function winutil-dev {
+    winutildev @args
 }
 
 # Git Shortcuts
@@ -183,7 +187,7 @@ ${dim}────────────────────────�
   ${command}uptime${reset}             ${accent}→${reset} ${desc}System uptime${reset}
   ${command}which <name>${reset}       ${accent}→${reset} ${desc}Locate command${reset}
   ${command}winutil${reset}            ${accent}→${reset} ${desc}Run WinUtil${reset}
-  ${command}winutildev${reset}         ${accent}→${reset} ${desc}Run WinUtil Dev${reset}
+  ${command}winutildev / winutil-dev${reset} ${accent}→${reset} ${desc}Run WinUtil Dev${reset}
 
 ${dim}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${reset}
 "@
