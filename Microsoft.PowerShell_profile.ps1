@@ -94,11 +94,11 @@ function uptime {
 }
 
 function winutil {
-    Invoke-RestMethod https://christitus.com/win | Invoke-Expression
+    & ([ScriptBlock]::Create((Invoke-RestMethod https://christitus.com/win))) @args
 }
 
 function winutildev {
-    Invoke-RestMethod https://christitus.com/windev | Invoke-Expression
+    & ([ScriptBlock]::Create((Invoke-RestMethod https://christitus.com/windev))) @args
 }
 
 # Git Shortcuts
