@@ -1,7 +1,5 @@
 ### Chris Titus Tech's PowerShell profile
 
-oh-my-posh init pwsh --config $Home\cobalt2.omp.json | Invoke-Expression
-zoxide init --cmd z powershell | Out-String | Invoke-Expression
 Import-Module -Name Terminal-Icons
 
 Write-Host "Use 'Show-Help' to list all available functions" -ForegroundColor Yellow
@@ -188,3 +186,7 @@ ${dim}────────────────────────�
 ${dim}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${reset}
 "@
 }
+
+# init commands should be at the end of the profile
+oh-my-posh init pwsh --config $env:POSH_THEME | Invoke-Expression
+zoxide init --cmd z powershell | Out-String | Invoke-Expression
