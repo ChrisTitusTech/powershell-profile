@@ -188,5 +188,5 @@ ${dim}━━━━━━━━━━━━━━━━━━━━━━━━�
 }
 
 # init commands should be at the end of the profile
-oh-my-posh init pwsh --config $env:POSH_THEME | Invoke-Expression
-zoxide init --cmd z powershell | Out-String | Invoke-Expression
+Invoke-Expression (& { (oh-my-posh init pwsh --config $env:POSH_THEME | Out-String) })
+Invoke-Expression (& { (zoxide init --cmd z powershell | Out-String) })
