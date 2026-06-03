@@ -5,21 +5,6 @@ $poshTheme = if (-not [string]::IsNullOrWhiteSpace($env:POSH_THEME)) {
 } else {
     Join-Path $Home 'cobalt2.omp.json'
 }
-if (Get-Command oh-my-posh -ErrorAction SilentlyContinue) {
-    if (Test-Path $poshTheme) {
-        oh-my-posh init pwsh --config $poshTheme | Invoke-Expression
-    } else {
-        Write-Warning "oh-my-posh theme not found at $poshTheme."
-    }
-} else {
-    Write-Warning "oh-my-posh is not installed."
-}
-
-if (Get-Command zoxide -ErrorAction SilentlyContinue) {
-    zoxide init --cmd z powershell | Out-String | Invoke-Expression
-} else {
-    Write-Warning "zoxide is not installed."
-}
 
 if (Get-Module -ListAvailable -Name Terminal-Icons) {
     Import-Module -Name Terminal-Icons
@@ -212,6 +197,28 @@ ${dim}━━━━━━━━━━━━━━━━━━━━━━━━�
 "@
 }
 
+$shouldInitPosh = $false
+if (Get-Command oh-my-posh -ErrorAction SilentlyContinue) {
+    if (Test-Path $poshTheme) {
+        $shouldInitPosh = $true
+    } else {
+        Write-Warning "oh-my-posh theme not found at $poshTheme."
+    }
+} else {
+    Write-Warning "oh-my-posh is not installed."
+}
+
+$shouldInitZoxide = $false
+if (Get-Command zoxide -ErrorAction SilentlyContinue) {
+    $shouldInitZoxide = $true
+} else {
+    Write-Warning "zoxide is not installed."
+}
+
 # init commands should be at the end of the profile
-Invoke-Expression (& { (oh-my-posh init pwsh --config $env:POSH_THEME | Out-String) })
-Invoke-Expression (& { (zoxide init --cmd z powershell | Out-String) })
+if ($shouldInitPosh) {
+    Invoke-Expression (& { (oh-my-posh init pwsh --config $poshTheme | Out-String) })
+}
+if ($shouldInitZoxide) {
+    Invoke-Expression (& { (zoxide init --cmd z powershell | Out-String) })
+}
