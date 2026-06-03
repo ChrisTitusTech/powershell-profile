@@ -1,8 +1,31 @@
 ### Chris Titus Tech's PowerShell profile
 
-oh-my-posh init pwsh --config $Home\cobalt2.omp.json | Invoke-Expression
-zoxide init --cmd z powershell | Out-String | Invoke-Expression
-Import-Module -Name Terminal-Icons
+$poshTheme = if (-not [string]::IsNullOrWhiteSpace($env:POSH_THEME)) {
+    $env:POSH_THEME
+} else {
+    Join-Path $Home 'cobalt2.omp.json'
+}
+if (Get-Command oh-my-posh -ErrorAction SilentlyContinue) {
+    if (Test-Path $poshTheme) {
+        oh-my-posh init pwsh --config $poshTheme | Invoke-Expression
+    } else {
+        Write-Warning "oh-my-posh theme not found at $poshTheme."
+    }
+} else {
+    Write-Warning "oh-my-posh is not installed."
+}
+
+if (Get-Command zoxide -ErrorAction SilentlyContinue) {
+    zoxide init --cmd z powershell | Out-String | Invoke-Expression
+} else {
+    Write-Warning "zoxide is not installed."
+}
+
+if (Get-Module -ListAvailable -Name Terminal-Icons) {
+    Import-Module -Name Terminal-Icons
+} else {
+    Write-Warning "Terminal-Icons module not found."
+}
 
 Write-Host "Use 'Show-Help' to list all available functions" -ForegroundColor Yellow
 
