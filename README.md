@@ -1,28 +1,67 @@
-# 🎨 Pretty PowerShell
+# 🎨 PowerShell Profile (Pretty PowerShell)
 
-A clean, modern PowerShell profile designed to make Windows terminals feel fast, polished, and closer to a modern Linux shell experience.
+A stylish and functional PowerShell profile that looks and feels almost as good as a Linux terminal.
 
-## ⚡ Install
+## ⚡ One Line Install (Elevated PowerShell Recommended)
 
-Run the following command in a PowerShell window:
+Execute the following command in an elevated PowerShell window to install the PowerShell profile:
 
-```powershell
-irm https://github.com/ChrisTitusTech/powershell-profile/raw/main/setup.ps1 | iex
+```
+irm "https://github.com/ChrisTitusTech/powershell-profile/raw/main/setup.ps1" | iex
 ```
 
-## After you run the installer
-- Reopen Windows Terminal
-- Go to Settings
-- Select your PowerShell profile
-- Go to Appearance
-- Set Font face to `JetBrainsMono Nerd Font`
-- Click Save
+## 🛠️ Fix the Missing Font
 
-## ⭐ Support the Project
+After running the script, you'll have two options for installing a font patched to support icons in PowerShell:
 
-If you find this project useful:
+### 1) You will find a downloaded `cove.zip` file in the folder you executed the script from. Follow these steps to install the patched `Caskaydia Cove` nerd font family:
 
-- Leave a star on GitHub
-- Share it with others
-- Consider sponsoring development:  
-  https://github.com/sponsors/ChrisTitusTech
+1. Extract the `cove.zip` file.
+2. Locate and install the nerd fonts.
+
+### 2) With `oh-my-posh` (loaded automatically through the PowerShell profile script hosted on this repo):
+1. Run the command `oh-my-posh font install`
+2. A list of Nerd Fonts will appear like so:
+<pre>
+PS> oh-my-posh font install
+
+   Select font
+
+  > 0xProto
+    3270
+    Agave
+    AnonymousPro
+    Arimo
+    AurulentSansMono
+    BigBlueTerminal
+    BitstreamVeraSansMono
+
+    •••••••••
+    ↑/k up • ↓/j down • q quit • ? more</pre>
+3. With the up/down arrow keys, select the font you would like to install and press <kbd>ENTER</kbd>
+4. DONE!
+   
+## Customize this profile
+
+**Do not make any changes to the `Microsoft.PowerShell_profile.ps1` file**, since it's hashed and automatically overwritten by any commits to this repository.
+
+After the profile is installed and active, run the `Edit-Profile` function to create a separate profile file [`profile.ps1`] for your current user. Add any custom code, and/or override VARIABLES/FUNCTIONS in `Microsoft.PowerShell_profile.ps1` by adding any of the following Variable or Function names:
+
+THE FOLLOWING VARIABLES RESPECT _Override:
+<pre>
+$EDITOR_Override
+$debug_Override
+$repo_root_Override  [To point to a fork, for example]
+$timeFilePath_Override
+$updateInterval_Override
+</pre>
+
+THE FOLLOWING FUNCTIONS RESPECT _Override: _(do not call the original function from your override function, or you'll create an infinite loop)_
+<pre>
+Debug-Message_Override
+Update-Profile_Override
+Update-PowerShell_Override
+Clear-Cache_Override
+Get-Theme_Override
+WinUtilDev_Override [To call a fork, for example]
+</pre>
