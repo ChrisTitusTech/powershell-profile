@@ -33,6 +33,31 @@ function Test-Command {
     $null -ne (Get-Command -Name $Name -ErrorAction SilentlyContinue)
 }
 
+function Save-UriToFile {
+    param(
+        [Parameter(Mandatory)][string]$Uri,
+        [Parameter(Mandatory)][string]$OutFile
+    )
+
+    $client = New-Object System.Net.WebClient
+    try {
+        $client.DownloadFile($Uri, $OutFile)
+    } finally {
+        $client.Dispose()
+    }
+}
+
+function Get-UriContent {
+    param([Parameter(Mandatory)][string]$Uri)
+
+    $client = New-Object System.Net.WebClient
+    try {
+        $client.DownloadString($Uri)
+    } finally {
+        $client.Dispose()
+    }
+}
+
 $isInteractiveShell = Test-InteractiveShell
 $debug = if ($null -ne $debug_Override) { [bool]$debug_Override } else { $false }
 $repo_root = if ($repo_root_Override) { $repo_root_Override } else { 'https://raw.githubusercontent.com/ChrisTitusTech' }
@@ -107,7 +132,7 @@ function Update-Profile {
     $tempFile = Join-Path $env:TEMP 'Microsoft.PowerShell_profile.ps1'
 
     try {
-        Invoke-RestMethod -Uri $url -OutFile $tempFile -ErrorAction Stop
+        Save-UriToFile -Uri $url -OutFile $tempFile
 
         $targetExists = Test-Path -Path $target -PathType Leaf
         $oldHash = if ($targetExists) { (Get-FileHash -Path $target).Hash } else { $null }
@@ -303,7 +328,7 @@ function ff {
 }
 
 function pubip {
-    (Invoke-WebRequest -Uri 'https://ifconfig.me/ip' -UseBasicParsing).Content
+    (Get-UriContent -Uri 'https://ifconfig.me/ip').Trim()
 }
 
 function winutil {
@@ -348,25 +373,6 @@ function unzip {
     }
 
     Expand-Archive -Path $File -DestinationPath (Get-Location) -Force
-}
-
-function hb {
-    param([Parameter(Mandatory)][string]$FilePath)
-
-    if (-not (Test-Path -Path $FilePath -PathType Leaf)) {
-        Write-Error "File not found: $FilePath"
-        return
-    }
-
-    try {
-        $content = Get-Content -Path $FilePath -Raw
-        $response = Invoke-RestMethod -Uri 'http://bin.christitus.com/documents' -Method Post -Body $content -ErrorAction Stop
-        $url = "http://bin.christitus.com/$($response.key)"
-        Set-Clipboard $url
-        Write-Output "$url copied to clipboard."
-    } catch {
-        Write-Error "Failed to upload the document. Error: $_"
-    }
 }
 
 function grep {
@@ -698,7 +704,6 @@ Shortcuts:
   ff <name>         Find files recursively by name.
   flushdns          Clear the DNS cache.
   grep <regex> [p]  Search files or piped input.
-  hb <file>         Upload file content to bin.christitus.com.
   head/tail         Show the first or last lines of a file.
   k9/pkill <name>   Kill processes by name.
   la/ll             List visible/all files.

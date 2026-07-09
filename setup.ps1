@@ -12,6 +12,20 @@ function Test-Command {
     $null -ne (Get-Command -Name $Name -ErrorAction SilentlyContinue)
 }
 
+function Save-UriToFile {
+    param(
+        [Parameter(Mandatory)][string]$Uri,
+        [Parameter(Mandatory)][string]$OutFile
+    )
+
+    $client = New-Object System.Net.WebClient
+    try {
+        $client.DownloadFile($Uri, $OutFile)
+    } finally {
+        $client.Dispose()
+    }
+}
+
 function Get-ProfileDir {
     switch ($PSVersionTable.PSEdition) {
         'Core' { Join-Path ([Environment]::GetFolderPath('MyDocuments')) 'PowerShell'; break }
@@ -21,12 +35,20 @@ function Get-ProfileDir {
 }
 
 function Test-InternetConnection {
+    $response = $null
     try {
-        Invoke-WebRequest -Uri 'https://github.com' -Method Head -TimeoutSec 10 -UseBasicParsing -ErrorAction Stop | Out-Null
+        $request = [System.Net.WebRequest]::Create('https://github.com')
+        $request.Method = 'HEAD'
+        $request.Timeout = 10000
+        $response = $request.GetResponse()
         return $true
     } catch {
         Write-Warning 'Internet connection is required but GitHub is not reachable.'
         return $false
+    } finally {
+        if ($response) {
+            $response.Close()
+        }
     }
 }
 
@@ -56,7 +78,7 @@ function Install-Profile {
 
     $tempProfile = Join-Path $env:TEMP 'Microsoft.PowerShell_profile.ps1'
     try {
-        Invoke-RestMethod -Uri $SourceUri -OutFile $tempProfile -ErrorAction Stop
+        Save-UriToFile -Uri $SourceUri -OutFile $tempProfile
         $backupPath = Save-ProfileBackup -ProfilePath $ProfilePath
         Copy-Item -Path $tempProfile -Destination $ProfilePath -Force
 
@@ -106,7 +128,7 @@ function Install-OhMyPoshTheme {
 
     $themePath = Join-Path $profileDir "$ThemeName.omp.json"
     try {
-        Invoke-RestMethod -Uri $ThemeUri -OutFile $themePath -ErrorAction Stop
+        Save-UriToFile -Uri $ThemeUri -OutFile $themePath
         Write-Host "Oh My Posh theme installed to [$themePath]."
         return $themePath
     } catch {
@@ -143,7 +165,7 @@ function Install-NerdFont {
 
     try {
         Remove-Item -Path $extractPath -Recurse -Force -ErrorAction SilentlyContinue
-        Invoke-WebRequest -Uri $fontZipUrl -OutFile $zipFilePath -UseBasicParsing -ErrorAction Stop
+        Save-UriToFile -Uri $fontZipUrl -OutFile $zipFilePath
         Expand-Archive -Path $zipFilePath -DestinationPath $extractPath -Force
 
         $fontShellFolder = (New-Object -ComObject Shell.Application).Namespace(0x14)
