@@ -17,7 +17,7 @@ The installer:
 - Installs Oh My Posh, zoxide, Terminal-Icons, and the CaskaydiaCove Nerd Font.
 - Downloads the `cobalt2.omp.json` theme into your PowerShell profile directory.
 
-The profile itself does not install packages, download themes, or upgrade PowerShell during shell startup. Missing optional tools are skipped with a warning.
+The profile itself does not install packages, download themes, or upgrade PowerShell during shell startup. Missing optional tools are skipped with a warning. On startup it does periodically check `$repo_root` for a newer `Microsoft.PowerShell_profile.ps1` (governed by `$updateInterval`, default every 7 days) and will download and install it automatically when due; see `Invoke-ScheduledProfileUpdate` and `Update-Profile`.
 
 ## Customize
 
