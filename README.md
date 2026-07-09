@@ -1,67 +1,59 @@
-# 🎨 PowerShell Profile (Pretty PowerShell)
+# PowerShell Profile
 
-A stylish and functional PowerShell profile that looks and feels almost as good as a Linux terminal.
+A modern Windows PowerShell profile with quality-of-life aliases, Oh My Posh support, Terminal-Icons, zoxide navigation, and helper functions for common shell tasks.
 
-## ⚡ One Line Install (Elevated PowerShell Recommended)
+## Install
 
-Execute the following command in an elevated PowerShell window to install the PowerShell profile:
+Run the installer from an elevated PowerShell session:
 
-```
+```powershell
 irm "https://github.com/ChrisTitusTech/powershell-profile/raw/main/setup.ps1" | iex
 ```
 
-## 🛠️ Fix the Missing Font
+The installer:
 
-After running the script, you'll have two options for installing a font patched to support icons in PowerShell:
+- Backs up an existing profile with a timestamped `oldprofile-*.ps1` file.
+- Installs this repository's `Microsoft.PowerShell_profile.ps1`.
+- Installs Oh My Posh, zoxide, Terminal-Icons, and the CaskaydiaCove Nerd Font.
+- Downloads the `cobalt2.omp.json` theme into your PowerShell profile directory.
 
-### 1) You will find a downloaded `cove.zip` file in the folder you executed the script from. Follow these steps to install the patched `Caskaydia Cove` nerd font family:
+The profile itself does not install packages, download themes, or upgrade PowerShell during shell startup. Missing optional tools are skipped with a warning.
 
-1. Extract the `cove.zip` file.
-2. Locate and install the nerd fonts.
+## Customize
 
-### 2) With `oh-my-posh` (loaded automatically through the PowerShell profile script hosted on this repo):
-1. Run the command `oh-my-posh font install`
-2. A list of Nerd Fonts will appear like so:
-<pre>
-PS> oh-my-posh font install
+Do not edit `Microsoft.PowerShell_profile.ps1` directly; it is updated from this repository.
 
-   Select font
+Put personal customizations in your all-hosts profile:
 
-  > 0xProto
-    3270
-    Agave
-    AnonymousPro
-    Arimo
-    AurulentSansMono
-    BigBlueTerminal
-    BitstreamVeraSansMono
+```powershell
+Edit-Profile
+```
 
-    •••••••••
-    ↑/k up • ↓/j down • q quit • ? more</pre>
-3. With the up/down arrow keys, select the font you would like to install and press <kbd>ENTER</kbd>
-4. DONE!
-   
-## Customize this profile
+You can also place `CTTcustom.ps1` beside `Microsoft.PowerShell_profile.ps1`. It is loaded before this profile reads override variables and functions.
 
-**Do not make any changes to the `Microsoft.PowerShell_profile.ps1` file**, since it's hashed and automatically overwritten by any commits to this repository.
+## Supported Overrides
 
-After the profile is installed and active, run the `Edit-Profile` function to create a separate profile file [`profile.ps1`] for your current user. Add any custom code, and/or override VARIABLES/FUNCTIONS in `Microsoft.PowerShell_profile.ps1` by adding any of the following Variable or Function names:
+Variables:
 
-THE FOLLOWING VARIABLES RESPECT _Override:
-<pre>
+```powershell
 $EDITOR_Override
 $debug_Override
-$repo_root_Override  [To point to a fork, for example]
+$repo_root_Override
+$show_help_Override
 $timeFilePath_Override
 $updateInterval_Override
-</pre>
+```
 
-THE FOLLOWING FUNCTIONS RESPECT _Override: _(do not call the original function from your override function, or you'll create an infinite loop)_
-<pre>
+Functions:
+
+```powershell
 Debug-Message_Override
 Update-Profile_Override
 Update-PowerShell_Override
 Clear-Cache_Override
 Get-Theme_Override
-WinUtilDev_Override [To call a fork, for example]
-</pre>
+WinUtilDev_Override
+Set-PredictionSource_Override
+```
+
+Avoid calling the original function from its override, otherwise the override will recurse.

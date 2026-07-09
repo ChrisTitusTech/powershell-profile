@@ -1,177 +1,201 @@
-# Ensure the script can run with elevated privileges
-if (-NOT ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) {
-    Write-Warning "Please run this script as an Administrator!"
-    break
+$profileSourceUri = 'https://github.com/ChrisTitusTech/powershell-profile/raw/main/Microsoft.PowerShell_profile.ps1'
+$themeSourceUri = 'https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/cobalt2.omp.json'
+
+function Test-IsAdministrator {
+    $identity = [Security.Principal.WindowsIdentity]::GetCurrent()
+    $principal = [Security.Principal.WindowsPrincipal]$identity
+    return $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
 }
 
-# Function to test internet connectivity
+function Test-Command {
+    param([Parameter(Mandatory)][string]$Name)
+    $null -ne (Get-Command -Name $Name -ErrorAction SilentlyContinue)
+}
+
+function Get-ProfileDir {
+    switch ($PSVersionTable.PSEdition) {
+        'Core' { Join-Path ([Environment]::GetFolderPath('MyDocuments')) 'PowerShell'; break }
+        'Desktop' { Join-Path ([Environment]::GetFolderPath('MyDocuments')) 'WindowsPowerShell'; break }
+        default { throw "Unsupported PowerShell edition: $($PSVersionTable.PSEdition)" }
+    }
+}
+
 function Test-InternetConnection {
     try {
-        Test-Connection -ComputerName www.google.com -Count 1 -ErrorAction Stop | Out-Null
+        Invoke-WebRequest -Uri 'https://github.com' -Method Head -TimeoutSec 10 -UseBasicParsing -ErrorAction Stop | Out-Null
         return $true
-    }
-    catch {
-        Write-Warning "Internet connection is required but not available. Please check your connection."
+    } catch {
+        Write-Warning 'Internet connection is required but GitHub is not reachable.'
         return $false
     }
 }
 
-# Function to install Nerd Fonts
-function Install-NerdFonts {
-    param (
-        [string]$FontName = "CascadiaCode",
-        [string]$FontDisplayName = "CaskaydiaCove NF",
-        [string]$Version = "3.2.1"
+function Save-ProfileBackup {
+    param([Parameter(Mandatory)][string]$ProfilePath)
+
+    if (-not (Test-Path -Path $ProfilePath -PathType Leaf)) {
+        return $null
+    }
+
+    $timestamp = Get-Date -Format 'yyyyMMdd-HHmmss'
+    $backupPath = Join-Path (Split-Path -Path $ProfilePath -Parent) "oldprofile-$timestamp.ps1"
+    Copy-Item -Path $ProfilePath -Destination $backupPath -Force
+    return $backupPath
+}
+
+function Install-Profile {
+    param(
+        [Parameter(Mandatory)][string]$SourceUri,
+        [Parameter(Mandatory)][string]$ProfilePath
     )
 
+    $profileDir = Split-Path -Path $ProfilePath -Parent
+    if (-not (Test-Path -Path $profileDir)) {
+        New-Item -Path $profileDir -ItemType Directory -Force | Out-Null
+    }
+
+    $tempProfile = Join-Path $env:TEMP 'Microsoft.PowerShell_profile.ps1'
     try {
-        [void] [System.Reflection.Assembly]::LoadWithPartialName("System.Drawing")
-        $fontFamilies = (New-Object System.Drawing.Text.InstalledFontCollection).Families.Name
-        if ($fontFamilies -notcontains "${FontDisplayName}") {
-            $fontZipUrl = "https://github.com/ryanoasis/nerd-fonts/releases/download/v${Version}/${FontName}.zip"
-            $zipFilePath = "$env:TEMP\${FontName}.zip"
-            $extractPath = "$env:TEMP\${FontName}"
+        Invoke-RestMethod -Uri $SourceUri -OutFile $tempProfile -ErrorAction Stop
+        $backupPath = Save-ProfileBackup -ProfilePath $ProfilePath
+        Copy-Item -Path $tempProfile -Destination $ProfilePath -Force
 
-            $webClient = New-Object System.Net.WebClient
-            $webClient.DownloadFileAsync((New-Object System.Uri($fontZipUrl)), $zipFilePath)
-
-            while ($webClient.IsBusy) {
-                Start-Sleep -Seconds 2
-            }
-
-            Expand-Archive -Path $zipFilePath -DestinationPath $extractPath -Force
-            $destination = (New-Object -ComObject Shell.Application).Namespace(0x14)
-            Get-ChildItem -Path $extractPath -Recurse -Filter "*.ttf" | ForEach-Object {
-                If (-not(Test-Path "C:\Windows\Fonts\$($_.Name)")) {
-                    $destination.CopyHere($_.FullName, 0x10)
-                }
-            }
-
-            Remove-Item -Path $extractPath -Recurse -Force
-            Remove-Item -Path $zipFilePath -Force
-        } else {
-            Write-Host "Font ${FontDisplayName} already installed"
+        Write-Host "PowerShell profile installed to [$ProfilePath]."
+        if ($backupPath) {
+            Write-Host "Previous profile backed up to [$backupPath]."
         }
-    }
-    catch {
-        Write-Error "Failed to download or install ${FontDisplayName} font. Error: $_"
-    }
-}
-
-# Helper function for cross-edition compatibility
-function Get-ProfileDir {
-    if ($PSVersionTable.PSEdition -eq "Core") {
-        return "$env:userprofile\Documents\PowerShell"
-    } elseif ($PSVersionTable.PSEdition -eq "Desktop") {
-        return "$env:userprofile\Documents\WindowsPowerShell"
-    } else {
-        Write-Error "Unsupported PowerShell edition: $($PSVersionTable.PSEdition)"
-        break
+    } finally {
+        Remove-Item -Path $tempProfile -ErrorAction SilentlyContinue
     }
 }
 
-# Check for internet connectivity before proceeding
-if (-not (Test-InternetConnection)) {
-    break
-}
+function Install-WinGetPackage {
+    param(
+        [Parameter(Mandatory)][string]$Id,
+        [Parameter(Mandatory)][string]$Name
+    )
 
-# Profile creation or update
-if (!(Test-Path -Path $PROFILE -PathType Leaf)) {
+    if (-not (Test-Command winget)) {
+        Write-Warning "winget was not found. Skipping $Name."
+        return $false
+    }
+
     try {
-        $profilePath = Get-ProfileDir
-        if (!(Test-Path -Path $profilePath)) {
-            New-Item -Path $profilePath -ItemType "directory" -Force
+        winget install --id $Id --exact --source winget --accept-source-agreements --accept-package-agreements --silent
+        if ($LASTEXITCODE -ne 0) {
+            Write-Warning "winget failed to install $Name. Exit code: $LASTEXITCODE"
+            return $false
         }
-        Invoke-RestMethod https://github.com/ChrisTitusTech/powershell-profile/raw/main/Microsoft.PowerShell_profile.ps1 -OutFile $PROFILE
-        Write-Host "The profile @ [$PROFILE] has been created."
-        Write-Host "If you want to make any personal changes or customizations, please do so at [$profilePath\Profile.ps1] as there is an updater in the installed profile which uses the hash to update the profile and will lead to loss of changes"
-    }
-    catch {
-        Write-Error "Failed to create or update the profile. Error: $_"
-    }
-}
-else {
-    try {
-        $backupPath = Join-Path (Split-Path $PROFILE) "oldprofile.ps1"
-        Move-Item -Path $PROFILE -Destination $backupPath -Force
-        Invoke-RestMethod https://github.com/ChrisTitusTech/powershell-profile/raw/main/Microsoft.PowerShell_profile.ps1 -OutFile $PROFILE
-        Write-Host "✅ PowerShell profile at [$PROFILE] has been updated."
-        Write-Host "📦 Your old profile has been backed up to [$backupPath]"
-        Write-Host "⚠️ NOTE: Please back up any persistent components of your old profile to [$HOME\Documents\PowerShell\Profile.ps1] as there is an updater in the installed profile which uses the hash to update the profile and will lead to loss of changes"
-    }
-    catch {
-        Write-Error "❌ Failed to backup and update the profile. Error: $_"
+        return $true
+    } catch {
+        Write-Warning "Failed to install $Name. Error: $_"
+        return $false
     }
 }
 
-# Function to download Oh My Posh theme locally
 function Install-OhMyPoshTheme {
-    param (
-        [string]$ThemeName = "cobalt2",
-        [string]$ThemeUrl = "https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/cobalt2.omp.json"
+    param(
+        [string]$ThemeName = 'cobalt2',
+        [string]$ThemeUri = $themeSourceUri
     )
-    $profilePath = Get-ProfileDir
-    if (!(Test-Path -Path $profilePath)) {
-        New-Item -Path $profilePath -ItemType "directory"
+
+    $profileDir = Get-ProfileDir
+    if (-not (Test-Path -Path $profileDir)) {
+        New-Item -Path $profileDir -ItemType Directory -Force | Out-Null
     }
-    $themeFilePath = Join-Path $profilePath "$ThemeName.omp.json"
+
+    $themePath = Join-Path $profileDir "$ThemeName.omp.json"
     try {
-        Invoke-RestMethod -Uri $ThemeUrl -OutFile $themeFilePath
-        Write-Host "Oh My Posh theme '$ThemeName' has been downloaded to [$themeFilePath]"
-        return $themeFilePath
-    }
-    catch {
-        Write-Error "Failed to download Oh My Posh theme. Error: $_"
+        Invoke-RestMethod -Uri $ThemeUri -OutFile $themePath -ErrorAction Stop
+        Write-Host "Oh My Posh theme installed to [$themePath]."
+        return $themePath
+    } catch {
+        Write-Warning "Failed to download Oh My Posh theme. Error: $_"
         return $null
     }
 }
 
-# OMP Install
+function Get-InstalledFontName {
+    try {
+        Add-Type -AssemblyName System.Drawing -ErrorAction Stop
+        return (New-Object System.Drawing.Text.InstalledFontCollection).Families.Name
+    } catch {
+        Write-Warning "Unable to inspect installed fonts. Error: $_"
+        return @()
+    }
+}
+
+function Install-NerdFont {
+    param(
+        [string]$FontName = 'CascadiaCode',
+        [string]$FontDisplayName = 'CaskaydiaCove NF',
+        [string]$Version = '3.2.1'
+    )
+
+    if ((Get-InstalledFontName) -contains $FontDisplayName) {
+        Write-Host "Font [$FontDisplayName] is already installed."
+        return $true
+    }
+
+    $fontZipUrl = "https://github.com/ryanoasis/nerd-fonts/releases/download/v$Version/$FontName.zip"
+    $zipFilePath = Join-Path $env:TEMP "$FontName.zip"
+    $extractPath = Join-Path $env:TEMP $FontName
+
+    try {
+        Remove-Item -Path $extractPath -Recurse -Force -ErrorAction SilentlyContinue
+        Invoke-WebRequest -Uri $fontZipUrl -OutFile $zipFilePath -UseBasicParsing -ErrorAction Stop
+        Expand-Archive -Path $zipFilePath -DestinationPath $extractPath -Force
+
+        $fontShellFolder = (New-Object -ComObject Shell.Application).Namespace(0x14)
+        Get-ChildItem -Path $extractPath -Recurse -Filter '*.ttf' | ForEach-Object {
+            if (-not (Test-Path "C:\Windows\Fonts\$($_.Name)")) {
+                $fontShellFolder.CopyHere($_.FullName, 0x10)
+            }
+        }
+
+        Write-Host "Font [$FontDisplayName] installed."
+        return $true
+    } catch {
+        Write-Warning "Failed to install $FontDisplayName. Error: $_"
+        return $false
+    } finally {
+        Remove-Item -Path $extractPath -Recurse -Force -ErrorAction SilentlyContinue
+        Remove-Item -Path $zipFilePath -Force -ErrorAction SilentlyContinue
+    }
+}
+
+function Install-TerminalIconsModule {
+    try {
+        Install-Module -Name Terminal-Icons -Repository PSGallery -Scope CurrentUser -Force -SkipPublisherCheck
+        Write-Host 'Terminal-Icons module installed.'
+        return $true
+    } catch {
+        Write-Warning "Failed to install Terminal-Icons. Error: $_"
+        return $false
+    }
+}
+
+if (-not (Test-IsAdministrator)) {
+    Write-Warning 'Please run this script as an Administrator.'
+    return
+}
+
+if (-not (Test-InternetConnection)) {
+    return
+}
+
 try {
-    winget install -e --accept-source-agreements --accept-package-agreements JanDeDobbeleer.OhMyPosh
-}
-catch {
-    Write-Error "Failed to install Oh My Posh. Error: $_"
-}
-
-# Download Oh My Posh theme locally
-$themeInstalled = Install-OhMyPoshTheme -ThemeName "cobalt2"
-
-# Font Install
-Install-NerdFonts -FontName "CascadiaCode" -FontDisplayName "CaskaydiaCove NF"
-
-# Final check and message to the user
-[void] [System.Reflection.Assembly]::LoadWithPartialName("System.Drawing")
-$fontFamilies = (New-Object System.Drawing.Text.InstalledFontCollection).Families.Name
-if ((Test-Path -Path $PROFILE) -and (winget list --name "Oh-My-Posh" -e) -and ($fontFamilies -contains "CaskaydiaCove NF") -and $themeInstalled) {
-    Write-Host "Setup completed successfully. Please restart your PowerShell session to apply changes."
-} else {
-    Write-Warning "Setup completed with errors. Please check the error messages above."
+    [Environment]::SetEnvironmentVariable('POWERSHELL_TELEMETRY_OPTOUT', '1', [EnvironmentVariableTarget]::Machine)
+} catch {
+    Write-Warning "Unable to set PowerShell telemetry opt-out. Error: $_"
 }
 
-# Choco install
-try {
-    Set-ExecutionPolicy Bypass -Scope Process -Force
-    [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072
-    $chocoScript = (New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1')
-    Invoke-Expression $chocoScript
-}
-catch {
-    Write-Error "Failed to install Chocolatey. Error: $_"
-}
+$profilePath = $PROFILE.CurrentUserCurrentHost
+Install-Profile -SourceUri $profileSourceUri -ProfilePath $profilePath
+Install-WinGetPackage -Id 'JanDeDobbeleer.OhMyPosh' -Name 'Oh My Posh' | Out-Null
+Install-WinGetPackage -Id 'ajeetdsouza.zoxide' -Name 'zoxide' | Out-Null
+Install-OhMyPoshTheme | Out-Null
+Install-NerdFont | Out-Null
+Install-TerminalIconsModule | Out-Null
 
-# Terminal Icons Install
-try {
-    Install-Module -Name Terminal-Icons -Repository PSGallery -Force
-}
-catch {
-    Write-Error "Failed to install Terminal Icons module. Error: $_"
-}
-# zoxide Install
-try {
-    winget install -e --id ajeetdsouza.zoxide
-    Write-Host "zoxide installed successfully."
-}
-catch {
-    Write-Error "Failed to install zoxide. Error: $_"
-}
+Write-Host 'Setup completed. Restart PowerShell to load the profile.'

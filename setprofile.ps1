@@ -1,2 +1,9 @@
-$profilePath = Split-Path -Path $PROFILE
-copy .\Microsoft.PowerShell_profile.ps1 $profilePath
+$profilePath = $PROFILE.CurrentUserCurrentHost
+$profileDir = Split-Path -Path $profilePath -Parent
+$sourcePath = Join-Path -Path $PSScriptRoot -ChildPath 'Microsoft.PowerShell_profile.ps1'
+
+if (-not (Test-Path -Path $profileDir)) {
+    New-Item -Path $profileDir -ItemType Directory -Force | Out-Null
+}
+
+Copy-Item -Path $sourcePath -Destination $profilePath -Force
