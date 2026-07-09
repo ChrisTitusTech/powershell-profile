@@ -322,19 +322,17 @@ function ff($name) {
 # Network Utilities
 function pubip { (Invoke-WebRequest http://ifconfig.me/ip).Content }
 
-# Open WinUtil full-release
 function winutil {
-    Invoke-Expression (Invoke-RestMethod https://christitus.com/win)
+    & ([ScriptBlock]::Create((Invoke-RestMethod https://christitus.com/win))) @args
 }
 
-# Open WinUtil dev-release
 function winutildev {
     # If function "WinUtilDev_Override" is defined in profile.ps1 file
     # then call it instead.
     if (Get-Command -Name "WinUtilDev_Override" -ErrorAction SilentlyContinue) {
         WinUtilDev_Override
     } else {
-        Invoke-Expression (Invoke-RestMethod https://christitus.com/windev)
+        & ([ScriptBlock]::Create((Invoke-RestMethod https://christitus.com/windev))) @args
     }
 }
 
