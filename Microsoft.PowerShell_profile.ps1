@@ -472,6 +472,20 @@ function trash($path) {
     }
 }
 
+function winutil {
+    & ([ScriptBlock]::Create((Invoke-RestMethod https://christitus.com/win))) @args
+}
+
+function winutildev {
+    # If function "WinUtilDev_Override" is defined in profile.ps1 file
+    # then call it instead.
+    if (Get-Command -Name "WinUtilDev_Override" -ErrorAction SilentlyContinue) {
+        WinUtilDev_Override
+    } else {
+        & ([ScriptBlock]::Create((Invoke-RestMethod https://christitus.com/windev))) @args
+    }
+}
+
 ### Quality of Life Aliases
 
 # Navigation Shortcuts
