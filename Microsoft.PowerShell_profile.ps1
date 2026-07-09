@@ -1,5 +1,15 @@
 ### Chris Titus Tech's PowerShell profile
 
+function Enable-Tls12 {
+    try {
+        [Net.ServicePointManager]::SecurityProtocol = [Net.ServicePointManager]::SecurityProtocol -bor [Net.SecurityProtocolType]::Tls12
+    } catch {
+        Write-Verbose "Unable to enable TLS 1.2 explicitly: $_"
+    }
+}
+
+Enable-Tls12
+
 $script:ProfileRoot = if ($PSScriptRoot) { $PSScriptRoot } else { Split-Path -Path $PROFILE.CurrentUserCurrentHost -Parent }
 $script:CustomProfile = Join-Path -Path $script:ProfileRoot -ChildPath 'CTTcustom.ps1'
 
@@ -22,8 +32,7 @@ function Get-ProfileDir {
         'Core' { Join-Path ([Environment]::GetFolderPath('MyDocuments')) 'PowerShell'; break }
         'Desktop' { Join-Path ([Environment]::GetFolderPath('MyDocuments')) 'WindowsPowerShell'; break }
         default {
-            Write-Error "Unsupported PowerShell edition: $($PSVersionTable.PSEdition)"
-            $null
+            throw "Unsupported PowerShell edition: $($PSVersionTable.PSEdition)"
         }
     }
 }
@@ -346,10 +355,13 @@ function winutildev {
 
 function admin {
     $cwd = (Get-Location).ProviderPath
-    if ($args.Count -gt 0) {
-        Start-Process wt -Verb RunAs -ArgumentList @('-d', $cwd, 'pwsh.exe', '-NoExit', '-Command', ($args -join ' '))
+    $shell = if (Test-Command pwsh) { 'pwsh.exe' } else { 'powershell.exe' }
+    $shellArgs = if ($args.Count -gt 0) { @('-NoExit', '-Command', ($args -join ' ')) } else { @('-NoExit') }
+
+    if (Test-Command wt) {
+        Start-Process wt -Verb RunAs -ArgumentList (@('-d', $cwd, $shell) + $shellArgs)
     } else {
-        Start-Process wt -Verb RunAs -ArgumentList @('-d', $cwd, 'pwsh.exe', '-NoExit')
+        Start-Process $shell -Verb RunAs -WorkingDirectory $cwd -ArgumentList $shellArgs
     }
 }
 Set-Alias -Name su -Value admin -Force
@@ -457,20 +469,33 @@ function nf {
 function trash {
     param([Parameter(Mandatory)][string]$Path)
 
-    if (-not (Test-Path -Path $Path)) {
+    $resolvedPath = Resolve-Path -LiteralPath $Path -ErrorAction SilentlyContinue
+    if (-not $resolvedPath) {
         Write-Error "Item not found: $Path"
         return
     }
 
-    $item = Get-Item -Path $Path
-    $parentPath = if ($item.PSIsContainer) { $item.Parent.FullName } else { $item.DirectoryName }
+    $fullPath = $resolvedPath.ProviderPath
+    $item = Get-Item -LiteralPath $fullPath
+    $parentPath = if ($item.PSIsContainer) {
+        if ($item.Parent) { $item.Parent.FullName } else { Split-Path -Path $item.FullName -Parent }
+    } else {
+        $item.DirectoryName
+    }
+
+    if ([string]::IsNullOrWhiteSpace($parentPath)) {
+        Write-Error "Cannot move root path to Recycle Bin: $fullPath"
+        return
+    }
+
     $shell = New-Object -ComObject 'Shell.Application'
-    $shellItem = $shell.NameSpace($parentPath).ParseName($item.Name)
+    $shellFolder = $shell.NameSpace($parentPath)
+    $shellItem = if ($shellFolder) { $shellFolder.ParseName($item.Name) } else { $null }
 
     if ($shellItem) {
         $shellItem.InvokeVerb('delete')
     } else {
-        Write-Error "Could not move item to Recycle Bin: $Path"
+        Write-Error "Could not move item to Recycle Bin: $fullPath"
     }
 }
 

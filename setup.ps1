@@ -1,6 +1,16 @@
 $profileSourceUri = 'https://github.com/ChrisTitusTech/powershell-profile/raw/main/Microsoft.PowerShell_profile.ps1'
 $themeSourceUri = 'https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/cobalt2.omp.json'
 
+function Enable-Tls12 {
+    try {
+        [Net.ServicePointManager]::SecurityProtocol = [Net.ServicePointManager]::SecurityProtocol -bor [Net.SecurityProtocolType]::Tls12
+    } catch {
+        Write-Verbose "Unable to enable TLS 1.2 explicitly: $_"
+    }
+}
+
+Enable-Tls12
+
 function Test-IsAdministrator {
     $identity = [Security.Principal.WindowsIdentity]::GetCurrent()
     $principal = [Security.Principal.WindowsPrincipal]$identity
