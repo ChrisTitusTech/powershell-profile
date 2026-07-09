@@ -1,28 +1,59 @@
-# 🎨 Pretty PowerShell
+# PowerShell Profile
 
-A clean, modern PowerShell profile designed to make Windows terminals feel fast, polished, and closer to a modern Linux shell experience.
+A modern Windows PowerShell profile with quality-of-life aliases, Oh My Posh support, Terminal-Icons, zoxide navigation, and helper functions for common shell tasks.
 
-## ⚡ Install
+## Install
 
-Run the following command in a PowerShell window:
+Run the installer from an elevated PowerShell session:
 
 ```powershell
-irm https://github.com/ChrisTitusTech/powershell-profile/raw/main/setup.ps1 | iex
+irm "https://github.com/ChrisTitusTech/powershell-profile/raw/main/setup.ps1" | iex
 ```
 
-## After you run the installer
-- Reopen Windows Terminal
-- Go to Settings
-- Select your PowerShell profile
-- Go to Appearance
-- Set Font face to `JetBrainsMono Nerd Font`
-- Click Save
+The installer:
 
-## ⭐ Support the Project
+- Backs up an existing profile with a timestamped `oldprofile-*.ps1` file.
+- Installs this repository's `Microsoft.PowerShell_profile.ps1`.
+- Installs Oh My Posh, zoxide, Terminal-Icons, and the CaskaydiaCove Nerd Font.
+- Downloads the `cobalt2.omp.json` theme into your PowerShell profile directory.
 
-If you find this project useful:
+The profile itself does not install packages, download themes, or upgrade PowerShell during shell startup. Missing optional tools are skipped with a warning.
 
-- Leave a star on GitHub
-- Share it with others
-- Consider sponsoring development:  
-  https://github.com/sponsors/ChrisTitusTech
+## Customize
+
+Do not edit `Microsoft.PowerShell_profile.ps1` directly; it is updated from this repository.
+
+Put personal customizations in your all-hosts profile:
+
+```powershell
+Edit-Profile
+```
+
+You can also place `CTTcustom.ps1` beside `Microsoft.PowerShell_profile.ps1`. It is loaded before this profile reads override variables and functions.
+
+## Supported Overrides
+
+Variables:
+
+```powershell
+$EDITOR_Override
+$debug_Override
+$repo_root_Override
+$show_help_Override
+$timeFilePath_Override
+$updateInterval_Override
+```
+
+Functions:
+
+```powershell
+Debug-Message_Override
+Update-Profile_Override
+Update-PowerShell_Override
+Clear-Cache_Override
+Get-Theme_Override
+WinUtilDev_Override
+Set-PredictionSource_Override
+```
+
+Avoid calling the original function from its override, otherwise the override will recurse.
