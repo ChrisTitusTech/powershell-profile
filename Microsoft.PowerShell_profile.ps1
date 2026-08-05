@@ -289,8 +289,12 @@ function Resolve-Editor {
 Initialize-OptionalModule
 
 $isAdmin = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
+
+if (Get-Alias vim -ErrorAction SilentlyContinue) {
+    Remove-Alias -Name vim
+}
 $EDITOR = Resolve-Editor
-if ($EDITOR -ne "vim") {
+if (-not (Get-Command -Name vim -CommandType Application -ErrorAction SilentlyContinue)) {
     Set-Alias -Name vim -Value $EDITOR -Force
 }
 
