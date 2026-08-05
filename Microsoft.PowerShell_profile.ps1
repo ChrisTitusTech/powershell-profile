@@ -290,7 +290,9 @@ Initialize-OptionalModule
 
 $isAdmin = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
 $EDITOR = Resolve-Editor
-Set-Alias -Name vim -Value $EDITOR -Force
+if ($EDITOR -ne "vim") {
+    Set-Alias -Name vim -Value $EDITOR -Force
+}
 
 if ($isInteractiveShell) {
     try {
