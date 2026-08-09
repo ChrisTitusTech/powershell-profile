@@ -353,6 +353,37 @@ function winutildev {
     & ([ScriptBlock]::Create((Invoke-RestMethod -Uri 'https://christitus.com/windev'))) @args
 }
 
+function windev {
+    $winutilRepo = Join-Path ([Environment]::GetFolderPath('UserProfile')) 'github\winutil'
+    $compileScript = Join-Path $winutilRepo 'Compile.ps1'
+    $compiledScript = Join-Path $winutilRepo 'winutil.ps1'
+
+    if (-not (Test-Path -LiteralPath $compileScript -PathType Leaf)) {
+        throw "WinUtil's Compile.ps1 was not found at '$compileScript'."
+    }
+
+    Push-Location -LiteralPath $winutilRepo
+    try {
+        & $compileScript
+        if (-not $?) {
+            throw 'WinUtil compilation failed.'
+        }
+    } finally {
+        Pop-Location
+    }
+
+    if (-not (Test-Path -LiteralPath $compiledScript -PathType Leaf)) {
+        throw "WinUtil compilation did not create '$compiledScript'."
+    }
+
+    $shell = if (Test-Command pwsh) { 'pwsh.exe' } else { 'powershell.exe' }
+    Start-Process -FilePath $shell -WorkingDirectory $winutilRepo -ArgumentList @(
+        '-NoProfile',
+        '-ExecutionPolicy', 'Bypass',
+        '-File', $compiledScript
+    )
+}
+
 function admin {
     $cwd = (Get-Location).ProviderPath
     $shell = if (Test-Command pwsh) { 'pwsh.exe' } else { 'powershell.exe' }
@@ -741,6 +772,7 @@ Shortcuts:
   unzip <file>      Extract a zip file here.
   uptime            Show system uptime.
   which <name>      Show command path.
+  windev            Compile and run the local WinUtil checkout.
   winutil           Run the latest WinUtil release script.
   winutildev        Run the latest WinUtil prerelease script.
 '@ | Write-Host

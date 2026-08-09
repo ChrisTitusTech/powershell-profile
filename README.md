@@ -27,7 +27,7 @@ After installing, restart Windows Terminal and set your PowerShell font to `Cask
 - Optional `Terminal-Icons`, `oh-my-posh`, and `zoxide` startup.
 - Git shortcuts: `gs`, `ga`, `gcom`, `gp`, `gpull`, `gcl`, `lazyg`.
 - File helpers: `touch`, `mkcd`, `trash`, `ff`, `head`, `sed`, `which`.
-- Process/system helpers: `pgrep`, `pkill`, `k9`, `uptime`, `winutil`, `winutildev`.
+- Process/system helpers: `pgrep`, `pkill`, `k9`, `uptime`, `windev`, `winutil`, `winutildev`.
 - Navigation/listing helpers: `g`, `docs`, `la`, `ll`.
 
 Run `Show-Help` in PowerShell to see the full command list.
