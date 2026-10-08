@@ -567,6 +567,67 @@ function lazyg {
     git push
 }
 
+function Test-GitStashRef {
+    param([string]$Name)
+    $Name -match '^(stash@\{\d+\}|\d+)$'
+}
+
+function Invoke-GitStashPush {
+    param([string[]]$Options, [string[]]$Words)
+
+    # Names like n or stash@{n} would be taken as stash references by gstp, gstaa, gstd and gsts.
+    $name = $Words -join ' '
+    if (Test-GitStashRef $name) {
+        Write-Error "Stash name looks like a stash reference, choose another: $name"
+        return
+    }
+
+    git stash push @Options @(if ($name) { '-m', $name })
+}
+
+function gsta { Invoke-GitStashPush @() $args }
+function gstu { Invoke-GitStashPush '--include-untracked' $args }
+function gstall { Invoke-GitStashPush '--all' $args }
+function gstl { git stash list @args }
+
+function Invoke-GitStash {
+    param([string[]]$Command, [string[]]$Words)
+
+    if (-not $Words) {
+        git stash @Command
+        return
+    }
+
+    # stash@{n} and n are passed to git unchanged; anything else is a stash name.
+    $name = $Words -join ' '
+    if (Test-GitStashRef $name) {
+        git stash @Command $name
+        return
+    }
+
+    $stashes = git stash list --format='%gd%x09%gs'
+    if ($LASTEXITCODE -ne 0) {
+        return
+    }
+
+    # Named stashes are listed as "On <branch>: <name>"; branch names cannot contain ':'.
+    $match = $stashes |
+        Where-Object { ($_ -split "`t", 2)[1] -match '^On [^:]+: (.*)$' -and $Matches[1] -ceq $name } |
+        Select-Object -First 1
+
+    if (-not $match) {
+        Write-Error "No stash named: $name"
+        return
+    }
+
+    git stash @Command ($match -split "`t", 2)[0]
+}
+
+function gstp { Invoke-GitStash pop $args }
+function gstaa { Invoke-GitStash apply $args }
+function gstd { Invoke-GitStash drop $args }
+function gsts { Invoke-GitStash @('show', '--patch') $args }
+
 function sysinfo { Get-ComputerInfo }
 
 function flushdns {
@@ -751,7 +812,18 @@ Git:
   gp/gpush          git push
   gpull             git pull
   gs                git status
+  gsta [name]       git stash push [-m <name>]
+  gstaa [stash]     git stash apply [<stash>]
+  gstall [name]     git stash push -a [-m <name>]
+  gstd [stash]      git stash drop [<stash>]
+  gstl              git stash list
+  gstp [stash]      git stash pop [<stash>]
+  gsts [stash]      git stash show -p [<stash>]
+  gstu [name]       git stash push -u [-m <name>]
   lazyg <message>   git add .; git commit -m <message>; git push
+
+  <stash> is stash@{n}, n, or a name given to gsta/gstu/gstall (newest match).
+  Names that look like stash@{n} or n are rejected when saving.
 
 Shortcuts:
   cpy <text>        Copy text to the clipboard.
