@@ -74,6 +74,7 @@ $profileDir = Get-ProfileDir
 $timeFilePath = if ($timeFilePath_Override) { $timeFilePath_Override } else { Join-Path $profileDir 'LastExecutionTime.txt' }
 $updateInterval = if ($null -ne $updateInterval_Override) { [int]$updateInterval_Override } else { 7 }
 $showHelpOnLaunch = if ($null -ne $show_help_Override) { [bool]$show_help_Override } else { $false }
+$hideHelpHint = if ($null -ne $hide_help_hint_Override) { [bool]$hide_help_hint_Override } else { $false }
 
 function Debug-Message {
     if (Get-Command -Name 'Debug-Message_Override' -ErrorAction SilentlyContinue) {
@@ -787,6 +788,6 @@ Invoke-ScheduledProfileUpdate
 
 if ($showHelpOnLaunch) {
     Show-Help
-} elseif ($isInteractiveShell) {
+} elseif ($isInteractiveShell -and -not $hideHelpHint) {
     Write-Host "Use 'Show-Help' to display help" -ForegroundColor Yellow
 }
