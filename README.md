@@ -61,6 +61,7 @@ Variables:
 ```powershell
 $EDITOR_Override
 $debug_Override
+$hide_help_hint_Override
 $repo_root_Override
 $show_help_Override
 $timeFilePath_Override
